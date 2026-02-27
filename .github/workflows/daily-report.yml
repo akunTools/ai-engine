@@ -1,0 +1,41 @@
+name: Daily Report
+
+on:
+  # Setiap hari jam 06:00 UTC (13:00 WIB)
+  schedule:
+    - cron: '0 6 * * *'
+  # Bisa juga dijalankan manual untuk test
+  workflow_dispatch:
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout ai-engine
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Generate laporan harian
+        env:
+          BRAIN_PAT:  \${{ secrets.BRAIN_PAT }}
+          BRAIN_REPO: akunTools/ai-brain
+        run: python scripts/reporter.py
+
+      - name: Kirim email laporan harian
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: \${{ secrets.GMAIL_USERNAME }}
+          password: \${{ secrets.GMAIL_APP_PASSWORD }}
+          subject: '[AI Engine] Daily Report'
+          to: \${{ secrets.NOTIFICATION_EMAIL }}
+          from: AI Engine <\${{ secrets.GMAIL_USERNAME }}>
+          body: file:///tmp/daily_report.txt
