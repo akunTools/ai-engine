@@ -1,0 +1,26 @@
+name: Generate Sitemap
+
+on:
+  # Hanya manual — biasanya dipanggil dari workflow lain
+  workflow_dispatch:
+
+jobs:
+  sitemap:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout ai-engine
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Generate dan publish sitemap
+        env:
+          GITHUB_TOKEN:  \${{ secrets.GITHUB_TOKEN }}
+          ENGINE_REPO:   \${{ github.repository }}
+          SITE_BASE_URL: https://saas.blogtrick.eu.org
+        run: python scripts/sitemap_gen.py
