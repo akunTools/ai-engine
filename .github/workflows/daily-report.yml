@@ -37,5 +37,5 @@ jobs:
           password: ${{ secrets.BREVO_PASSWORD }}
           subject: '[AI Engine] Daily Report'
           to: ${{ secrets.NOTIFICATION_EMAIL }}
-          from: AI Engine <${{ secrets.BREVO_USERNAME }}>
+          from: AI Engine <${{ secrets.GMAIL_USERNAME }}>
           body: file:///tmp/daily_report.txt
