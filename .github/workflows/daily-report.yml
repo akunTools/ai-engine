@@ -32,7 +32,7 @@ jobs:
         with:
           server_address: smtp.gmail.com
           server_port: 587
-          secure: true
+          secure: false
           username: \${{ secrets.GMAIL_USERNAME }}
           password: \${{ secrets.GMAIL_APP_PASSWORD }}
           subject: '[AI Engine] Daily Report'
