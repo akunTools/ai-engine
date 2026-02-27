@@ -30,12 +30,12 @@ jobs:
       - name: Kirim email laporan harian
         uses: dawidd6/action-send-mail@v4
         with:
-          server_address: smtp.gmail.com
+          server_address: smtp-relay.brevo.com
           server_port: 587
           secure: false
-          username: \${{ secrets.GMAIL_USERNAME }}
-          password: \${{ secrets.GMAIL_APP_PASSWORD }}
+          username: ${{ secrets.BREVO_USERNAME }}
+          password: ${{ secrets.BREVO_PASSWORD }}
           subject: '[AI Engine] Daily Report'
-          to: \${{ secrets.NOTIFICATION_EMAIL }}
-          from: AI Engine <\${{ secrets.GMAIL_USERNAME }}>
+          to: ${{ secrets.NOTIFICATION_EMAIL }}
+          from: AI Engine <${{ secrets.BREVO_USERNAME }}>
           body: file:///tmp/daily_report.txt
