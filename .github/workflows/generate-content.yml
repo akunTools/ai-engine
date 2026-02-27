@@ -1,0 +1,209 @@
+name: Generate Content
+
+on:
+  # Trigger manual dari GitHub UI untuk testing
+  workflow_dispatch:
+    inputs:
+      task_type:
+        description: 'Jenis konten yang akan di-generate'
+        required: true
+        default: 'article'
+        type: choice
+        options:
+          - article
+          - calculator_tool
+      topic_id:
+        description: 'ID topik spesifik (kosongkan untuk ambil dari queue)'
+        required: false
+        type: string
+
+  # Trigger dari webhook via repository_dispatch
+  # Dikirim oleh Cloudflare Worker saat Anda kirim command trigger_now
+  repository_dispatch:
+    types: [run-task]
+
+  # Jadwal cron otomatis
+  # CATATAN: Kedua cron menggunakan jam berbeda dan job terpisah
+  # agar tidak ada konflik saat tanggal 1 dan 15 (yang juga genap)
+  schedule:
+    # Artikel: setiap 2 hari jam 02:00 UTC (09:00 WIB)
+    # Khusus tanggal 1 dan 15, cron ini tetap berjalan tapi
+    # job generate-article akan skip jika hari itu adalah jadwal tools
+    - cron: '0 2 */2 * *'
+    # Tools: tanggal 1 dan 15 setiap bulan jam 06:00 UTC
+    # Jam berbeda dari artikel untuk menghindari konflik
+    - cron: '0 6 1,15 * *'
+
+jobs:
+  # Job 1: Generate artikel (dipicu cron artikel, webhook, atau manual)
+  generate-article:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # Hanya berjalan jika:
+    # - Dipicu oleh cron artikel (bukan cron tanggal 1/15)
+    # - Dipicu oleh webhook atau manual dengan task_type article
+    if: |
+      (github.event_name == 'schedule' && github.event.schedule == '0 2 */2 * *') ||
+      (github.event_name == 'repository_dispatch' && github.event.client_payload.task_type == 'article') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.task_type == 'article')
+
+    steps:
+      - name: Checkout ai-engine
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Set task type artikel
+        run: |
+          echo "TASK_TYPE=article" >> \$GITHUB_ENV
+          echo "TOPIC_ID=\${{ github.event.inputs.topic_id || github.event.client_payload.topic_id_override || '' }}" >> \$GITHUB_ENV
+
+      - name: Jalankan Pipeline
+        env:
+          BRAIN_PAT:     \${{ secrets.BRAIN_PAT }}
+          CF_ACCOUNT_ID: \${{ secrets.CF_ACCOUNT_ID }}
+          CF_API_TOKEN:  \${{ secrets.CF_API_TOKEN }}
+          GITHUB_TOKEN:  \${{ secrets.GITHUB_TOKEN }}
+          ENGINE_REPO:   \${{ github.repository }}
+          BRAIN_REPO:    akunTools/ai-brain
+        run: python scripts/run_pipeline.py
+
+      - name: Kirim email notifikasi gagal
+        if: failure()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: \${{ secrets.GMAIL_USERNAME }}
+          password: \${{ secrets.GMAIL_APP_PASSWORD }}
+          subject: '[AI Engine] Pipeline Failed — article'
+          to: \${{ secrets.NOTIFICATION_EMAIL }}
+          from: AI Engine <\${{ secrets.GMAIL_USERNAME }}>
+          body: |
+            Pipeline failed.
+
+            Task type : article
+            Run ID    : \${{ github.run_id }}
+
+            Check Actions tab for details:
+            https://github.com/\${{ github.repository }}/actions/runs/\${{ github.run_id }}
+
+      - name: Kirim email notifikasi queue kosong
+        if: success() && hashFiles('/tmp/queue_empty.flag') != ''
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: \${{ secrets.GMAIL_USERNAME }}
+          password: \${{ secrets.GMAIL_APP_PASSWORD }}
+          subject: '[AI Engine] Queue Empty — Action Required'
+          to: \${{ secrets.NOTIFICATION_EMAIL }}
+          from: AI Engine <\${{ secrets.GMAIL_USERNAME }}>
+          body: |
+            The topic queue is now empty.
+
+            No more content will be generated until you
+            add new topics via webhook command add_topic.
+
+            Add topics now:
+            https://engine.blogtrick.eu.org/api
+
+      - name: Update sitemap setelah publish berhasil
+        if: success() && hashFiles('/tmp/queue_empty.flag') == ''
+        env:
+          GITHUB_TOKEN:  \${{ secrets.GITHUB_TOKEN }}
+          ENGINE_REPO:   \${{ github.repository }}
+          SITE_BASE_URL: https://saas.blogtrick.eu.org
+        run: python scripts/sitemap_gen.py
+
+  # Job 2: Generate tools kalkulator (dipicu cron tanggal 1&15, webhook, atau manual)
+  generate-tool:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # Hanya berjalan jika:
+    # - Dipicu oleh cron tools (tanggal 1 dan 15)
+    # - Dipicu oleh webhook atau manual dengan task_type calculator_tool
+    if: |
+      (github.event_name == 'schedule' && github.event.schedule == '0 6 1,15 * *') ||
+      (github.event_name == 'repository_dispatch' && github.event.client_payload.task_type == 'calculator_tool') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.task_type == 'calculator_tool')
+
+    steps:
+      - name: Checkout ai-engine
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Set task type tools
+        run: |
+          echo "TASK_TYPE=calculator_tool" >> \$GITHUB_ENV
+          echo "TOPIC_ID=\${{ github.event.inputs.topic_id || github.event.client_payload.topic_id_override || '' }}" >> \$GITHUB_ENV
+
+      - name: Jalankan Pipeline
+        env:
+          BRAIN_PAT:     \${{ secrets.BRAIN_PAT }}
+          CF_ACCOUNT_ID: \${{ secrets.CF_ACCOUNT_ID }}
+          CF_API_TOKEN:  \${{ secrets.CF_API_TOKEN }}
+          GITHUB_TOKEN:  \${{ secrets.GITHUB_TOKEN }}
+          ENGINE_REPO:   \${{ github.repository }}
+          BRAIN_REPO:    akunTools/ai-brain
+        run: python scripts/run_pipeline.py
+
+      - name: Kirim email notifikasi gagal
+        if: failure()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: \${{ secrets.GMAIL_USERNAME }}
+          password: \${{ secrets.GMAIL_APP_PASSWORD }}
+          subject: '[AI Engine] Pipeline Failed — calculator_tool'
+          to: \${{ secrets.NOTIFICATION_EMAIL }}
+          from: AI Engine <\${{ secrets.GMAIL_USERNAME }}>
+          body: |
+            Pipeline failed.
+
+            Task type : calculator_tool
+            Run ID    : \${{ github.run_id }}
+
+            Check Actions tab for details:
+            https://github.com/\${{ github.repository }}/actions/runs/\${{ github.run_id }}
+
+      - name: Kirim email notifikasi queue kosong
+        if: success() && hashFiles('/tmp/queue_empty.flag') != ''
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: \${{ secrets.GMAIL_USERNAME }}
+          password: \${{ secrets.GMAIL_APP_PASSWORD }}
+          subject: '[AI Engine] Tool Queue Empty — Action Required'
+          to: \${{ secrets.NOTIFICATION_EMAIL }}
+          from: AI Engine <\${{ secrets.GMAIL_USERNAME }}>
+          body: |
+            The calculator tool queue is now empty.
+
+            No more tools will be generated until you
+            add new topics via webhook command add_topic
+            with task_type: calculator_tool.
+
+            Add topics now:
+            https://engine.blogtrick.eu.org/api
+
+      - name: Update sitemap setelah publish berhasil
+        if: success() && hashFiles('/tmp/queue_empty.flag') == ''
+        env:
+          GITHUB_TOKEN:  \${{ secrets.GITHUB_TOKEN }}
+          ENGINE_REPO:   \${{ github.repository }}
+          SITE_BASE_URL: https://saas.blogtrick.eu.org
+        run: python scripts/sitemap_gen.py
