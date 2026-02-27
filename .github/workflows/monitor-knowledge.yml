@@ -1,0 +1,54 @@
+name: Monitor Knowledge Sources
+
+on:
+  # Setiap Senin jam 04:00 UTC (11:00 WIB)
+  schedule:
+    - cron: '0 4 * * 1'
+  # Bisa dijalankan manual untuk test
+  workflow_dispatch:
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout ai-engine
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Jalankan monitor
+        env:
+          BRAIN_PAT:  \${{ secrets.BRAIN_PAT }}
+          BRAIN_REPO: akunTools/ai-brain
+        run: python scripts/monitor.py
+
+      - name: Kirim email jika ada perubahan terdeteksi
+        if: hashFiles('/tmp/changes_detected.json') != ''
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: \${{ secrets.GMAIL_USERNAME }}
+          password: \${{ secrets.GMAIL_APP_PASSWORD }}
+          subject: '[AI Engine] Knowledge Change Detected'
+          to: \${{ secrets.NOTIFICATION_EMAIL }}
+          from: AI Engine <\${{ secrets.GMAIL_USERNAME }}>
+          body: |
+            Changes detected in one or more monitored pages.
+
+            NEXT STEPS:
+            1. Open ai-brain repo on GitHub
+            2. Go to folder: pending_updates/
+            3. Open the file dated today
+            4. Review what changed
+            5. If data is important, update knowledge base
+               via webhook command: update_knowledge
+
+            View pending updates:
+            https://github.com/akunTools/ai-brain/tree/main/pending_updates
