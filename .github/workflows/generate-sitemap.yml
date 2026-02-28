@@ -19,7 +19,7 @@ jobs:
 
       - name: Generate dan publish sitemap
         env:
-          GITHUB_TOKEN:  \${{ secrets.GITHUB_TOKEN }}
-          ENGINE_REPO:   \${{ github.repository }}
+          GITHUB_TOKEN:  ${{ secrets.GITHUB_TOKEN }}
+          ENGINE_REPO:   ${{ github.repository }}
           SITE_BASE_URL: https://saas.blogtrick.eu.org
         run: python scripts/sitemap_gen.py
