@@ -38,7 +38,7 @@ def call_ai(messages: list, max_tokens: int = 1024) -> str:
         method="POST"
     )
     try:
-        with urllib.request.urlopen(req) as r:
+        with urllib.request.urlopen(req, timeout=60) as r:
             data = json.loads(r.read())
     except urllib.error.HTTPError as e:
         body = e.read().decode()
