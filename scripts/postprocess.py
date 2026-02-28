@@ -62,6 +62,11 @@ def format_article(content: str, topic_info: dict) -> tuple:
     content = content.replace("{{DATE}}", date_str)
     content = content.replace("{{SLUG}}", slug)
     content = content.replace("{{WORD_COUNT}}", str(word_count))
+    
+    # Override apapun yang AI isi di frontmatter — paksa nilai yang benar
+    import re
+    content = re.sub(r'date: "[^"]*"', f'date: "{date_str}"', content)
+    content = re.sub(r'word_count: \S+', f'word_count: {word_count}', content)
 
     return content, filename
 
