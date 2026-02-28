@@ -5,6 +5,7 @@ Model: @cf/meta/llama-3.1-8b-instruct
 """
 import os
 import json
+import time
 import urllib.request
 import urllib.error
 
@@ -12,12 +13,16 @@ CF_ACCOUNT_ID = os.environ["CF_ACCOUNT_ID"]
 CF_API_TOKEN  = os.environ["CF_API_TOKEN"]
 MODEL = "@cf/meta/llama-3.1-8b-instruct"
 
+MAX_RETRIES = 3
+RETRY_DELAY = 10  # detik antar retry
+
 
 def call_ai(messages: list, max_tokens: int = 1024) -> str:
     """
     Kirim messages ke Cloudflare Workers AI.
+    Retry otomatis hingga MAX_RETRIES kali jika timeout.
     Return: teks hasil generate sebagai string.
-    Raise Exception jika gagal.
+    Raise Exception jika semua retry gagal.
     """
     url = (
         f"https://api.cloudflare.com/client/v4/accounts/"
@@ -28,29 +33,46 @@ def call_ai(messages: list, max_tokens: int = 1024) -> str:
         "max_tokens": max_tokens,
         "stream": False
     }
-    req = urllib.request.Request(
-        url,
-        data=json.dumps(payload).encode("utf-8"),
-        headers={
-            "Authorization": f"Bearer {CF_API_TOKEN}",
-            "Content-Type": "application/json"
-        },
-        method="POST"
-    )
-    try:
-        with urllib.request.urlopen(req, timeout=60) as r:
-            data = json.loads(r.read())
-    except urllib.error.HTTPError as e:
-        body = e.read().decode()
-        raise Exception(f"CF AI HTTP error {e.code}: {body}")
 
-    if not data.get("success"):
-        raise Exception(f"CF AI error: {data.get('errors')}")
+    last_error = None
+    for attempt in range(1, MAX_RETRIES + 1):
+        if attempt > 1:
+            print(f"Retry attempt {attempt}/{MAX_RETRIES} "
+                  f"(waiting {RETRY_DELAY}s)...")
+            time.sleep(RETRY_DELAY)
 
-    result = data.get("result", {}).get("response", "").strip()
-    if not result:
-        raise Exception("CF AI returned empty response")
-    return result
+        req = urllib.request.Request(
+            url,
+            data=json.dumps(payload).encode("utf-8"),
+            headers={
+                "Authorization": f"Bearer {CF_API_TOKEN}",
+                "Content-Type": "application/json"
+            },
+            method="POST"
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=90) as r:
+                data = json.loads(r.read())
+
+            if not data.get("success"):
+                raise Exception(f"CF AI error: {data.get('errors')}")
+
+            result = data.get("result", {}).get("response", "").strip()
+            if not result:
+                raise Exception("CF AI returned empty response")
+
+            return result
+
+        except urllib.error.HTTPError as e:
+            body = e.read().decode()
+            last_error = Exception(f"CF AI HTTP error {e.code}: {body}")
+            print(f"Attempt {attempt} failed: HTTP {e.code}")
+
+        except Exception as e:
+            last_error = e
+            print(f"Attempt {attempt} failed: {e}")
+
+    raise last_error
 
 
 def build_messages(task_config: dict, topic_info: dict,
@@ -60,8 +82,10 @@ def build_messages(task_config: dict, topic_info: dict,
     Bangun daftar messages untuk dikirim ke AI.
     Return: list dict messages dalam format chat.
     """
-    rules_text = "\n\n".join(rules)
-    # Batasi knowledge agar tidak melebihi context window
+    # Batasi rules agar tidak membebani context window model kecil
+    rules_text = "\n\n".join(rules)[:1500]
+
+    # Batasi setiap knowledge file dan total knowledge
     knowledge_text = "\n\n---\n\n".join([k[:800] for k in knowledge])
 
     # Ambil directives jika ada
