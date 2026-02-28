@@ -45,16 +45,16 @@ jobs:
 
       - name: Set task type artikel
         run: |
-          echo "TASK_TYPE=article" >> \$GITHUB_ENV
-          echo "TOPIC_ID=\${{ github.event.inputs.topic_id || github.event.client_payload.topic_id_override || '' }}" >> \$GITHUB_ENV
+          echo "TASK_TYPE=article" >> $GITHUB_ENV
+          echo "TOPIC_ID=${{ github.event.inputs.topic_id || github.event.client_payload.topic_id_override || '' }}" >> $GITHUB_ENV
 
       - name: Jalankan Pipeline
         env:
-          BRAIN_PAT:     \${{ secrets.BRAIN_PAT }}
-          CF_ACCOUNT_ID: \${{ secrets.CF_ACCOUNT_ID }}
-          CF_API_TOKEN:  \${{ secrets.CF_API_TOKEN }}
-          GITHUB_TOKEN:  \${{ secrets.GITHUB_TOKEN }}
-          ENGINE_REPO:   \${{ github.repository }}
+          BRAIN_PAT:     ${{ secrets.BRAIN_PAT }}
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          CF_API_TOKEN:  ${{ secrets.CF_API_TOKEN }}
+          GITHUB_TOKEN:  ${{ secrets.GITHUB_TOKEN }}
+          ENGINE_REPO:   ${{ github.repository }}
           BRAIN_REPO:    akunTools/ai-brain
         run: python scripts/run_pipeline.py
 
@@ -65,19 +65,19 @@ jobs:
           server_address: smtp-relay.brevo.com
           server_port: 587
           secure: false
-          username: \${{ secrets.BREVO_USERNAME }}
-          password: \${{ secrets.BREVO_PASSWORD }}
+          username: ${{ secrets.BREVO_USERNAME }}
+          password: ${{ secrets.BREVO_PASSWORD }}
           subject: '[AI Engine] Pipeline Failed — article'
-          to: \${{ secrets.NOTIFICATION_EMAIL }}
-          from: AI Engine <\${{ secrets.GMAIL_USERNAME }}>
+          to: ${{ secrets.NOTIFICATION_EMAIL }}
+          from: AI Engine <${{ secrets.GMAIL_USERNAME }}>
           body: |
             Pipeline failed.
 
             Task type : article
-            Run ID    : \${{ github.run_id }}
+            Run ID    : ${{ github.run_id }}
 
             Check Actions tab for details:
-            https://github.com/\${{ github.repository }}/actions/runs/\${{ github.run_id }}
+            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
       - name: Kirim email notifikasi queue kosong
         if: success() && hashFiles('/tmp/queue_empty.flag') != ''
@@ -86,11 +86,11 @@ jobs:
           server_address: smtp-relay.brevo.com
           server_port: 587
           secure: false
-          username: \${{ secrets.BREVO_USERNAME }}
-          password: \${{ secrets.BREVO_PASSWORD }}
+          username: ${{ secrets.BREVO_USERNAME }}
+          password: ${{ secrets.BREVO_PASSWORD }}
           subject: '[AI Engine] Queue Empty — Action Required'
-          to: \${{ secrets.NOTIFICATION_EMAIL }}
-          from: AI Engine <\${{ secrets.GMAIL_USERNAME }}>
+          to: ${{ secrets.NOTIFICATION_EMAIL }}
+          from: AI Engine <${{ secrets.GMAIL_USERNAME }}>
           body: |
             The topic queue is now empty.
             Add new topics via webhook command add_topic.
@@ -98,8 +98,8 @@ jobs:
       - name: Update sitemap setelah publish berhasil
         if: success() && hashFiles('/tmp/queue_empty.flag') == ''
         env:
-          GITHUB_TOKEN:  \${{ secrets.GITHUB_TOKEN }}
-          ENGINE_REPO:   \${{ github.repository }}
+          GITHUB_TOKEN:  ${{ secrets.GITHUB_TOKEN }}
+          ENGINE_REPO:   ${{ github.repository }}
           SITE_BASE_URL: https://saas.blogtrick.eu.org
         run: python scripts/sitemap_gen.py
 
@@ -122,16 +122,16 @@ jobs:
 
       - name: Set task type tools
         run: |
-          echo "TASK_TYPE=calculator_tool" >> \$GITHUB_ENV
-          echo "TOPIC_ID=\${{ github.event.inputs.topic_id || github.event.client_payload.topic_id_override || '' }}" >> \$GITHUB_ENV
+          echo "TASK_TYPE=calculator_tool" >> $GITHUB_ENV
+          echo "TOPIC_ID=${{ github.event.inputs.topic_id || github.event.client_payload.topic_id_override || '' }}" >> $GITHUB_ENV
 
       - name: Jalankan Pipeline
         env:
-          BRAIN_PAT:     \${{ secrets.BRAIN_PAT }}
-          CF_ACCOUNT_ID: \${{ secrets.CF_ACCOUNT_ID }}
-          CF_API_TOKEN:  \${{ secrets.CF_API_TOKEN }}
-          GITHUB_TOKEN:  \${{ secrets.GITHUB_TOKEN }}
-          ENGINE_REPO:   \${{ github.repository }}
+          BRAIN_PAT:     ${{ secrets.BRAIN_PAT }}
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          CF_API_TOKEN:  ${{ secrets.CF_API_TOKEN }}
+          GITHUB_TOKEN:  ${{ secrets.GITHUB_TOKEN }}
+          ENGINE_REPO:   ${{ github.repository }}
           BRAIN_REPO:    akunTools/ai-brain
         run: python scripts/run_pipeline.py
 
@@ -142,19 +142,19 @@ jobs:
           server_address: smtp-relay.brevo.com
           server_port: 587
           secure: false
-          username: \${{ secrets.BREVO_USERNAME }}
-          password: \${{ secrets.BREVO_PASSWORD }}
+          username: ${{ secrets.BREVO_USERNAME }}
+          password: ${{ secrets.BREVO_PASSWORD }}
           subject: '[AI Engine] Pipeline Failed — calculator_tool'
-          to: \${{ secrets.NOTIFICATION_EMAIL }}
-          from: AI Engine <\${{ secrets.GMAIL_USERNAME }}>
+          to: ${{ secrets.NOTIFICATION_EMAIL }}
+          from: AI Engine <${{ secrets.GMAIL_USERNAME }}>
           body: |
             Pipeline failed.
 
             Task type : calculator_tool
-            Run ID    : \${{ github.run_id }}
+            Run ID    : ${{ github.run_id }}
 
             Check Actions tab for details:
-            https://github.com/\${{ github.repository }}/actions/runs/\${{ github.run_id }}
+            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
       - name: Kirim email notifikasi queue kosong
         if: success() && hashFiles('/tmp/queue_empty.flag') != ''
@@ -163,11 +163,11 @@ jobs:
           server_address: smtp-relay.brevo.com
           server_port: 587
           secure: false
-          username: \${{ secrets.BREVO_USERNAME }}
-          password: \${{ secrets.BREVO_PASSWORD }}
+          username: ${{ secrets.BREVO_USERNAME }}
+          password: ${{ secrets.BREVO_PASSWORD }}
           subject: '[AI Engine] Tool Queue Empty — Action Required'
-          to: \${{ secrets.NOTIFICATION_EMAIL }}
-          from: AI Engine <\${{ secrets.GMAIL_USERNAME }}>
+          to: ${{ secrets.NOTIFICATION_EMAIL }}
+          from: AI Engine <${{ secrets.GMAIL_USERNAME }}>
           body: |
             The calculator tool queue is now empty.
             Add new topics via webhook command add_topic
@@ -176,7 +176,7 @@ jobs:
       - name: Update sitemap setelah publish berhasil
         if: success() && hashFiles('/tmp/queue_empty.flag') == ''
         env:
-          GITHUB_TOKEN:  \${{ secrets.GITHUB_TOKEN }}
-          ENGINE_REPO:   \${{ github.repository }}
+          GITHUB_TOKEN:  ${{ secrets.GITHUB_TOKEN }}
+          ENGINE_REPO:   ${{ github.repository }}
           SITE_BASE_URL: https://saas.blogtrick.eu.org
         run: python scripts/sitemap_gen.py
