@@ -62,7 +62,7 @@ def build_messages(task_config: dict, topic_info: dict,
     """
     rules_text = "\n\n".join(rules)
     # Batasi knowledge agar tidak melebihi context window
-    knowledge_text = "\n\n---\n\n".join([k[:2000] for k in knowledge])
+    knowledge_text = "\n\n---\n\n".join([k[:800] for k in knowledge])
 
     # Ambil directives jika ada
     directives = topic_info.get("content_directives") or \
@@ -86,7 +86,7 @@ RELEVANT KNOWLEDGE AND DATA:
 {knowledge_text}
 
 CONTENT TEMPLATE TO FOLLOW:
-{template}
+{template[:800]}
 
 Output ONLY the final content. Do not include explanations, \
 apologies, or any text that is not part of the actual content."""
