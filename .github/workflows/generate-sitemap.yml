@@ -1,7 +1,6 @@
 name: Generate Sitemap
 
 on:
-  # Hanya manual — biasanya dipanggil dari workflow lain
   workflow_dispatch:
 
 jobs:
