@@ -21,7 +21,7 @@ jobs:
 
       - name: Jalankan monitor
         env:
-          BRAIN_PAT:  \${{ secrets.BRAIN_PAT }}
+          BRAIN_PAT:  ${{ secrets.BRAIN_PAT }}
           BRAIN_REPO: akunTools/ai-brain
         run: python scripts/monitor.py
 
@@ -32,11 +32,11 @@ jobs:
           server_address: smtp-relay.brevo.com
           server_port: 587
           secure: false
-          username: \${{ secrets.BREVO_USERNAME }}
-          password: \${{ secrets.BREVO_PASSWORD }}
+          username: ${{ secrets.BREVO_USERNAME }}
+          password: ${{ secrets.BREVO_PASSWORD }}
           subject: '[AI Engine] Knowledge Change Detected'
-          to: \${{ secrets.NOTIFICATION_EMAIL }}
-          from: AI Engine <\${{ secrets.GMAIL_USERNAME }}>
+          to: ${{ secrets.NOTIFICATION_EMAIL }}
+          from: AI Engine <${{ secrets.GMAIL_USERNAME }}>
           body: |
             Changes detected in one or more monitored pages.
 
