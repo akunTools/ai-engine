@@ -17,7 +17,7 @@ from loader import (
     fetch_file, fetch_json, get_next_pending,
     mark_topic, write_log
 )
-from ai_caller import generate
+from ai_caller import generate, generate_tool_parts
 from postprocess import (
     validate_article, format_article,
     validate_tool, format_tool
@@ -88,8 +88,15 @@ def run_article_pipeline(topic_info: dict,
 def run_tool_pipeline(topic_info: dict,
                       tasks_config: dict) -> dict:
     """
-    Jalankan pipeline lengkap untuk generate tools kalkulator.
-    Return: dict hasil dengan keys: success, issues, filename
+    Jalankan pipeline untuk generate kalkulator HTML.
+
+    Arsitektur baru:
+    1. AI generate HANYA bagian dinamis (JS + teks) sebagai JSON
+    2. format_tool() inject JSON ke template HTML
+    3. validate_tool() validasi HTML hasil assembly
+
+    Ini menghindari masalah template[:800] yang memotong HTML
+    sebelum AI melihat struktur yang dibutuhkan.
     """
     task_config = tasks_config["calculator_tool"]
     print(f"\n=== TOOL PIPELINE ===")
@@ -107,39 +114,36 @@ def run_tool_pipeline(topic_info: dict,
     formula = formulas[formula_id]
     print(f"Formula loaded: {formula_id}")
 
-    # Load rules
+    # Load rules (hanya tools_rules untuk generate tool)
     rules = []
     for rules_file in task_config["rules_files"]:
         rules.append(fetch_file(rules_file))
 
-    # Load knowledge
-    knowledge = []
-    for kn_file in task_config["knowledge_files"]:
-        knowledge.append(fetch_file(kn_file))
-
-    # Load template
+    # Load template HTML — dipakai oleh format_tool, BUKAN dikirim ke AI
     template = fetch_file(task_config["template"])
+    print("Template loaded")
 
     # Tambahkan formula ke topic_info agar AI bisa gunakan
     topic_info_with_formula = {**topic_info, "formula": formula}
 
-    # Generate dengan AI
-    content = generate(task_config, topic_info_with_formula,
-                       rules, knowledge, template)
+    # Generate bagian dinamis sebagai JSON
+    parts = generate_tool_parts(task_config, topic_info_with_formula, rules)
+    print("Tool parts generated")
 
-    # Validasi output
-    validation = validate_tool(content)
+    # Inject JSON ke template HTML
+    assembled_html, filename = format_tool(parts, template, topic_info)
+    print("Template assembled")
+
+    # Validasi HTML yang sudah di-assemble
+    validation = validate_tool(assembled_html)
     if not validation["valid"]:
         print(f"Validation FAILED: {validation['issues']}")
         return {"success": False, "issues": validation["issues"]}
 
     print("Tool validation passed")
 
-    # Format untuk publish
-    formatted_content, filename = format_tool(content, topic_info)
-
     # Publish ke branch output
-    success = publish(filename, formatted_content, "tools")
+    success = publish(filename, assembled_html, "tools")
     if success:
         return {"success": True, "filename": filename}
     else:
@@ -149,9 +153,9 @@ def run_tool_pipeline(topic_info: dict,
 def main():
     print(f"Pipeline started at {datetime.utcnow().isoformat()}")
 
-    task_type      = os.environ.get("TASK_TYPE", "article")
-    topic_id_env   = os.environ.get("TOPIC_ID", "").strip()
-    date_str       = datetime.utcnow().strftime("%Y-%m-%d")
+    task_type    = os.environ.get("TASK_TYPE", "article")
+    topic_id_env = os.environ.get("TOPIC_ID", "").strip()
+    date_str     = datetime.utcnow().strftime("%Y-%m-%d")
 
     # Load konfigurasi task
     tasks_config = fetch_json("config/tasks.json")
@@ -197,9 +201,9 @@ def main():
         # Tulis log
         log_entry = {
             "timestamp": datetime.utcnow().isoformat(),
-            "topic_id": topic_info["id"],
+            "topic_id":  topic_info["id"],
             "task_type": task_type,
-            "result": result
+            "result":    result
         }
         write_log(date_str, log_entry, new_status)
 
@@ -218,9 +222,9 @@ def main():
         mark_topic(topic_info["id"], "failed")
         write_log(date_str, {
             "timestamp": datetime.utcnow().isoformat(),
-            "topic_id": topic_info["id"],
+            "topic_id":  topic_info["id"],
             "task_type": task_type,
-            "result": {"success": False, "issues": [str(e)]}
+            "result":    {"success": False, "issues": [str(e)]}
         }, "failures")
 
         # Simpan error untuk artifact upload di workflow
