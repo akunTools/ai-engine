@@ -549,7 +549,7 @@ def format_article(content: str, topic_info: dict) -> tuple:
     date_str = datetime.utcnow().strftime("%Y-%m-%d")
     topic    = topic_info.get("topic", "untitled")
     slug     = re.sub(r'[^a-z0-9]+', '-', topic.lower()).strip('-')[:55].rstrip('-')
-    filename = f"{date_str}-{slug}.html"
+    filename = f"{slug}.html"
 
     word_count = len(content.split())
 
