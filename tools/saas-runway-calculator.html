@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SaaS Runway Calculator — SaaS Tools for Bootstrapped Founders</title>
+    <meta name="description" content="SaaS Runway Calculator: estimate your runway and prioritize reaching profitability or fundraising">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 32px 16px;
+        }
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #0f172a;
+        }
+        .subtitle {
+            color: #64748b;
+            margin-bottom: 32px;
+            font-size: 1rem;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            margin-bottom: 16px;
+        }
+        .card h2 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 16px;
+        }
+        .input-group {
+            margin-bottom: 16px;
+        }
+        label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+            color: #374151;
+        }
+        .input-wrapper {
+            position: relative;
+        }
+        .input-prefix {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            font-size: 0.95rem;
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 10px 14px 10px 28px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            color: #1e293b;
+            transition: border-color 0.2s;
+            -moz-appearance: textfield;
+        }
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+        }
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+        }
+        input.error-input {
+            border-color: #ef4444;
+        }
+        .error-msg {
+            color: #ef4444;
+            font-size: 0.8rem;
+            margin-top: 4px;
+            display: none;
+        }
+        .result-card {
+            background: #f0f9ff;
+            border: 1.5px solid #bae6fd;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 16px;
+        }
+        .result-label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #0369a1;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 4px;
+        }
+        .result-number {
+            font-size: 3rem;
+            font-weight: 800;
+            color: #0369a1;
+            line-height: 1;
+        }
+        .result-unit {
+            font-size: 1rem;
+            color: #0369a1;
+            margin-bottom: 16px;
+        }
+        .interpretation {
+            background: white;
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 0.9rem;
+            color: #374151;
+            border-left: 3px solid #6366f1;
+        }
+        .secondary-result {
+            margin-top: 12px;
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+        .formula-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        .formula-box h3 {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #64748b;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .formula-box p {
+            font-family: monospace;
+            font-size: 0.85rem;
+            color: #374151;
+            line-height: 1.8;
+        }
+        .affiliate-box {
+            border: 1px solid #d1fae5;
+            background: #f0fdf4;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            font-size: 0.9rem;
+            color: #374151;
+        }
+        .affiliate-box a {
+            color: #059669;
+            font-weight: 500;
+            text-decoration: none;
+        }
+        .affiliate-box a:hover { text-decoration: underline; }
+        .related-link {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 8px;
+        }
+        .related-link a {
+            color: #6366f1;
+            text-decoration: none;
+        }
+        .related-link a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>SaaS Runway Calculator</h1>
+        <p class="subtitle">Find out exactly how many months until you run out of money</p>
+
+        <div class="card">
+            <h2>Enter Your Numbers</h2>
+            <div class='input-group'><label for='cash_on_hand'>Cash on Hand ($)</label><input type='number' id='cash_on_hand' class='form-control' placeholder='40000'></div><div class='input-group'><label for='monthly_expenses'>Total Monthly Expenses ($)</label><input type='number' id='monthly_expenses' class='form-control' placeholder='8000'></div><div class='input-group'><label for='current_mrr'>Current MRR ($)</label><input type='number' id='current_mrr' class='form-control' placeholder='2000'></div>
+        </div>
+
+        <div class="result-card" id="result-card">
+            <div class="result-label">Result</div>
+            <div class="result-number" id="result-primary">—</div>
+            <div class="result-unit">months</div>
+            <div class="interpretation" id="interpretation">
+                Enter your numbers above to see results.
+            </div>
+            <div class="secondary-result" id="secondary-result"></div>
+        </div>
+
+        <div class='formula-box'>Calculate runway in months using cash on hand and monthly net burn: <span id='result-formula'>cashOnHand / (monthlyExpenses - currentMrr)</span></div>
+
+        <div class='affiliate-box'>Want to optimize this number? Here is how Cloudways can help with optimizing your MRR.</div>
+
+        <p class="related-link">
+            Related: <a href="/articles/art-001">Related Article</a>
+        </p>
+    </div>
+
+    <script>
+        // saas-runway-calculator Calculator
+        // Formula: // Calculate runway in months using cash on hand and monthly net burn
+
+        // Calculate runway in months using cash on hand and monthly net burn
+function calculate() {
+  var cashOnHand = parseFloat(document.getElementById('cash_on_hand').value);
+  var monthlyExpenses = parseFloat(document.getElementById('monthly_expenses').value);
+  var currentMrr = parseFloat(document.getElementById('current_mrr').value);
+  var monthlyNetBurn = monthlyExpenses - currentMrr;
+  var runwayMonths = cashOnHand / monthlyNetBurn;
+
+  // Update result display
+  document.getElementById('result-primary').textContent = runwayMonths.toFixed(1) + ' ' + 'months';
+
+  // Interpret result
+  var interpretations = [
+    {
+      condition: 'less_than_6',
+      threshold: 6,
+      message: 'Danger zone. Prioritize reaching profitability or fundraising immediately.'
+    },
+    {
+      condition: '6_to_12',
+      threshold: 12,
+      message: 'Tight. Focus on reducing burn or accelerating revenue growth.'
+    },
+    {
+      condition: '12_to_18',
+      threshold: 18,
+      message: 'Healthy. You have time to grow strategically.'
+    },
+    {
+      condition: 'above_18',
+      threshold: 999,
+      message: 'Strong position. Consider investing more aggressively in growth.'
+    }
+  ];
+
+  for (var i = 0; i < interpretations.length; i++) {
+    if (runwayMonths < interpretations[i].threshold) {
+      document.getElementById('interpretation').textContent = interpretations[i].message;
+      break;
+    }
+  }
+
+  // Handle edge cases
+  if (monthlyNetBurn <= 0) {
+    document.getElementById('interpretation').textContent = 'If MRR is equal to or greater than expenses, you are profitable. Runway is effectively unlimited.';
+  } else if (cashOnHand <= 0) {
+    document.getElementById('interpretation').textContent = 'No cash on hand. Seek emergency funding or cut costs immediately.';
+  }
+}
+
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('cash_on_hand').value = '40000'; document.getElementById('monthly_expenses').value = '8000'; document.getElementById('current_mrr').value = '2000';
+            calculate();
+        });
+
+        // Recalculate on input change
+        document.querySelectorAll('input[type="number"]').forEach(function(input) {
+            input.addEventListener('input', calculate);
+        });
+    </script>
+</body>
+</html>
