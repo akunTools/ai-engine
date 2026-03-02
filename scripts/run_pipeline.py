@@ -23,6 +23,7 @@ from postprocess import (
     validate_tool, format_tool
 )
 from publisher import publish
+import sitemap_gen
 
 
 def run_article_pipeline(topic_info: dict,
@@ -76,6 +77,24 @@ def run_article_pipeline(topic_info: dict,
     # Publish ke branch output
     success = publish(filename, formatted_content, "articles")
     if success:
+        # Update sitemap dan index pages setelah publish berhasil
+        print("Updating sitemap and index pages...")
+        try:
+            files = sitemap_gen.get_output_files()
+            sitemap_gen.publish_file(
+                "sitemap.xml",
+                sitemap_gen.build_sitemap(files),
+                "Sitemap"
+            )
+            sitemap_gen.publish_file(
+                "articles/index.html",
+                sitemap_gen.build_articles_index(files),
+                "Articles index"
+            )
+            print("Sitemap and index updated")
+        except Exception as e:
+            # Jangan gagalkan pipeline hanya karena sitemap error
+            print(f"Warning: sitemap update failed: {e}")
         return {
             "success": True,
             "filename": filename,
@@ -145,6 +164,23 @@ def run_tool_pipeline(topic_info: dict,
     # Publish ke branch output
     success = publish(filename, assembled_html, "tools")
     if success:
+        # Update sitemap dan index pages setelah publish berhasil
+        print("Updating sitemap and index pages...")
+        try:
+            files = sitemap_gen.get_output_files()
+            sitemap_gen.publish_file(
+                "sitemap.xml",
+                sitemap_gen.build_sitemap(files),
+                "Sitemap"
+            )
+            sitemap_gen.publish_file(
+                "tools/index.html",
+                sitemap_gen.build_tools_index(files),
+                "Tools index"
+            )
+            print("Sitemap and index updated")
+        except Exception as e:
+            print(f"Warning: sitemap update failed: {e}")
         return {"success": True, "filename": filename}
     else:
         return {"success": False, "issues": ["Publishing failed"]}
