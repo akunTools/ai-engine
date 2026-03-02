@@ -547,8 +547,15 @@ def format_article(content: str, topic_info: dict) -> tuple:
     Return: tuple (html_content, filename)
     """
     date_str = datetime.utcnow().strftime("%Y-%m-%d")
-    topic    = topic_info.get("topic", "untitled")
-    slug     = re.sub(r'[^a-z0-9]+', '-', topic.lower()).strip('-')[:55].rstrip('-')
+
+    # Slug dari primary keyword — lebih pendek dan lebih SEO-friendly
+    # dari judul artikel. Fallback ke topic jika keyword tidak ada.
+    keywords   = topic_info.get("keywords", {})
+    primary_kw = (
+        keywords.get("primary", "") if isinstance(keywords, dict) else ""
+    )
+    source = primary_kw if primary_kw else topic_info.get("topic", "untitled")
+    slug   = re.sub(r'[^a-z0-9]+', '-', source.lower()).strip('-').rstrip('-')
     filename = f"{slug}.html"
 
     word_count = len(content.split())
