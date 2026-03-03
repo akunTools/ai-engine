@@ -1,186 +1,111 @@
 """
 run_pipeline.py
-Orchestrator utama pipeline generate konten.
-Dipanggil oleh GitHub Actions workflow.
-Menggabungkan loader, ai_caller, postprocess, publisher.
+Pipeline publish konten dari staging.
+Tidak lagi memanggil AI — hanya mengambil HTML dari
+folder staging/ di ai-brain dan mempublishnya ke branch output.
 """
 import os
 import sys
 import json
-import traceback
 from datetime import datetime
 
-# Tambahkan folder scripts ke path agar import bisa dilakukan
 sys.path.insert(0, os.path.dirname(__file__))
 
-from loader import (
-    fetch_file, fetch_json, get_next_pending,
-    mark_topic, write_log
-)
-from ai_caller import generate, generate_tool_parts
-from postprocess import (
-    validate_article, format_article,
-    validate_tool, format_tool
-)
+from loader import list_folder, fetch_file, delete_file, write_log
 from publisher import publish
 import sitemap_gen
 
 
-def run_article_pipeline(topic_info: dict,
-                         tasks_config: dict) -> dict:
-    """
-    Jalankan pipeline lengkap untuk generate artikel.
-    Return: dict hasil dengan keys: success, issues, filename
-    """
-    task_config = tasks_config["article"]
-    print(f"\n=== ARTICLE PIPELINE ===")
-    print(f"Topic   : {topic_info.get('topic')}")
-
-    keywords = topic_info.get("keywords", {})
-    primary_kw = (
-        keywords.get("primary", "") if isinstance(keywords, dict)
-        else ""
-    )
-    print(f"Keyword : {primary_kw}")
-
-    # Load rules dari ai-brain
-    rules = []
-    for rules_file in task_config["rules_files"]:
-        rules.append(fetch_file(rules_file))
-    print(f"Rules loaded: {len(rules)} files")
-
-    # Load knowledge dari ai-brain
-    knowledge = []
-    for kn_file in task_config["knowledge_files"]:
-        knowledge.append(fetch_file(kn_file))
-    print(f"Knowledge loaded: {len(knowledge)} files")
-
-    # Load template
-    template = fetch_file(task_config["template"])
-    print("Template loaded")
-
-    # Generate dengan AI
-    content = generate(task_config, topic_info,
-                       rules, knowledge, template)
-
-    # Validasi output
-    validation = validate_article(content, task_config, topic_info)
-    if not validation["valid"]:
-        print(f"Validation FAILED: {validation['issues']}")
-        return {"success": False, "issues": validation["issues"]}
-
-    print(f"Validation passed: {validation['word_count']} words")
-
-    # Format untuk publish
-    formatted_content, filename = format_article(content, topic_info)
-
-    # Publish ke branch output
-    success = publish(filename, formatted_content, "articles")
-    if success:
-        # Update sitemap dan index pages setelah publish berhasil
-        print("Updating sitemap and index pages...")
-        try:
-            files = sitemap_gen.get_output_files()
-            sitemap_gen.publish_file(
-                "sitemap.xml",
-                sitemap_gen.build_sitemap(files),
-                "Sitemap"
-            )
+def _update_sitemap_and_index(content_type: str):
+    """Update sitemap.xml dan halaman index setelah publish."""
+    try:
+        files = sitemap_gen.get_output_files()
+        sitemap_gen.publish_file(
+            "sitemap.xml",
+            sitemap_gen.build_sitemap(files),
+            "Sitemap"
+        )
+        if content_type == "articles":
             sitemap_gen.publish_file(
                 "articles/index.html",
                 sitemap_gen.build_articles_index(files),
                 "Articles index"
             )
-            print("Sitemap and index updated")
-        except Exception as e:
-            # Jangan gagalkan pipeline hanya karena sitemap error
-            print(f"Warning: sitemap update failed: {e}")
-        return {
-            "success": True,
-            "filename": filename,
-            "word_count": validation["word_count"]
-        }
-    else:
-        return {"success": False, "issues": ["Publishing failed"]}
-
-
-def run_tool_pipeline(topic_info: dict,
-                      tasks_config: dict) -> dict:
-    """
-    Jalankan pipeline untuk generate kalkulator HTML.
-
-    Arsitektur baru:
-    1. AI generate HANYA bagian dinamis (JS + teks) sebagai JSON
-    2. format_tool() inject JSON ke template HTML
-    3. validate_tool() validasi HTML hasil assembly
-
-    Ini menghindari masalah template[:800] yang memotong HTML
-    sebelum AI melihat struktur yang dibutuhkan.
-    """
-    task_config = tasks_config["calculator_tool"]
-    print(f"\n=== TOOL PIPELINE ===")
-    print(f"Tool name : {topic_info.get('tool_name')}")
-    print(f"Tool slug : {topic_info.get('tool_slug')}")
-
-    # Load formula dari ai-brain
-    formulas = fetch_json(task_config["formulas_file"])
-    formula_id = topic_info.get("formula_id")
-    if formula_id not in formulas:
-        return {
-            "success": False,
-            "issues": [f"Formula '{formula_id}' not found in formulas file"]
-        }
-    formula = formulas[formula_id]
-    print(f"Formula loaded: {formula_id}")
-
-    # Load rules (hanya tools_rules untuk generate tool)
-    rules = []
-    for rules_file in task_config["rules_files"]:
-        rules.append(fetch_file(rules_file))
-
-    # Load template HTML — dipakai oleh format_tool, BUKAN dikirim ke AI
-    template = fetch_file(task_config["template"])
-    print("Template loaded")
-
-    # Tambahkan formula ke topic_info agar AI bisa gunakan
-    topic_info_with_formula = {**topic_info, "formula": formula}
-
-    # Generate bagian dinamis sebagai JSON
-    parts = generate_tool_parts(task_config, topic_info_with_formula, rules)
-    print("Tool parts generated")
-
-    # Inject JSON ke template HTML
-    assembled_html, filename = format_tool(parts, template, topic_info)
-    print("Template assembled")
-
-    # Validasi HTML yang sudah di-assemble
-    validation = validate_tool(assembled_html)
-    if not validation["valid"]:
-        print(f"Validation FAILED: {validation['issues']}")
-        return {"success": False, "issues": validation["issues"]}
-
-    print("Tool validation passed")
-
-    # Publish ke branch output
-    success = publish(filename, assembled_html, "tools")
-    if success:
-        # Update sitemap dan index pages setelah publish berhasil
-        print("Updating sitemap and index pages...")
-        try:
-            files = sitemap_gen.get_output_files()
-            sitemap_gen.publish_file(
-                "sitemap.xml",
-                sitemap_gen.build_sitemap(files),
-                "Sitemap"
-            )
+        else:
             sitemap_gen.publish_file(
                 "tools/index.html",
                 sitemap_gen.build_tools_index(files),
                 "Tools index"
             )
-            print("Sitemap and index updated")
-        except Exception as e:
-            print(f"Warning: sitemap update failed: {e}")
+        print("Sitemap and index updated")
+    except Exception as e:
+        print(f"Warning: sitemap update failed: {e}")
+
+
+def run_pipeline(task_type: str) -> dict:
+    """
+    Ambil file pertama dari staging dan publish.
+    task_type: 'article' atau 'calculator_tool'
+    """
+    # Tentukan folder staging dan folder output berdasarkan task_type
+    if task_type == "article":
+        staging_folder = "staging/articles"
+        output_folder  = "articles"
+    elif task_type == "calculator_tool":
+        staging_folder = "staging/tools"
+        output_folder  = "tools"
+    else:
+        print(f"Unknown task_type: {task_type}")
+        sys.exit(1)
+
+    print(f"\n=== PIPELINE: {task_type.upper()} ===")
+    print(f"Checking staging folder: {staging_folder}")
+
+    # Ambil daftar file di staging
+    files = list_folder(staging_folder)
+
+    # Filter: hanya .html, urutkan dari yang paling lama (nama = tanggal)
+    html_files = sorted(
+        [f for f in files if f["name"].endswith(".html")],
+        key=lambda x: x["name"]
+    )
+
+    if not html_files:
+        print(f"Staging is empty. No {task_type} to publish.")
+        with open("/tmp/queue_empty.flag", "w") as f:
+            f.write(task_type)
+        return {
+            "success": False,
+            "issues": [f"Staging empty: {staging_folder}"]
+        }
+
+    # Ambil file pertama (paling lama menunggu)
+    target   = html_files[0]
+    filename = target["name"]
+    print(f"Publishing: {filename}")
+    print(f"Remaining in staging after this: {len(html_files) - 1}")
+
+    # Ambil isi HTML
+    content = fetch_file(target["path"])
+    print(f"File size: {len(content)} chars")
+
+    # Publish ke branch output
+    success = publish(filename, content, output_folder)
+
+    if success:
+        print(f"Published successfully: {output_folder}/{filename}")
+
+        # Hapus dari staging
+        delete_file(
+            target["path"],
+            target["sha"],
+            f"[staging] Published: {filename}"
+        )
+        print(f"Removed from staging: {filename}")
+
+        # Update sitemap dan index
+        _update_sitemap_and_index(output_folder)
+
         return {"success": True, "filename": filename}
     else:
         return {"success": False, "issues": ["Publishing failed"]}
@@ -189,84 +114,42 @@ def run_tool_pipeline(topic_info: dict,
 def main():
     print(f"Pipeline started at {datetime.utcnow().isoformat()}")
 
-    task_type    = os.environ.get("TASK_TYPE", "article")
-    topic_id_env = os.environ.get("TOPIC_ID", "").strip()
-    date_str     = datetime.utcnow().strftime("%Y-%m-%d")
-
-    # Load konfigurasi task
-    tasks_config = fetch_json("config/tasks.json")
-
-    # Tentukan topik yang akan diproses
-    if topic_id_env:
-        # Cari topik spesifik berdasarkan ID
-        schedule = fetch_json("config/schedule.json")
-        topic_info = next(
-            (t for t in schedule["topic_queue"]
-             if t["id"] == topic_id_env),
-            None
-        )
-        if not topic_info:
-            print(f"Topic ID '{topic_id_env}' not found in queue")
-            sys.exit(1)
-    else:
-        # Ambil topik pertama yang pending
-        topic_info = get_next_pending(task_type)
-        if not topic_info:
-            print(f"No pending {task_type} topics in queue. Exiting.")
-            # Tandai queue kosong dengan membuat flag file
-            with open("/tmp/queue_empty.flag", "w") as f:
-                f.write(task_type)
-            return
-
-    print(f"Processing: {topic_info['id']}")
+    task_type = os.environ.get("TASK_TYPE", "article")
+    date_str  = datetime.utcnow().strftime("%Y-%m-%d")
 
     try:
-        # Jalankan pipeline sesuai task_type
-        if task_type == "article":
-            result = run_article_pipeline(topic_info, tasks_config)
-        elif task_type == "calculator_tool":
-            result = run_tool_pipeline(topic_info, tasks_config)
-        else:
-            print(f"Unknown task_type: {task_type}")
-            sys.exit(1)
-
-        # Update status di queue
-        new_status = "done" if result.get("success") else "failed"
-        mark_topic(topic_info["id"], new_status)
+        result = run_pipeline(task_type)
 
         # Tulis log
         log_entry = {
             "timestamp": datetime.utcnow().isoformat(),
-            "topic_id":  topic_info["id"],
             "task_type": task_type,
             "result":    result
         }
-        write_log(date_str, log_entry, new_status)
+        log_status = "success" if result.get("success") else "failures"
+
+        # Jangan log "staging kosong" sebagai failure
+        is_empty = "Staging empty" in str(result.get("issues", []))
+        if not is_empty:
+            write_log(date_str, log_entry, log_status)
 
         if result.get("success"):
-            print(f"\nPipeline completed successfully")
-            print(f"Output: {result.get('filename')}")
+            print(f"\nPipeline SUCCESS: {result.get('filename')}")
+        elif is_empty:
+            print("\nStaging is empty — nothing to publish.")
         else:
-            print(f"\nPipeline failed: {result.get('issues')}")
+            print(f"\nPipeline FAILED: {result.get('issues')}")
+            # Simpan error untuk email notifikasi
+            with open("/tmp/pipeline_error.log", "w") as f:
+                f.write(str(result.get("issues")))
             sys.exit(1)
 
     except Exception as e:
+        import traceback
         error_msg = traceback.format_exc()
         print(f"\nUnexpected error:\n{error_msg}")
-
-        # Catat kegagalan
-        mark_topic(topic_info["id"], "failed")
-        write_log(date_str, {
-            "timestamp": datetime.utcnow().isoformat(),
-            "topic_id":  topic_info["id"],
-            "task_type": task_type,
-            "result":    {"success": False, "issues": [str(e)]}
-        }, "failures")
-
-        # Simpan error untuk artifact upload di workflow
         with open("/tmp/pipeline_error.log", "w") as f:
             f.write(error_msg)
-
         sys.exit(1)
 
 
