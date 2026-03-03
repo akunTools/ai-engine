@@ -157,3 +157,49 @@ def write_log(date_str: str, entry: dict, status: str) -> bool:
         json.dumps(log_data, indent=2),
         f"[engine] Log entry {date_str}"
     )
+
+def list_folder(path: str) -> list:
+    """
+    Ambil daftar file dalam satu folder di ai-brain.
+    Return: list dict berisi name, path, sha.
+    Return list kosong jika folder tidak ada.
+    """
+    url = f"{API_BASE}/repos/{BRAIN_REPO}/contents/{path}"
+    req = urllib.request.Request(url, headers=_headers())
+    try:
+        with urllib.request.urlopen(req) as r:
+            items = json.loads(r.read())
+            return [
+                {
+                    "name": i["name"],
+                    "path": i["path"],
+                    "sha":  i["sha"]
+                }
+                for i in items
+                if i["type"] == "file" and i["name"] != ".gitkeep"
+            ]
+    except urllib.error.HTTPError as e:
+        if e.code == 404:
+            return []
+        raise Exception(f"list_folder failed for {path}: HTTP {e.code}")
+
+
+def delete_file(path: str, sha: str, message: str) -> bool:
+    """
+    Hapus satu file dari ai-brain.
+    Dipanggil setelah file staging berhasil dipublish.
+    """
+    url = f"{API_BASE}/repos/{BRAIN_REPO}/contents/{path}"
+    payload = {"message": message, "sha": sha}
+    req = urllib.request.Request(
+        url,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={**_headers(), "Content-Type": "application/json"},
+        method="DELETE"
+    )
+    try:
+        with urllib.request.urlopen(req) as r:
+            return r.status == 200
+    except urllib.error.HTTPError as e:
+        print(f"delete_file error for {path}: {e.code}")
+        return False
