@@ -670,3 +670,188 @@ def format_tool(parts: dict, template: str,
                                parts.get("affiliate_box_html", ""))
 
     return content, filename
+
+
+# ─────────────────────────────────────────────
+# MANUAL CONTENT WRAPPING
+# Digunakan untuk konten yang ditulis manual
+# dan disimpan sebagai body HTML di staging.
+# ─────────────────────────────────────────────
+
+_TOOL_CSS = """
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #f8fafc; color: #1e293b; line-height: 1.6;
+}
+nav { border-bottom: 1px solid #e2e8f0; background: white; padding: 0 16px; }
+.nav-inner {
+    max-width: 680px; margin: 0 auto; height: 48px;
+    display: flex; align-items: center; justify-content: space-between;
+}
+.nav-left a { font-size:.875rem; color:#6366f1; text-decoration:none; font-weight:500; }
+.nav-left a:hover { text-decoration:underline; }
+.nav-brand { font-size:.8rem; color:#94a3b8; font-weight:500; }
+.container { max-width: 680px; margin: 0 auto; padding: 32px 16px; }
+h1 { font-size:1.75rem; font-weight:700; margin-bottom:8px; color:#0f172a; }
+.subtitle { color:#64748b; margin-bottom:32px; font-size:1rem; }
+.card {
+    background:white; border-radius:12px; padding:24px;
+    box-shadow:0 1px 3px rgba(0,0,0,.08); margin-bottom:16px;
+}
+.card h2 { font-size:1rem; font-weight:600; color:#374151; margin-bottom:16px; }
+.input-group { margin-bottom:16px; }
+label { display:block; font-weight:500; margin-bottom:6px; font-size:.9rem; color:#374151; }
+.input-wrapper { position:relative; }
+.input-prefix {
+    position:absolute; left:12px; top:50%;
+    transform:translateY(-50%); color:#64748b; font-size:.95rem;
+}
+input[type="number"] {
+    width:100%; padding:10px 14px 10px 28px; border:1.5px solid #e2e8f0;
+    border-radius:8px; font-size:1rem; color:#1e293b; transition:border-color .2s;
+    -moz-appearance:textfield;
+}
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button { -webkit-appearance:none; }
+input[type="number"]:focus {
+    outline:none; border-color:#6366f1;
+    box-shadow:0 0 0 3px rgba(99,102,241,.1);
+}
+input.error-input { border-color:#ef4444; }
+.error-msg { color:#ef4444; font-size:.8rem; margin-top:4px; display:none; }
+.result-card {
+    background:#f0f9ff; border:1.5px solid #bae6fd;
+    border-radius:12px; padding:24px; margin-bottom:16px;
+}
+.result-label {
+    font-size:.85rem; font-weight:500; color:#0369a1;
+    text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px;
+}
+.result-number { font-size:3rem; font-weight:800; color:#0369a1; line-height:1; }
+.result-unit { font-size:1rem; color:#0369a1; margin-bottom:16px; }
+.interpretation {
+    background:white; border-radius:8px; padding:12px 16px;
+    font-size:.9rem; color:#374151; border-left:3px solid #6366f1;
+}
+.secondary-result { margin-top:12px; font-size:.85rem; color:#64748b; }
+.formula-box {
+    background:#f8fafc; border:1px solid #e2e8f0;
+    border-radius:8px; padding:16px; margin-bottom:16px;
+}
+.formula-box h3 {
+    font-size:.85rem; font-weight:600; color:#64748b; margin-bottom:8px;
+    text-transform:uppercase; letter-spacing:.05em;
+}
+.formula-box p { font-family:monospace; font-size:.85rem; color:#374151; line-height:1.8; }
+.affiliate-box {
+    border:1px solid #d1fae5; background:#f0fdf4;
+    border-radius:8px; padding:16px; margin-bottom:16px;
+    font-size:.9rem; color:#374151;
+}
+.affiliate-box a { color:#059669; font-weight:500; text-decoration:none; }
+.affiliate-box a:hover { text-decoration:underline; }
+.related-link { font-size:.85rem; color:#64748b; margin-top:8px; }
+.related-link a { color:#6366f1; text-decoration:none; }
+.related-link a:hover { text-decoration:underline; }
+footer { border-top:1px solid #e2e8f0; padding:24px 16px; text-align:center; }
+.footer-inner { max-width:680px; margin:0 auto; font-size:.8rem; color:#94a3b8; }
+.footer-inner a { color:#6366f1; text-decoration:none; }
+.footer-inner a:hover { text-decoration:underline; }
+@media(max-width:600px) { h1 { font-size:1.4rem; } .container { padding:24px 16px; } }
+"""
+
+
+def wrap_article_html(body_html: str, slug: str) -> str:
+    """
+    Bungkus body artikel ke full HTML page.
+    Input : body HTML saja (mulai dari <h1>)
+    Output: full HTML page siap publish
+
+    Judul diambil otomatis dari tag <h1> pertama.
+    Reuses _build_article_html yang sudah ada.
+    """
+    date_str = datetime.utcnow().strftime("%Y-%m-%d")
+
+    h1_match = re.search(r'<h1[^>]*>(.*?)</h1>',
+                         body_html, re.IGNORECASE | re.DOTALL)
+    title = (h1_match.group(1).strip()
+             if h1_match
+             else slug.replace("-", " ").title())
+
+    # Bersihkan tag HTML dari title untuk frontmatter
+    title_clean = re.sub(r'<[^>]+>', '', title).strip()
+
+    word_count = len(re.sub(r'<[^>]+>', '', body_html).split())
+
+    fm = {
+        "title":           title_clean,
+        "slug":            slug,
+        "date":            date_str,
+        "primary_keyword": "",
+        "cluster_id":      "",
+        "word_count":      word_count
+    }
+
+    # Reuse template artikel yang sudah ada di _build_article_html
+    return _build_article_html(fm, body_html, slug, date_str)
+
+
+def wrap_tool_html(body_html: str, slug: str) -> str:
+    """
+    Bungkus body tool/kalkulator ke full HTML page.
+    Input : body HTML saja (gunakan CSS classes dari _TOOL_CSS)
+    Output: full HTML page siap publish
+
+    CSS classes yang tersedia untuk body content:
+    .card, .input-group, .input-wrapper, .input-prefix,
+    .result-card, .result-label, .result-number, .result-unit,
+    .interpretation, .secondary-result, .formula-box,
+    .affiliate-box, .related-link, .subtitle
+    """
+    h1_match = re.search(r'<h1[^>]*>(.*?)</h1>',
+                         body_html, re.IGNORECASE | re.DOTALL)
+    title = (h1_match.group(1).strip()
+             if h1_match
+             else slug.replace("-", " ").title())
+    title_clean = re.sub(r'<[^>]+>', '', title).strip()
+
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{title_clean} — SaaS Tools for Bootstrapped Founders</title>
+  <meta name="description" content="{title_clean}">
+  <link rel="canonical" href="https://saas.blogtrick.eu.org/tools/{slug}">
+  <style>{_TOOL_CSS}</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <div class="nav-left"><a href="/tools/">← All Tools</a></div>
+    <div class="nav-brand">
+      <a href="/" style="color:#94a3b8;text-decoration:none;">
+        SaaS Tools for Bootstrapped Founders
+      </a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+{body_html}
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <a href="/">Home</a> ·
+    <a href="/articles/">Articles</a> ·
+    <a href="/tools/">Tools</a>
+    <br><br>
+    Built for bootstrapped SaaS founders.
+  </div>
+</footer>
+
+</body>
+</html>"""
