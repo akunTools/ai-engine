@@ -41,7 +41,7 @@ jobs:
       - name: Jalankan Pipeline
         env:
           BRAIN_PAT:    ${{ secrets.BRAIN_PAT }}
-          BRAIN_REPO:   YOUR_USERNAME/ai-brain
+          BRAIN_REPO:   akunTools/ai-brain
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ENGINE_REPO:  ${{ github.repository }}
           SITE_BASE_URL: https://saas.blogtrick.eu.org
