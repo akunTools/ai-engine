@@ -14,7 +14,7 @@ on:
         default: 'article'
 
 jobs:
-  publish-content:
+  publish:
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
@@ -40,15 +40,15 @@ jobs:
 
       - name: Jalankan Pipeline
         env:
-          BRAIN_PAT:   ${{ secrets.BRAIN_PAT }}
-          BRAIN_REPO:  akunTools/ai-brain
+          BRAIN_PAT:    ${{ secrets.BRAIN_PAT }}
+          BRAIN_REPO:   YOUR_USERNAME/ai-brain
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ENGINE_REPO:  ${{ github.repository }}
           SITE_BASE_URL: https://saas.blogtrick.eu.org
-          TASK_TYPE:   ${{ steps.tasktype.outputs.type }}
+          TASK_TYPE:    ${{ steps.tasktype.outputs.type }}
         run: python scripts/run_pipeline.py
 
-      - name: Kirim email berhasil
+      - name: Email berhasil publish
         if: success() && hashFiles('/tmp/queue_empty.flag') == ''
         uses: dawidd6/action-send-mail@v4
         with:
@@ -63,13 +63,12 @@ jobs:
           body: |
             Content published successfully.
 
-            Type    : ${{ steps.tasktype.outputs.type }}
-            Run ID  : ${{ github.run_id }}
+            Type : ${{ steps.tasktype.outputs.type }}
 
-            View site: https://saas.blogtrick.eu.org
-            View run : https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            View site : https://saas.blogtrick.eu.org
+            View run  : https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
-      - name: Kirim email staging kosong
+      - name: Email staging kosong
         if: success() && hashFiles('/tmp/queue_empty.flag') != ''
         uses: dawidd6/action-send-mail@v4
         with:
@@ -82,15 +81,15 @@ jobs:
           to: ${{ secrets.NOTIFICATION_EMAIL }}
           from: AI Engine <${{ secrets.GMAIL_USERNAME }}>
           body: |
-            Staging folder is empty. No content to publish.
+            Staging is empty. No content to publish.
 
             Type checked: ${{ steps.tasktype.outputs.type }}
 
-            ACTION REQUIRED:
-            Write new content with Claude and save to staging/
+            Write new content with Claude and save the body HTML to:
+            staging/articles/ready/ or staging/tools/ready/
             in the ai-brain repository.
 
-      - name: Kirim email gagal
+      - name: Email gagal
         if: failure()
         uses: dawidd6/action-send-mail@v4
         with:
@@ -106,7 +105,6 @@ jobs:
             Pipeline failed during publish.
 
             Type   : ${{ steps.tasktype.outputs.type }}
-            Run ID : ${{ github.run_id }}
 
             Check Actions tab:
             https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
