@@ -1,8 +1,6 @@
 """
 loader.py
 Fetch dan update file dari repo ai-brain via GitHub API.
-Digunakan oleh semua script lain untuk membaca data dari
-private repo tanpa perlu akses langsung ke GitHub.
 """
 import os
 import json
@@ -24,11 +22,7 @@ def _headers():
 
 
 def fetch_file(path: str) -> str:
-    """
-    Fetch satu file dari ai-brain.
-    Return: isi file sebagai string.
-    Raise Exception jika file tidak ditemukan.
-    """
+    """Fetch satu file dari ai-brain. Return isi sebagai string."""
     url = f"{API_BASE}/repos/{BRAIN_REPO}/contents/{path}"
     req = urllib.request.Request(url, headers=_headers())
     try:
@@ -44,21 +38,43 @@ def fetch_json(path: str) -> dict:
     return json.loads(fetch_file(path))
 
 
+def list_folder(path: str) -> list:
+    """
+    Ambil daftar semua file dalam folder di ai-brain.
+    Return: list dict berisi name, path, sha.
+    Berguna untuk membaca isi folder staging/.
+    """
+    url = f"{API_BASE}/repos/{BRAIN_REPO}/contents/{path}"
+    req = urllib.request.Request(url, headers=_headers())
+    try:
+        with urllib.request.urlopen(req) as r:
+            items = json.loads(r.read())
+            return [
+                {
+                    "name": i["name"],
+                    "path": i["path"],
+                    "sha":  i["sha"]
+                }
+                for i in items
+                if i["type"] == "file" and i["name"] != ".gitkeep"
+            ]
+    except urllib.error.HTTPError as e:
+        if e.code == 404:
+            return []
+        raise Exception(f"list_folder failed for {path}: HTTP {e.code}")
+
+
 def update_file(path: str, content: str, message: str) -> bool:
-    """
-    Buat atau update file di ai-brain.
-    Return: True jika berhasil, False jika gagal.
-    """
+    """Buat atau update file di ai-brain."""
     url = f"{API_BASE}/repos/{BRAIN_REPO}/contents/{path}"
     sha = None
 
-    # Cek apakah file sudah ada untuk mendapatkan SHA
     try:
         req = urllib.request.Request(url, headers=_headers())
         with urllib.request.urlopen(req) as r:
             sha = json.loads(r.read()).get("sha")
     except urllib.error.HTTPError:
-        pass  # File belum ada, akan dibuat baru
+        pass
 
     payload = {
         "message": message,
@@ -81,12 +97,29 @@ def update_file(path: str, content: str, message: str) -> bool:
         return False
 
 
+def delete_file(path: str, sha: str, message: str) -> bool:
+    """
+    Hapus file dari ai-brain.
+    Dipanggil setelah file staging berhasil dipublish.
+    """
+    url = f"{API_BASE}/repos/{BRAIN_REPO}/contents/{path}"
+    payload = {"message": message, "sha": sha}
+    req = urllib.request.Request(
+        url,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={**_headers(), "Content-Type": "application/json"},
+        method="DELETE"
+    )
+    try:
+        with urllib.request.urlopen(req) as r:
+            return r.status == 200
+    except urllib.error.HTTPError as e:
+        print(f"delete_file error for {path}: {e.code}")
+        return False
+
+
 def get_next_pending(task_type: str = None) -> dict | None:
-    """
-    Ambil topik pertama dengan status 'pending' dari queue.
-    Jika task_type diberikan, filter berdasarkan task_type.
-    Return: dict topik atau None jika queue kosong.
-    """
+    """Ambil topik pertama dengan status pending dari queue."""
     schedule = fetch_json("config/schedule.json")
     for t in schedule.get("topic_queue", []):
         if t.get("status") == "pending":
