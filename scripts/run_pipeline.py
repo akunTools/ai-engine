@@ -141,6 +141,42 @@ def update_editorial_memory(slug: str, body_html: str,
     print(f"Editorial memory updated: {slug}")
 
 
+def update_tool_registry(slug: str, body_html: str) -> None:
+    """
+    Tambah tool baru ke tool_registry.json setelah dipublish.
+    Dijalankan otomatis — tidak perlu update manual.
+    """
+    try:
+        registry = fetch_json("tool_registry.json")
+    except Exception:
+        registry = {"last_updated": "", "tools": []}
+
+    date_str = datetime.utcnow().strftime("%Y-%m-%d")
+
+    # Ekstrak judul dari <h1>
+    h1_match = re.search(r'<h1[^>]*>(.*?)</h1>',
+                         body_html, re.IGNORECASE | re.DOTALL)
+    title = (re.sub(r'<[^>]+>', '', h1_match.group(1)).strip()
+             if h1_match else slug.replace("-", " ").title())
+
+    # Cek apakah sudah ada
+    existing = {t.get("slug") for t in registry.get("tools", [])}
+    if slug not in existing:
+        registry.setdefault("tools", []).append({
+            "slug":           slug,
+            "title":          title,
+            "published_date": date_str,
+            "url":            f"/tools/{slug}"
+        })
+        registry["last_updated"] = date_str
+
+        update_file(
+            "tool_registry.json",
+            json.dumps(registry, indent=2),
+            f"[pipeline] Register tool: {slug}"
+        )
+        print(f"Tool registry updated: {slug}")
+
 # ─────────────────────────────────────────────
 # SITEMAP
 # ─────────────────────────────────────────────
