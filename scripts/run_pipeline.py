@@ -288,6 +288,10 @@ def run_pipeline(task_type: str) -> dict:
         # Update editorial_memory otomatis
         update_editorial_memory(slug, body_html, output_folder)
 
+        # Update tool registry jika ini adalah tool
+        if not is_article:
+            update_tool_registry(slug, body_html)
+
         # Update sitemap dan index
         refresh_sitemap(output_folder)
 
