@@ -48,27 +48,19 @@ def _md_to_html(md: str) -> str:
 
     def inline(text: str) -> str:
         """Apply inline formatting."""
-        # Bold + italic
         text = re.sub(r'\*\*\*(.+?)\*\*\*', r'<strong><em>\1</em></strong>', text)
-        # Bold
         text = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', text)
-        # Italic
         text = re.sub(r'\*(.+?)\*', r'<em>\1</em>', text)
-        # Inline code
         text = re.sub(r'`(.+?)`', r'<code>\1</code>', text)
         return text
 
     for line in lines:
         stripped = line.strip()
 
-        # Blank line — flush paragraph buffer
         if not stripped:
-            flush_p()
-            flush_ul()
-            flush_ol()
+            flush_p(); flush_ul(); flush_ol()
             continue
 
-        # Headings
         if stripped.startswith("# "):
             flush_p(); flush_ul(); flush_ol()
             html.append(f'<h1>{inline(stripped[2:])}</h1>')
@@ -86,50 +78,39 @@ def _md_to_html(md: str) -> str:
             html.append(f'<h4>{inline(stripped[5:])}</h4>')
             continue
 
-        # Horizontal rule
         if re.match(r'^[-*_]{3,}$', stripped):
             flush_p(); flush_ul(); flush_ol()
             html.append('<hr>')
             continue
 
-        # Blockquote
         if stripped.startswith("> "):
             flush_p(); flush_ul(); flush_ol()
             html.append(f'<blockquote>{inline(stripped[2:])}</blockquote>')
             continue
 
-        # Unordered list
         ul_match = re.match(r'^[-*+] (.+)', stripped)
         if ul_match:
-            flush_p()
-            flush_ol()
+            flush_p(); flush_ol()
             if not in_ul:
                 html.append("<ul>")
                 in_ul = True
             html.append(f"<li>{inline(ul_match.group(1))}</li>")
             continue
 
-        # Ordered list
         ol_match = re.match(r'^\d+\. (.+)', stripped)
         if ol_match:
-            flush_p()
-            flush_ul()
+            flush_p(); flush_ul()
             if not in_ol:
                 html.append("<ol>")
                 in_ol = True
             html.append(f"<li>{inline(ol_match.group(1))}</li>")
             continue
 
-        # Regular paragraph line
-        flush_ul()
-        flush_ol()
+        flush_ul(); flush_ol()
         in_p = True
         p_lines.append(inline(stripped))
 
-    flush_p()
-    flush_ul()
-    flush_ol()
-
+    flush_p(); flush_ul(); flush_ol()
     return "\n".join(html)
 
 
@@ -157,25 +138,175 @@ def _reading_time(text: str) -> int:
     return max(1, round(len(text.split()) / 200))
 
 
+# ─────────────────────────────────────────────
+# SHARED DESIGN SYSTEM
+# ─────────────────────────────────────────────
+
+_FONT = (
+    '<link rel="preconnect" href="https://fonts.googleapis.com">'
+    '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
+    '<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,'
+    'opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,'
+    '400&display=swap" rel="stylesheet">'
+)
+
+_BASE_CSS = """
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg:           #f7f6f3;
+    --surface:      #ffffff;
+    --text:         #18181b;
+    --muted:        #71717a;
+    --subtle:       #a1a1aa;
+    --border:       #e4e4e7;
+    --accent:       #4f46e5;
+    --accent-h:     #4338ca;
+    --accent-light: #eef2ff;
+    --danger:       #ef4444;
+    --danger-bg:    #fef2f2;
+    --warning:      #f59e0b;
+    --warning-bg:   #fffbeb;
+    --success:      #10b981;
+    --success-bg:   #f0fdf4;
+    --r:            10px;
+    --shadow:       0 1px 3px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.04);
+    --shadow-md:    0 4px 16px rgba(0,0,0,.08);
+  }
+  body {
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { color: var(--accent-h); }
+"""
+
+_NAV_CSS = """
+  nav {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .nav-inner {
+    max-width: 720px;
+    margin: 0 auto;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .nav-brand {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+    text-decoration: none;
+    letter-spacing: -.02em;
+  }
+  .brand-accent { color: var(--accent); }
+  .nav-back {
+    font-size: .875rem;
+    font-weight: 500;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 6px 0;
+    transition: color .15s;
+  }
+  .nav-back:hover { color: var(--accent); }
+  .nav-links { display: flex; gap: 2px; }
+  .nav-links a {
+    font-size: .875rem;
+    font-weight: 500;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 6px 14px;
+    border-radius: 8px;
+    transition: all .15s;
+  }
+  .nav-links a:hover { color: var(--text); background: var(--bg); }
+  .nav-links a.active { color: var(--accent); background: var(--accent-light); }
+"""
+
+_FOOTER_HTML = """<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">SaaS Tools for Bootstrapped Founders</div>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/articles/">Articles</a>
+      <a href="/tools/">Tools</a>
+    </div>
+    <div class="footer-copy">Free tools and analysis for independent SaaS founders.</div>
+  </div>
+</footer>"""
+
+_FOOTER_CSS = """
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 48px 20px;
+  }
+  .footer-inner {
+    max-width: 720px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .footer-brand {
+    font-size: .8rem;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 16px;
+    letter-spacing: .02em;
+    text-transform: uppercase;
+  }
+  .footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 28px;
+    margin-bottom: 16px;
+  }
+  .footer-links a {
+    font-size: .8rem;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color .15s;
+  }
+  .footer-links a:hover { color: var(--accent); }
+  .footer-copy { font-size: .75rem; color: var(--subtle); }
+"""
+
+_TOOL_CSS = ""  # CSS disediakan oleh wrap_tool_html — tidak dipakai standalone
+
+
+# ─────────────────────────────────────────────
+# ARTICLE TEMPLATE
+# ─────────────────────────────────────────────
+
 def _build_article_html(fm: dict, body_html: str,
                         slug: str, date_str: str) -> str:
     """
     Bungkus article body HTML ke dalam full HTML page.
     Menyertakan: navigasi, metadata, share buttons, komentar Giscus.
     """
+    site_url    = "https://saas.blogtrick.eu.org"
     title       = fm.get("title", slug.replace("-", " ").title())
     keyword     = fm.get("primary_keyword", "")
-    word_count  = fm.get("word_count", "")
-    read_time   = _reading_time(body_html)
-    site_url    = "https://saas.blogtrick.eu.org"
     article_url = f"{site_url}/articles/{slug}"
+    read_time   = _reading_time(body_html)
 
-    # Format tanggal tampilan: "March 1, 2026"
     try:
-        dt          = datetime.strptime(date_str, "%Y-%m-%d")
+        dt = datetime.strptime(date_str, "%Y-%m-%d")
         display_date = dt.strftime("%B %-d, %Y")
     except Exception:
         display_date = date_str
+
+    kw_meta  = f'<meta name="keywords" content="{keyword}">' if keyword else ""
+    kw_badge = (
+        f'<span class="meta-divider">·</span>'
+        f'<span class="meta-tag">{keyword}</span>'
+    ) if keyword else ""
 
     return f"""<!DOCTYPE html>
 <html lang="en">
@@ -184,7 +315,7 @@ def _build_article_html(fm: dict, body_html: str,
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{title} — SaaS Tools for Bootstrapped Founders</title>
   <meta name="description" content="{title}">
-  {f'<meta name="keywords" content="{keyword}">' if keyword else ''}
+  {kw_meta}
   <meta property="og:title" content="{title}">
   <meta property="og:url" content="{article_url}">
   <meta property="og:type" content="article">
@@ -192,307 +323,302 @@ def _build_article_html(fm: dict, body_html: str,
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="{title}">
   <link rel="canonical" href="{article_url}">
+  {_FONT}
   <style>
-    *, *::before, *::after {{ box-sizing: border-box; margin: 0; padding: 0; }}
-    body {{
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: #f8fafc;
-      color: #1e293b;
-      line-height: 1.7;
-    }}
-
-    /* ── NAV ── */
-    nav {{
-      background: white;
-      border-bottom: 1px solid #e2e8f0;
-      padding: 0 16px;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }}
-    .nav-inner {{
-      max-width: 760px;
-      margin: 0 auto;
-      height: 52px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }}
-    .nav-left a {{
-      font-size: 0.875rem;
-      color: #6366f1;
-      text-decoration: none;
-      font-weight: 500;
-    }}
-    .nav-left a:hover {{ text-decoration: underline; }}
-    .nav-brand {{
-      font-size: 0.8rem;
-      color: #94a3b8;
-      font-weight: 500;
-    }}
+{_BASE_CSS}
+{_NAV_CSS}
 
     /* ── LAYOUT ── */
     .container {{
-      max-width: 760px;
+      max-width: 720px;
       margin: 0 auto;
-      padding: 40px 16px 80px;
+      padding: 48px 20px 80px;
     }}
 
     /* ── ARTICLE HEADER ── */
-    .article-header {{ margin-bottom: 32px; }}
+    .article-header {{ margin-bottom: 40px; }}
     .article-header h1 {{
-      font-size: 1.9rem;
-      font-weight: 800;
-      line-height: 1.25;
-      color: #0f172a;
+      font-size: clamp(1.5rem, 4vw, 2.1rem);
+      font-weight: 700;
+      line-height: 1.2;
+      letter-spacing: -.03em;
+      color: var(--text);
       margin-bottom: 16px;
     }}
-    .meta {{
+    .article-meta {{
       display: flex;
       flex-wrap: wrap;
-      gap: 16px;
-      font-size: 0.82rem;
-      color: #64748b;
+      align-items: center;
+      gap: 10px;
     }}
-    .meta span {{ display: flex; align-items: center; gap: 4px; }}
+    .meta-item {{
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: .8rem;
+      color: var(--muted);
+    }}
+    .meta-tag {{
+      display: inline-block;
+      background: var(--accent-light);
+      color: var(--accent);
+      font-size: .72rem;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 20px;
+      letter-spacing: .02em;
+    }}
+    .meta-divider {{ color: var(--border); font-size: .7rem; }}
 
     /* ── ARTICLE BODY ── */
-    .article-body {{ margin-bottom: 48px; }}
+    .article-body {{
+      font-size: 1.025rem;
+      line-height: 1.75;
+      margin-bottom: 56px;
+    }}
     .article-body h2 {{
       font-size: 1.35rem;
       font-weight: 700;
-      color: #0f172a;
-      margin: 36px 0 12px;
-      padding-top: 8px;
-      border-top: 2px solid #e2e8f0;
+      letter-spacing: -.02em;
+      color: var(--text);
+      margin: 44px 0 14px;
+      padding-top: 44px;
+      border-top: 1px solid var(--border);
+    }}
+    .article-body h2:first-child {{
+      margin-top: 0; padding-top: 0; border-top: none;
     }}
     .article-body h3 {{
       font-size: 1.1rem;
       font-weight: 600;
-      color: #1e293b;
-      margin: 24px 0 8px;
+      color: var(--text);
+      margin: 28px 0 10px;
     }}
     .article-body h4 {{
-      font-size: 1rem;
+      font-size: .95rem;
       font-weight: 600;
-      color: #374151;
-      margin: 20px 0 6px;
+      color: var(--text);
+      margin: 22px 0 8px;
     }}
-    .article-body p {{
-      margin-bottom: 18px;
-      font-size: 1.02rem;
-    }}
+    .article-body p {{ margin-bottom: 20px; }}
+    .article-body p:last-child {{ margin-bottom: 0; }}
     .article-body ul, .article-body ol {{
-      margin: 0 0 18px 24px;
+      margin: 0 0 20px 20px;
     }}
-    .article-body li {{ margin-bottom: 6px; font-size: 1.02rem; }}
+    .article-body li {{ margin-bottom: 6px; }}
     .article-body blockquote {{
-      border-left: 4px solid #6366f1;
-      background: #f1f5f9;
-      padding: 12px 16px;
-      margin: 20px 0;
-      border-radius: 0 8px 8px 0;
-      color: #374151;
+      border-left: 3px solid var(--accent);
+      background: var(--accent-light);
+      padding: 14px 20px;
+      margin: 24px 0;
+      border-radius: 0 var(--r) var(--r) 0;
+      color: var(--text);
       font-style: italic;
     }}
     .article-body code {{
-      background: #f1f5f9;
-      border: 1px solid #e2e8f0;
+      background: #f4f4f5;
+      border: 1px solid var(--border);
       padding: 2px 6px;
-      border-radius: 4px;
-      font-size: 0.88em;
+      border-radius: 5px;
+      font-size: .87em;
       font-family: 'SFMono-Regular', Consolas, monospace;
+      color: var(--accent);
     }}
     .article-body hr {{
       border: none;
-      border-top: 1px solid #e2e8f0;
-      margin: 32px 0;
+      border-top: 1px solid var(--border);
+      margin: 36px 0;
     }}
-    .article-body strong {{ font-weight: 600; color: #0f172a; }}
+    .article-body strong {{ font-weight: 600; color: var(--text); }}
+    .article-body a {{
+      color: var(--accent);
+      text-decoration: underline;
+      text-decoration-color: rgba(79,70,229,.3);
+    }}
+    .article-body a:hover {{
+      color: var(--accent-h);
+      text-decoration-color: var(--accent-h);
+    }}
 
     /* ── SHARE ── */
-    .share-section {{
-      background: white;
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      padding: 20px 24px;
-      margin-bottom: 40px;
+    .share-box {{
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 24px;
+      margin-bottom: 48px;
     }}
-    .share-section h3 {{
-      font-size: 0.85rem;
+    .share-label {{
+      font-size: .75rem;
       font-weight: 600;
-      color: #64748b;
+      color: var(--subtle);
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: .05em;
       margin-bottom: 14px;
     }}
-    .share-buttons {{ display: flex; flex-wrap: wrap; gap: 10px; }}
+    .share-buttons {{ display: flex; flex-wrap: wrap; gap: 8px; }}
     .share-btn {{
       display: inline-flex;
       align-items: center;
       gap: 7px;
       padding: 8px 16px;
       border-radius: 8px;
-      font-size: 0.875rem;
+      font-size: .82rem;
       font-weight: 500;
       text-decoration: none;
       cursor: pointer;
-      border: none;
-      transition: opacity 0.15s;
+      border: 1px solid transparent;
+      transition: all .15s;
+      font-family: inherit;
     }}
-    .share-btn:hover {{ opacity: 0.85; }}
-    .share-btn.twitter  {{ background: #000; color: white; }}
-    .share-btn.linkedin {{ background: #0077b5; color: white; }}
-    .share-btn.copy     {{ background: #f1f5f9; color: #374151;
-                           border: 1px solid #e2e8f0; }}
-    .share-btn.copy.copied {{ background: #d1fae5; color: #065f46;
-                              border-color: #6ee7b7; }}
+    .share-btn.x-btn {{ background: #000; color: white; }}
+    .share-btn.x-btn:hover {{ background: #111; color: white; }}
+    .share-btn.li-btn {{ background: #0a66c2; color: white; }}
+    .share-btn.li-btn:hover {{ background: #004182; color: white; }}
+    .share-btn.copy-btn {{
+      background: var(--bg);
+      color: var(--text);
+      border-color: var(--border);
+    }}
+    .share-btn.copy-btn:hover {{ border-color: var(--accent); color: var(--accent); }}
+    .share-btn.copy-btn.copied {{
+      background: var(--success-bg);
+      color: var(--success);
+      border-color: var(--success);
+    }}
 
-    /* ── COMMENTS (Giscus) ── */
-    .comments-section {{
-      margin-bottom: 40px;
-    }}
-    .comments-section h2 {{
-      font-size: 1.2rem;
+    /* ── COMMENTS ── */
+    .comments-box {{ margin-bottom: 48px; }}
+    .comments-box h2 {{
+      font-size: 1.1rem;
       font-weight: 700;
-      color: #0f172a;
+      color: var(--text);
       margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
     }}
 
-    /* ── FOOTER ── */
-    footer {{
-      border-top: 1px solid #e2e8f0;
-      padding: 24px 16px;
-      text-align: center;
-    }}
-    .footer-inner {{
-      max-width: 760px;
-      margin: 0 auto;
-      font-size: 0.8rem;
-      color: #94a3b8;
-    }}
-    .footer-inner a {{ color: #6366f1; text-decoration: none; }}
-    .footer-inner a:hover {{ text-decoration: underline; }}
+{_FOOTER_CSS}
 
     @media (max-width: 600px) {{
-      .article-header h1 {{ font-size: 1.5rem; }}
-      .container {{ padding: 24px 16px 60px; }}
+      .container {{ padding: 32px 16px 60px; }}
+      .article-header h1 {{ font-size: 1.4rem; }}
     }}
   </style>
 </head>
 <body>
 
-  <!-- NAV -->
-  <nav>
-    <div class="nav-inner">
-      <div class="nav-left">
-        <a href="/articles/">← All Articles</a>
-      </div>
-      <div class="nav-brand">
-        <a href="/" style="color:#94a3b8;text-decoration:none;">
-          SaaS Tools for Bootstrapped Founders
-        </a>
-      </div>
-    </div>
-  </nav>
-
-  <!-- MAIN -->
-  <div class="container">
-
-    <!-- HEADER -->
-    <header class="article-header">
-      <h1>{title}</h1>
-      <div class="meta">
-        <span>📅 {display_date}</span>
-        <span>⏱ {read_time} min read</span>
-        {f'<span>🏷 {keyword}</span>' if keyword else ''}
-      </div>
-    </header>
-
-    <!-- BODY -->
-    <article class="article-body">
-      {body_html}
-    </article>
-
-    <!-- SHARE -->
-    <div class="share-section">
-      <h3>Share this article</h3>
-      <div class="share-buttons">
-        <a class="share-btn twitter"
-           href="https://twitter.com/intent/tweet?text={title.replace(' ', '%20')}&url={article_url}"
-           target="_blank" rel="noopener">
-          𝕏 Share on X
-        </a>
-        <a class="share-btn linkedin"
-           href="https://www.linkedin.com/sharing/share-offsite/?url={article_url}"
-           target="_blank" rel="noopener">
-          in Share on LinkedIn
-        </a>
-        <button class="share-btn copy" id="copy-btn"
-                onclick="copyLink()">
-          🔗 Copy Link
-        </button>
-      </div>
-    </div>
-
-    <!-- COMMENTS -->
-    <div class="comments-section">
-      <h2>Comments</h2>
-      <script src="https://giscus.app/client.js"
-        data-repo="akunTools/ai-engine"
-        data-repo-id="R_kgDORZ0kXg"
-        data-category="General"
-        data-category-id="DIC_kwDORZ0kXs4C3fKy"
-        data-mapping="pathname"
-        data-strict="0"
-        data-reactions-enabled="1"
-        data-emit-metadata="0"
-        data-input-position="top"
-        data-theme="light"
-        data-lang="en"
-        crossorigin="anonymous"
-        async>
-      </script>
-      <noscript>
-        <p style="color:#64748b;font-size:0.9rem;">
-          Enable JavaScript to load comments.
-        </p>
-      </noscript>
-    </div>
-
-  </div><!-- /.container -->
-
-  <!-- FOOTER -->
-  <footer>
-    <div class="footer-inner">
-      <a href="/">Home</a> ·
-      <a href="/articles/">Articles</a> ·
+<nav>
+  <div class="nav-inner">
+    <a href="/articles/" class="nav-back">← Articles</a>
+    <div class="nav-links">
+      <a href="/articles/" class="active">Articles</a>
       <a href="/tools/">Tools</a>
-      <br><br>
-      Built for bootstrapped SaaS founders.
     </div>
-  </footer>
+  </div>
+</nav>
 
-  <script>
-    function copyLink() {{
-      navigator.clipboard.writeText("{article_url}").then(function() {{
-        var btn = document.getElementById("copy-btn");
-        btn.textContent = "✓ Copied!";
-        btn.classList.add("copied");
-        setTimeout(function() {{
-          btn.textContent = "🔗 Copy Link";
-          btn.classList.remove("copied");
-        }}, 2000);
-      }});
-    }}
-  </script>
+<div class="container">
+
+  <header class="article-header">
+    <h1>{title}</h1>
+    <div class="article-meta">
+      <span class="meta-item">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+        {display_date}
+      </span>
+      <span class="meta-divider">·</span>
+      <span class="meta-item">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+        {read_time} min read
+      </span>
+      {kw_badge}
+    </div>
+  </header>
+
+  <article class="article-body">
+    {body_html}
+  </article>
+
+  <div class="share-box">
+    <div class="share-label">Share this article</div>
+    <div class="share-buttons">
+      <a class="share-btn x-btn"
+         href="https://twitter.com/intent/tweet?text={title.replace(' ', '%20')}&url={article_url}"
+         target="_blank" rel="noopener">
+        𝕏 Post on X
+      </a>
+      <a class="share-btn li-btn"
+         href="https://www.linkedin.com/sharing/share-offsite/?url={article_url}"
+         target="_blank" rel="noopener">
+        in Share
+      </a>
+      <button class="share-btn copy-btn" id="copy-btn" onclick="copyLink()">
+        🔗 Copy link
+      </button>
+    </div>
+  </div>
+
+  <div class="comments-box">
+    <h2>Discussion</h2>
+    <script src="https://giscus.app/client.js"
+      data-repo="akunTools/ai-engine"
+      data-repo-id="R_kgDORZ0kXg"
+      data-category="General"
+      data-category-id="DIC_kwDORZ0kXs4C3fKy"
+      data-mapping="pathname"
+      data-strict="0"
+      data-reactions-enabled="1"
+      data-emit-metadata="0"
+      data-input-position="top"
+      data-theme="light"
+      data-lang="en"
+      crossorigin="anonymous"
+      async>
+    </script>
+    <noscript>
+      <p style="color:var(--muted);font-size:.875rem;">
+        Enable JavaScript to load comments.
+      </p>
+    </noscript>
+  </div>
+
+</div>
+
+{_FOOTER_HTML}
+
+<script>
+  function copyLink() {{
+    navigator.clipboard.writeText("{article_url}").then(function() {{
+      var btn = document.getElementById("copy-btn");
+      btn.textContent = "✓ Copied!";
+      btn.classList.add("copied");
+      setTimeout(function() {{
+        btn.textContent = "🔗 Copy link";
+        btn.classList.remove("copied");
+      }}, 2000);
+    }});
+  }}
+</script>
 
 </body>
 </html>"""
 
 
 # ─────────────────────────────────────────────
-# ARTICLE
+# ARTICLE — validate & format
 # ─────────────────────────────────────────────
 
 def validate_article(content: str, task_config: dict,
@@ -501,14 +627,12 @@ def validate_article(content: str, task_config: dict,
     Validasi artikel yang di-generate (sebelum HTML conversion).
     Return: dict dengan keys: valid, issues, word_count, content
     """
-    issues    = []
-    min_words = task_config.get("min_words", 400)
+    issues     = []
+    min_words  = task_config.get("min_words", 400)
     word_count = len(content.split())
 
     if word_count < min_words:
-        issues.append(
-            f"Too short: {word_count} words (minimum: {min_words})"
-        )
+        issues.append(f"Too short: {word_count} words (minimum: {min_words})")
 
     if not re.search(r'^# .+', content, re.MULTILINE):
         issues.append("Missing H1 heading")
@@ -521,7 +645,7 @@ def validate_article(content: str, task_config: dict,
     if placeholders:
         issues.append(f"Unfilled placeholders: {placeholders}")
 
-    keywords  = topic_info.get("keywords", {})
+    keywords   = topic_info.get("keywords", {})
     primary_kw = (
         keywords.get("primary", "") if isinstance(keywords, dict)
         else topic_info.get("target_keyword", "")
@@ -542,70 +666,54 @@ def format_article(content: str, topic_info: dict) -> tuple:
     Format artikel:
     1. Fix frontmatter (date, word_count, slug)
     2. Convert Markdown → full HTML page
-    3. Generate nama file .html (bukan .md)
+    3. Generate nama file .html
 
     Return: tuple (html_content, filename)
     """
     date_str = datetime.utcnow().strftime("%Y-%m-%d")
 
-    # Slug dari primary keyword — lebih pendek dan lebih SEO-friendly
-    # dari judul artikel. Fallback ke topic jika keyword tidak ada.
     keywords   = topic_info.get("keywords", {})
     primary_kw = (
         keywords.get("primary", "") if isinstance(keywords, dict) else ""
     )
-    source = primary_kw if primary_kw else topic_info.get("topic", "untitled")
-    slug   = re.sub(r'[^a-z0-9]+', '-', source.lower()).strip('-').rstrip('-')
+    source   = primary_kw if primary_kw else topic_info.get("topic", "untitled")
+    slug     = re.sub(r'[^a-z0-9]+', '-', source.lower()).strip('-').rstrip('-')
     filename = f"{slug}.html"
 
     word_count = len(content.split())
 
-    # Isi placeholder yang mungkin ada di body
     content = content.replace("{{DATE}}", date_str)
     content = content.replace("{{SLUG}}", slug)
     content = content.replace("{{WORD_COUNT}}", str(word_count))
 
-    # Override frontmatter yang mungkin diisi salah oleh AI
-    content = re.sub(r'date: "[^"]*"',
-                     f'date: "{date_str}"', content)
-    content = re.sub(r'word_count: \S+',
-                     f'word_count: {word_count}', content)
-    content = re.sub(r'slug: "[^"]*"',
-                     f'slug: "{slug}"', content)
+    content = re.sub(r'date: "[^"]*"',       f'date: "{date_str}"', content)
+    content = re.sub(r'word_count: \S+',     f'word_count: {word_count}', content)
+    content = re.sub(r'slug: "[^"]*"',       f'slug: "{slug}"', content)
 
-    # Pisahkan frontmatter dari body
     fm, body_md = _extract_frontmatter(content)
-
-    # Convert body markdown ke HTML
-    body_html = _md_to_html(body_md)
-
-    # Bungkus ke full HTML page
-    full_html = _build_article_html(fm, body_html, slug, date_str)
+    body_html   = _md_to_html(body_md)
+    full_html   = _build_article_html(fm, body_html, slug, date_str)
 
     return full_html, filename
 
 
 # ─────────────────────────────────────────────
-# TOOL
+# TOOL — validate & format
 # ─────────────────────────────────────────────
 
 def validate_tool(content: str) -> dict:
     """
     Validasi HTML tool yang sudah di-assemble oleh format_tool.
-    Dipanggil SETELAH format_tool.
     Return: dict dengan keys: valid, issues, content
     """
     issues = []
 
     if "<script" not in content.lower():
         issues.append("No JavaScript found")
-
     if "<input" not in content.lower():
         issues.append("No input elements found")
-
     if 'id="result-primary"' not in content:
         issues.append("No result-primary element found")
-
     if "function calculate" not in content:
         issues.append("No calculate() function found")
 
@@ -642,32 +750,19 @@ def format_tool(parts: dict, template: str,
         related_title = "More SaaS Resources"
 
     content = template
-
-    # Nilai dari topic_info (system-controlled)
-    content = content.replace("{{TOOL_NAME}}",            tool_name)
-    content = content.replace("{{TOOL_SLUG}}",            slug)
+    content = content.replace("{{TOOL_NAME}}",             tool_name)
+    content = content.replace("{{TOOL_SLUG}}",             slug)
     content = content.replace("{{RELATED_ARTICLE_LINK}}", related_url)
     content = content.replace("{{RELATED_ARTICLE_TITLE}}", related_title)
-
-    # Nilai dari AI (parts dict)
-    content = content.replace("{{TOOL_SUBTITLE}}",
-                               parts.get("tool_subtitle", ""))
-    content = content.replace("{{META_DESCRIPTION}}",
-                               parts.get("meta_description", ""))
-    content = content.replace("{{PRIMARY_UNIT}}",
-                               parts.get("primary_unit", ""))
-    content = content.replace("{{FORMULA_COMMENT}}",
-                               parts.get("formula_comment", ""))
-    content = content.replace("{{INPUT_FIELDS}}",
-                               parts.get("input_fields_html", ""))
-    content = content.replace("{{EXAMPLE_VALUES_INIT}}",
-                               parts.get("example_values_init", ""))
-    content = content.replace("{{CALCULATOR_JAVASCRIPT}}",
-                               parts.get("calculator_javascript", ""))
-    content = content.replace("{{FORMULA_BOX}}",
-                               parts.get("formula_box_html", ""))
-    content = content.replace("{{AFFILIATE_BOX}}",
-                               parts.get("affiliate_box_html", ""))
+    content = content.replace("{{TOOL_SUBTITLE}}",         parts.get("tool_subtitle", ""))
+    content = content.replace("{{META_DESCRIPTION}}",      parts.get("meta_description", ""))
+    content = content.replace("{{PRIMARY_UNIT}}",          parts.get("primary_unit", ""))
+    content = content.replace("{{FORMULA_COMMENT}}",       parts.get("formula_comment", ""))
+    content = content.replace("{{INPUT_FIELDS}}",          parts.get("input_fields_html", ""))
+    content = content.replace("{{EXAMPLE_VALUES_INIT}}",   parts.get("example_values_init", ""))
+    content = content.replace("{{CALCULATOR_JAVASCRIPT}}", parts.get("calculator_javascript", ""))
+    content = content.replace("{{FORMULA_BOX}}",           parts.get("formula_box_html", ""))
+    content = content.replace("{{AFFILIATE_BOX}}",         parts.get("affiliate_box_html", ""))
 
     return content, filename
 
@@ -678,90 +773,6 @@ def format_tool(parts: dict, template: str,
 # dan disimpan sebagai body HTML di staging.
 # ─────────────────────────────────────────────
 
-_TOOL_CSS = """
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: #f8fafc; color: #1e293b; line-height: 1.6;
-}
-nav { border-bottom: 1px solid #e2e8f0; background: white; padding: 0 16px; }
-.nav-inner {
-    max-width: 680px; margin: 0 auto; height: 48px;
-    display: flex; align-items: center; justify-content: space-between;
-}
-.nav-left a { font-size:.875rem; color:#6366f1; text-decoration:none; font-weight:500; }
-.nav-left a:hover { text-decoration:underline; }
-.nav-brand { font-size:.8rem; color:#94a3b8; font-weight:500; }
-.container { max-width: 680px; margin: 0 auto; padding: 32px 16px; }
-h1 { font-size:1.75rem; font-weight:700; margin-bottom:8px; color:#0f172a; }
-.subtitle { color:#64748b; margin-bottom:32px; font-size:1rem; }
-.card {
-    background:white; border-radius:12px; padding:24px;
-    box-shadow:0 1px 3px rgba(0,0,0,.08); margin-bottom:16px;
-}
-.card h2 { font-size:1rem; font-weight:600; color:#374151; margin-bottom:16px; }
-.input-group { margin-bottom:16px; }
-label { display:block; font-weight:500; margin-bottom:6px; font-size:.9rem; color:#374151; }
-.input-wrapper { position:relative; }
-.input-prefix {
-    position:absolute; left:12px; top:50%;
-    transform:translateY(-50%); color:#64748b; font-size:.95rem;
-}
-input[type="number"] {
-    width:100%; padding:10px 14px 10px 28px; border:1.5px solid #e2e8f0;
-    border-radius:8px; font-size:1rem; color:#1e293b; transition:border-color .2s;
-    -moz-appearance:textfield;
-}
-input[type="number"]::-webkit-outer-spin-button,
-input[type="number"]::-webkit-inner-spin-button { -webkit-appearance:none; }
-input[type="number"]:focus {
-    outline:none; border-color:#6366f1;
-    box-shadow:0 0 0 3px rgba(99,102,241,.1);
-}
-input.error-input { border-color:#ef4444; }
-.error-msg { color:#ef4444; font-size:.8rem; margin-top:4px; display:none; }
-.result-card {
-    background:#f0f9ff; border:1.5px solid #bae6fd;
-    border-radius:12px; padding:24px; margin-bottom:16px;
-}
-.result-label {
-    font-size:.85rem; font-weight:500; color:#0369a1;
-    text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px;
-}
-.result-number { font-size:3rem; font-weight:800; color:#0369a1; line-height:1; }
-.result-unit { font-size:1rem; color:#0369a1; margin-bottom:16px; }
-.interpretation {
-    background:white; border-radius:8px; padding:12px 16px;
-    font-size:.9rem; color:#374151; border-left:3px solid #6366f1;
-}
-.secondary-result { margin-top:12px; font-size:.85rem; color:#64748b; }
-.formula-box {
-    background:#f8fafc; border:1px solid #e2e8f0;
-    border-radius:8px; padding:16px; margin-bottom:16px;
-}
-.formula-box h3 {
-    font-size:.85rem; font-weight:600; color:#64748b; margin-bottom:8px;
-    text-transform:uppercase; letter-spacing:.05em;
-}
-.formula-box p { font-family:monospace; font-size:.85rem; color:#374151; line-height:1.8; }
-.affiliate-box {
-    border:1px solid #d1fae5; background:#f0fdf4;
-    border-radius:8px; padding:16px; margin-bottom:16px;
-    font-size:.9rem; color:#374151;
-}
-.affiliate-box a { color:#059669; font-weight:500; text-decoration:none; }
-.affiliate-box a:hover { text-decoration:underline; }
-.related-link { font-size:.85rem; color:#64748b; margin-top:8px; }
-.related-link a { color:#6366f1; text-decoration:none; }
-.related-link a:hover { text-decoration:underline; }
-footer { border-top:1px solid #e2e8f0; padding:24px 16px; text-align:center; }
-.footer-inner { max-width:680px; margin:0 auto; font-size:.8rem; color:#94a3b8; }
-.footer-inner a { color:#6366f1; text-decoration:none; }
-.footer-inner a:hover { text-decoration:underline; }
-@media(max-width:600px) { h1 { font-size:1.4rem; } .container { padding:24px 16px; } }
-"""
-
-
 def wrap_article_html(body_html: str, slug: str) -> str:
     """
     Bungkus body artikel ke full HTML page.
@@ -769,7 +780,6 @@ def wrap_article_html(body_html: str, slug: str) -> str:
     Output: full HTML page siap publish
 
     Judul diambil otomatis dari tag <h1> pertama.
-    Reuses _build_article_html yang sudah ada.
     """
     date_str = datetime.utcnow().strftime("%Y-%m-%d")
 
@@ -779,10 +789,8 @@ def wrap_article_html(body_html: str, slug: str) -> str:
              if h1_match
              else slug.replace("-", " ").title())
 
-    # Bersihkan tag HTML dari title untuk frontmatter
     title_clean = re.sub(r'<[^>]+>', '', title).strip()
-
-    word_count = len(re.sub(r'<[^>]+>', '', body_html).split())
+    word_count  = len(re.sub(r'<[^>]+>', '', body_html).split())
 
     fm = {
         "title":           title_clean,
@@ -793,22 +801,30 @@ def wrap_article_html(body_html: str, slug: str) -> str:
         "word_count":      word_count
     }
 
-    # Reuse template artikel yang sudah ada di _build_article_html
     return _build_article_html(fm, body_html, slug, date_str)
 
 
 def wrap_tool_html(body_html: str, slug: str) -> str:
     """
     Bungkus body tool/kalkulator ke full HTML page.
-    Input : body HTML saja (gunakan CSS classes dari _TOOL_CSS)
+    Input : body HTML saja — tanpa <html>/<head>/<style>.
+            Gunakan CSS class yang tersedia di bawah.
     Output: full HTML page siap publish
 
-    CSS classes yang tersedia untuk body content:
-    .card, .input-group, .input-wrapper, .input-prefix,
-    .result-card, .result-label, .result-number, .result-unit,
-    .interpretation, .secondary-result, .formula-box,
-    .affiliate-box, .related-link, .subtitle
+    CSS classes yang tersedia:
+    .card, .card h2
+    .input-group, label, .input-wrapper, .input-prefix
+    input[type="number"]
+    .result-card, .result-label, .result-number, .result-unit
+    .interpretation, .secondary-result
+    .formula-box, .formula-box h3, .formula-box p
+    .affiliate-box, .affiliate-box a
+    .related-link, .related-link a
+    .subtitle
     """
+    site_url = "https://saas.blogtrick.eu.org"
+    tool_url = f"{site_url}/tools/{slug}"
+
     h1_match = re.search(r'<h1[^>]*>(.*?)</h1>',
                          body_html, re.IGNORECASE | re.DOTALL)
     title = (h1_match.group(1).strip()
@@ -822,19 +838,225 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{title_clean} — SaaS Tools for Bootstrapped Founders</title>
-  <meta name="description" content="{title_clean}">
-  <link rel="canonical" href="https://saas.blogtrick.eu.org/tools/{slug}">
-  <style>{_TOOL_CSS}</style>
+  <meta name="description" content="{title_clean}. Free calculator for bootstrapped SaaS founders.">
+  <link rel="canonical" href="{tool_url}">
+  {_FONT}
+  <style>
+{_BASE_CSS}
+{_NAV_CSS}
+
+    /* ── LAYOUT ── */
+    .container {{ max-width: 680px; margin: 0 auto; padding: 40px 20px 80px; }}
+
+    /* ── TYPOGRAPHY ── */
+    h1 {{
+      font-size: clamp(1.5rem, 4vw, 1.9rem);
+      font-weight: 700;
+      letter-spacing: -.03em;
+      color: var(--text);
+      margin-bottom: 6px;
+    }}
+    .subtitle {{
+      color: var(--muted);
+      font-size: .95rem;
+      margin-bottom: 28px;
+      line-height: 1.5;
+    }}
+
+    /* ── CARD ── */
+    .card {{
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 24px;
+      margin-bottom: 14px;
+    }}
+    .card h2 {{
+      font-size: .9rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      margin-bottom: 20px;
+    }}
+
+    /* ── INPUTS ── */
+    .input-group {{ margin-bottom: 18px; }}
+    .input-group:last-child {{ margin-bottom: 0; }}
+    label {{
+      display: block;
+      font-size: .85rem;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 7px;
+    }}
+    .input-wrapper {{ position: relative; }}
+    .input-prefix {{
+      position: absolute;
+      left: 13px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-size: .9rem;
+      pointer-events: none;
+      font-weight: 500;
+    }}
+    input[type="number"] {{
+      width: 100%;
+      padding: 10px 14px 10px 30px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 1rem;
+      color: var(--text);
+      background: var(--surface);
+      font-family: inherit;
+      transition: border-color .15s, box-shadow .15s;
+      -moz-appearance: textfield;
+    }}
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {{ -webkit-appearance: none; }}
+    input[type="number"]:focus {{
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(79,70,229,.1);
+    }}
+    input[type="number"].error-input {{ border-color: var(--danger); }}
+    .error-msg {{
+      color: var(--danger);
+      font-size: .75rem;
+      margin-top: 4px;
+      display: none;
+    }}
+
+    /* ── RESULT ── */
+    .result-card {{
+      background: var(--accent-light);
+      border: 1.5px solid rgba(79,70,229,.2);
+      border-radius: var(--r);
+      padding: 28px 24px 24px;
+      margin-bottom: 14px;
+    }}
+    .result-label {{
+      font-size: .75rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 6px;
+    }}
+    .result-number {{
+      font-size: 3.5rem;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1;
+      letter-spacing: -.04em;
+      margin-bottom: 2px;
+    }}
+    .result-unit {{
+      font-size: .875rem;
+      color: var(--accent);
+      opacity: .7;
+      margin-bottom: 16px;
+    }}
+    .interpretation {{
+      background: var(--surface);
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: .875rem;
+      color: var(--text);
+      line-height: 1.5;
+      border-left: 3px solid var(--accent);
+    }}
+    .interpretation.danger {{
+      border-color: var(--danger);
+      background: var(--danger-bg);
+    }}
+    .interpretation.warning {{
+      border-color: var(--warning);
+      background: var(--warning-bg);
+    }}
+    .interpretation.healthy {{
+      border-color: var(--success);
+      background: var(--success-bg);
+    }}
+    .secondary-result {{
+      margin-top: 12px;
+      font-size: .8rem;
+      color: var(--muted);
+    }}
+
+    /* ── FORMULA BOX ── */
+    .formula-box {{
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 20px 24px;
+      margin-bottom: 14px;
+    }}
+    .formula-box h3 {{
+      font-size: .75rem;
+      font-weight: 600;
+      color: var(--subtle);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 10px;
+    }}
+    .formula-box p {{
+      font-size: .875rem;
+      color: var(--muted);
+      line-height: 1.7;
+      font-family: 'SFMono-Regular', Consolas, monospace;
+    }}
+
+    /* ── AFFILIATE BOX ── */
+    .affiliate-box {{
+      background: var(--success-bg);
+      border: 1px solid rgba(16,185,129,.25);
+      border-radius: var(--r);
+      padding: 16px 20px;
+      margin-bottom: 14px;
+      font-size: .875rem;
+      color: var(--text);
+      line-height: 1.6;
+    }}
+    .affiliate-box a {{
+      color: var(--success);
+      font-weight: 500;
+      text-decoration: underline;
+      text-decoration-color: rgba(16,185,129,.4);
+    }}
+    .affiliate-box a:hover {{ color: #059669; }}
+
+    /* ── RELATED LINK ── */
+    .related-link {{
+      font-size: .85rem;
+      color: var(--muted);
+      padding: 12px 0;
+    }}
+    .related-link a {{
+      color: var(--accent);
+      text-decoration: underline;
+      text-decoration-color: rgba(79,70,229,.3);
+      font-weight: 500;
+    }}
+    .related-link a:hover {{ color: var(--accent-h); }}
+
+{_FOOTER_CSS}
+
+    @media (max-width: 600px) {{
+      .container {{ padding: 28px 16px 60px; }}
+      .result-number {{ font-size: 2.75rem; }}
+    }}
+  </style>
 </head>
 <body>
 
 <nav>
   <div class="nav-inner">
-    <div class="nav-left"><a href="/tools/">← All Tools</a></div>
-    <div class="nav-brand">
-      <a href="/" style="color:#94a3b8;text-decoration:none;">
-        SaaS Tools for Bootstrapped Founders
-      </a>
+    <a href="/tools/" class="nav-back">← All Tools</a>
+    <div class="nav-links">
+      <a href="/articles/">Articles</a>
+      <a href="/tools/" class="active">Tools</a>
     </div>
   </div>
 </nav>
@@ -843,15 +1065,7 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
 {body_html}
 </div>
 
-<footer>
-  <div class="footer-inner">
-    <a href="/">Home</a> ·
-    <a href="/articles/">Articles</a> ·
-    <a href="/tools/">Tools</a>
-    <br><br>
-    Built for bootstrapped SaaS founders.
-  </div>
-</footer>
+{_FOOTER_HTML}
 
 </body>
 </html>"""
