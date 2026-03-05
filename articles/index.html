@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Articles — SaaS Tools for Bootstrapped Founders</title>
+  <meta name="description" content="No-fluff guides on SaaS finances, pricing, and growth for bootstrapped founders in the US and Canada.">
+  <link rel="canonical" href="https://saas.blogtrick.eu.org/articles/">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+  <style>
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg:           #f7f6f3;
+    --surface:      #ffffff;
+    --text:         #18181b;
+    --muted:        #71717a;
+    --subtle:       #a1a1aa;
+    --border:       #e4e4e7;
+    --accent:       #4f46e5;
+    --accent-h:     #4338ca;
+    --accent-light: #eef2ff;
+    --danger:       #ef4444;
+    --danger-bg:    #fef2f2;
+    --warning:      #f59e0b;
+    --warning-bg:   #fffbeb;
+    --success:      #10b981;
+    --success-bg:   #f0fdf4;
+    --r:            10px;
+    --shadow:       0 1px 3px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.04);
+    --shadow-md:    0 4px 16px rgba(0,0,0,.08);
+  }
+  body {
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { color: var(--accent-h); }
+
+
+  nav {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .nav-inner {
+    max-width: 720px;
+    margin: 0 auto;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .nav-brand {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+    text-decoration: none;
+    letter-spacing: -.02em;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+  .brand-accent { color: var(--accent); }
+  .nav-links { display: flex; gap: 2px; }
+  .nav-links a {
+    font-size: .875rem;
+    font-weight: 500;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 6px 14px;
+    border-radius: 8px;
+    transition: all .15s;
+  }
+  .nav-links a:hover { color: var(--text); background: var(--bg); }
+  .nav-links a.active { color: var(--accent); background: var(--accent-light); }
+
+
+    .page-header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 48px 20px 40px;
+    }
+    .page-header-inner {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+    .page-eyebrow {
+      font-size: .75rem;
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .page-header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -.03em;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .page-header p {
+      font-size: .95rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .container { max-width: 720px; margin: 0 auto; padding: 40px 20px; }
+
+    .article-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 18px 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      margin-bottom: 8px;
+      text-decoration: none;
+      transition: all .2s;
+    }
+    .article-row:hover {
+      border-color: var(--accent);
+      box-shadow: var(--shadow-md);
+      transform: translateX(2px);
+    }
+    .article-row:hover .row-arrow {
+      transform: translateX(4px);
+      color: var(--accent);
+    }
+    .row-content { flex: 1; }
+    .row-title {
+      font-size: .95rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 3px;
+      line-height: 1.4;
+    }
+    .row-date { font-size: .78rem; color: var(--subtle); }
+    .row-arrow {
+      font-size: .9rem;
+      color: var(--subtle);
+      transition: all .2s;
+      flex-shrink: 0;
+    }
+    .empty {
+      text-align: center;
+      color: var(--muted);
+      font-size: .9rem;
+      padding: 48px 0;
+    }
+
+
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 48px 20px;
+  }
+  .footer-inner {
+    max-width: 720px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .footer-brand {
+    font-size: .8rem;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 16px;
+    letter-spacing: .02em;
+    text-transform: uppercase;
+  }
+  .footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 28px;
+    margin-bottom: 16px;
+  }
+  .footer-links a {
+    font-size: .8rem;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color .15s;
+  }
+  .footer-links a:hover { color: var(--accent); }
+  .footer-copy { font-size: .75rem; color: var(--subtle); }
+
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-brand">
+      SaaS<span class="brand-accent">Tools</span>
+    </a>
+    <div class="nav-links">
+      <a href="/articles/" class="active">Articles</a>
+      <a href="/tools/">Tools</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-header">
+  <div class="page-header-inner">
+    <div class="page-eyebrow">Reading List</div>
+    <h1>Articles</h1>
+    <p>No-fluff analysis for bootstrapped SaaS founders. Real numbers, real trade-offs.</p>
+  </div>
+</div>
+
+<div class="container">
+    <div class="empty">No articles yet. Check back soon.</div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">SaaS Tools for Bootstrapped Founders</div>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/articles/">Articles</a>
+      <a href="/tools/">Tools</a>
+    </div>
+    <div class="footer-copy">
+      Free tools and analysis for independent SaaS founders in the US &amp; Canada.
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
