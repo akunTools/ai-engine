@@ -11,7 +11,7 @@ import urllib.request
 import urllib.error
 from datetime import datetime
 
-ENGINE_REPO   = os.environ.get("ENGINE_REPO", "akunTools/ai-engine")
+ENGINE_REPO   = os.environ.get("ENGINE_REPO", "YOUR_USERNAME/ai-engine")
 ENGINE_TOKEN  = os.environ.get("GITHUB_TOKEN")
 SITE_URL      = os.environ.get("SITE_BASE_URL", "https://saas.blogtrick.eu.org")
 OUTPUT_BRANCH = "output"
@@ -304,8 +304,8 @@ def build_homepage(files: list) -> str:
   <link rel="canonical" href="{SITE_URL}/">
   {_FONT}
   <style>
-{_BASE_CSS}
-{_NAV_CSS}
+{{_BASE_CSS}}
+{{_NAV_CSS}}
 
     /* ── HERO ── */
     .hero {{
@@ -481,7 +481,7 @@ def build_homepage(files: list) -> str:
 
     .empty-note {{ font-size: .9rem; color: var(--muted); padding: 16px 0; }}
 
-{_FOOTER_CSS}
+{{_FOOTER_CSS}}
 
     @media (max-width: 600px) {{
       .hero {{ padding: 48px 20px 40px; }}
@@ -574,7 +574,7 @@ def build_articles_index(files: list) -> str:
         slug  = file_to_slug(f["name"])
         url   = file_to_url("articles", f["name"])
         title = slug_to_title(slug)
-        date_match = re.match(r'^(\d{{4}}-\d{{2}}-\d{{2}})', f["name"])
+        date_match = re.match(r'^(\d{4}-\d{2}-\d{2})', f["name"])
         date_str = date_match.group(1) if date_match else ""
         try:
             from datetime import datetime as _dt
@@ -604,8 +604,8 @@ def build_articles_index(files: list) -> str:
   <link rel="canonical" href="{SITE_URL}/articles/">
   {_FONT}
   <style>
-{_BASE_CSS}
-{_NAV_CSS}
+{{_BASE_CSS}}
+{{_NAV_CSS}}
 
     .page-header {{
       background: var(--surface);
@@ -683,7 +683,7 @@ def build_articles_index(files: list) -> str:
       padding: 48px 0;
     }}
 
-{_FOOTER_CSS}
+{{_FOOTER_CSS}}
   </style>
 </head>
 <body>
@@ -768,8 +768,8 @@ def build_tools_index(files: list) -> str:
   <link rel="canonical" href="{SITE_URL}/tools/">
   {_FONT}
   <style>
-{_BASE_CSS}
-{_NAV_CSS}
+{{_BASE_CSS}}
+{{_NAV_CSS}}
 
     .page-header {{
       background: var(--surface);
@@ -856,7 +856,7 @@ def build_tools_index(files: list) -> str:
       padding: 48px 0;
     }}
 
-{_FOOTER_CSS}
+{{_FOOTER_CSS}}
   </style>
 </head>
 <body>
@@ -916,6 +916,87 @@ def publish_file(path: str, content: str, label: str):
 
 
 # ─────────────────────────────────────────────
+# CONTENT INDEX PRUNING
+# ─────────────────────────────────────────────
+
+def prune_content_index(files: list) -> None:
+    """
+    Hapus entri dari content-index.json yang file-nya
+    sudah tidak ada di branch output.
+
+    Dipanggil setiap kali generate-sitemap berjalan —
+    termasuk saat artikel atau tool dihapus dari branch output.
+    """
+    path    = "content-index.json"
+    api_url = f"{API_BASE}/repos/{ENGINE_REPO}/contents/{path}"
+
+    # Baca content-index.json yang ada
+    sha   = None
+    index = {"articles": [], "tools": []}
+    try:
+        req = urllib.request.Request(
+            f"{api_url}?ref={OUTPUT_BRANCH}", headers=_headers()
+        )
+        with urllib.request.urlopen(req) as r:
+            data  = json.loads(r.read())
+            sha   = data.get("sha")
+            raw   = base64.b64decode(data["content"]).decode("utf-8")
+            index = json.loads(raw)
+    except Exception:
+        print("content-index.json not found — skip pruning")
+        return
+
+    # Bangun set slug aktual dari file yang ada di branch output
+    active_slugs = set()
+    for f in files:
+        slug = f["name"].replace(".html", "").replace(".md", "")
+        slug = re.sub(r'^\d{4}-\d{2}-\d{2}-', '', slug)
+        active_slugs.add(slug)
+
+    # Hapus entri yang slug-nya tidak ada di branch output
+    before_articles = len(index.get("articles", []))
+    before_tools    = len(index.get("tools", []))
+
+    index["articles"] = [
+        e for e in index.get("articles", [])
+        if e["slug"] in active_slugs
+    ]
+    index["tools"] = [
+        e for e in index.get("tools", [])
+        if e["slug"] in active_slugs
+    ]
+
+    removed = (before_articles + before_tools) - \
+              (len(index["articles"]) + len(index["tools"]))
+
+    if removed == 0:
+        print("content-index.json: no stale entries found")
+        return
+
+    # Simpan kembali hanya jika ada yang dihapus
+    payload = {
+        "message": f"[sitemap] Prune {removed} stale entries from content-index",
+        "content": base64.b64encode(
+            json.dumps(index, indent=2).encode("utf-8")
+        ).decode("utf-8"),
+        "branch":  OUTPUT_BRANCH,
+        "sha":     sha
+    }
+    req = urllib.request.Request(
+        api_url,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={**_headers(), "Content-Type": "application/json"},
+        method="PUT"
+    )
+    try:
+        with urllib.request.urlopen(req) as r:
+            print(f"content-index.json pruned: {removed} entries removed "
+                  f"(HTTP {r.status})")
+    except Exception as e:
+        print(f"Warning: Could not prune content-index.json: {e}")
+
+
+# ─────────────────────────────────────────────
 # MAIN
 # ─────────────────────────────────────────────
 
@@ -924,9 +1005,10 @@ if __name__ == "__main__":
     files = get_output_files()
     print(f"Found {len(files)} content files in output branch")
 
-    publish_file("sitemap.xml",       build_sitemap(files),        "Sitemap")
-    publish_file("index.html",        build_homepage(files),        "Homepage")
+    publish_file("sitemap.xml",         build_sitemap(files),        "Sitemap")
+    publish_file("index.html",          build_homepage(files),        "Homepage")
     publish_file("articles/index.html", build_articles_index(files), "Articles index")
-    publish_file("tools/index.html",  build_tools_index(files),    "Tools index")
+    publish_file("tools/index.html",    build_tools_index(files),    "Tools index")
+    prune_content_index(files)
 
     print("Done")
