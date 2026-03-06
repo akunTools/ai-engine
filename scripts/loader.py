@@ -9,7 +9,7 @@ import urllib.request
 import urllib.error
 
 BRAIN_PAT  = os.environ.get("BRAIN_PAT", "")
-BRAIN_REPO = os.environ.get("BRAIN_REPO", "YOUR_USERNAME/ai-brain")
+BRAIN_REPO = os.environ.get("BRAIN_REPO", "akunTools/ai-brain")
 API_BASE   = "https://api.github.com"
 
 
