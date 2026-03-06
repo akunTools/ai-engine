@@ -78,7 +78,7 @@ def _md_to_html(md: str) -> str:
             html.append(f'<h4>{inline(stripped[5:])}</h4>')
             continue
 
-        if re.match(r'^[-*_]{3,}$', stripped):
+        if re.match(r'^[-*_]{3,}\$', stripped):
             flush_p(); flush_ul(); flush_ol()
             html.append('<hr>')
             continue
@@ -125,7 +125,7 @@ def _extract_frontmatter(content: str) -> tuple:
     match = re.match(r'^---\s*\n(.*?)\n---\s*\n', content, re.DOTALL)
     if match:
         for line in match.group(1).split("\n"):
-            kv = re.match(r'^(\w+):\s*"?([^"]*)"?\s*$', line.strip())
+            kv = re.match(r'^(\w+):\s*"?([^"]*)"?\s*\$', line.strip())
             if kv:
                 fm[kv.group(1)] = kv.group(2).strip()
         body = content[match.end():]
@@ -279,16 +279,97 @@ _FOOTER_CSS = """
 
 _TOOL_CSS = ""  # CSS disediakan oleh wrap_tool_html — tidak dipakai standalone
 
+_RELATED_CSS = """
+    /* ── RELATED CONTENT ── */
+    .related-content { margin-bottom: 32px; }
+    .related-heading {
+      font-size: .75rem;
+      font-weight: 600;
+      color: var(--subtle);
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      margin-bottom: 10px;
+      margin-top: 20px;
+    }}
+    .related-heading:first-child {{ margin-top: 0; }}
+    .related-list {{
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }}
+    .related-list li a {{
+      font-size: .875rem;
+      color: var(--accent);
+      text-decoration: none;
+      display: block;
+      padding: 8px 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      transition: border-color .15s;
+    }}
+    .related-list li a:hover {{
+      border-color: var(--accent);
+    }}
+"""
+
+_RELATED_JS = """<script>
+(function() {{
+  var meta    = document.querySelector('meta[name="cluster"]');
+  var cluster = meta ? meta.getAttribute('content') : '';
+  if (!cluster) return;
+  var parts       = window.location.pathname.split('/').filter(Boolean);
+  var currentSlug = (parts[parts.length - 1] || '').replace('.html', '');
+  fetch('/content-index.json')
+    .then(function(r) {{ return r.json(); }})
+    .then(function(idx) {{
+      var articles = (idx.articles || [])
+        .filter(function(a) {{ return a.cluster === cluster && a.slug !== currentSlug; }})
+        .slice(0, 3);
+      var tools = (idx.tools || [])
+        .filter(function(t) {{ return t.cluster === cluster && t.slug !== currentSlug; }})
+        .slice(0, 2);
+      var html = '';
+      if (articles.length) {{
+        html += '<h3 class="related-heading">Related Articles</h3>'
+              + '<ul class="related-list">';
+        articles.forEach(function(a) {{
+          html += '<li><a href="/articles/' + a.slug + '">' + a.title + '</a></li>';
+        }});
+        html += '</ul>';
+      }}
+      if (tools.length) {{
+        html += '<h3 class="related-heading">Related Tools</h3>'
+              + '<ul class="related-list">';
+        tools.forEach(function(t) {{
+          html += '<li><a href="/tools/' + t.slug + '">' + t.title + '</a></li>';
+        }});
+        html += '</ul>';
+      }}
+      if (html) {{
+        var el = document.getElementById('related-content');
+        if (el) el.innerHTML = html;
+      }}
+    }})
+    .catch(function() {{}});
+}})();
+</script>"""
+
 
 # ─────────────────────────────────────────────
 # ARTICLE TEMPLATE
 # ─────────────────────────────────────────────
 
 def _build_article_html(fm: dict, body_html: str,
-                        slug: str, date_str: str) -> str:
+                        slug: str, date_str: str,
+                        cluster_id: str = "") -> str:
     """
     Bungkus article body HTML ke dalam full HTML page.
-    Menyertakan: navigasi, metadata, share buttons, komentar Giscus.
+    Menyertakan: navigasi, metadata, share buttons, komentar Giscus,
+    dan related content (artikel + tools dalam cluster yang sama).
     """
     site_url    = "https://saas.blogtrick.eu.org"
     title       = fm.get("title", slug.replace("-", " ").title())
@@ -302,7 +383,8 @@ def _build_article_html(fm: dict, body_html: str,
     except Exception:
         display_date = date_str
 
-    kw_meta  = f'<meta name="keywords" content="{keyword}">' if keyword else ""
+    kw_meta      = f'<meta name="keywords" content="{keyword}">' if keyword else ""
+    cluster_meta = f'<meta name="cluster" content="{cluster_id}">' if cluster_id else ""
     kw_badge = (
         f'<span class="meta-divider">·</span>'
         f'<span class="meta-tag">{keyword}</span>'
@@ -316,6 +398,7 @@ def _build_article_html(fm: dict, body_html: str,
   <title>{title} — SaaS Tools for Bootstrapped Founders</title>
   <meta name="description" content="{title}">
   {kw_meta}
+  {cluster_meta}
   <meta property="og:title" content="{title}">
   <meta property="og:url" content="{article_url}">
   <meta property="og:type" content="article">
@@ -325,8 +408,8 @@ def _build_article_html(fm: dict, body_html: str,
   <link rel="canonical" href="{article_url}">
   {_FONT}
   <style>
-{_BASE_CSS}
-{_NAV_CSS}
+{{_BASE_CSS}}
+{{_NAV_CSS}}
 
     /* ── LAYOUT ── */
     .container {{
@@ -498,7 +581,8 @@ def _build_article_html(fm: dict, body_html: str,
       border-bottom: 1px solid var(--border);
     }}
 
-{_FOOTER_CSS}
+{_RELATED_CSS}
+{{_FOOTER_CSS}}
 
     @media (max-width: 600px) {{
       .container {{ padding: 32px 16px 60px; }}
@@ -551,6 +635,8 @@ def _build_article_html(fm: dict, body_html: str,
   <article class="article-body">
     {body_html}
   </article>
+
+  <div id="related-content"></div>
 
   <div class="share-box">
     <div class="share-label">Share this article</div>
@@ -612,6 +698,8 @@ def _build_article_html(fm: dict, body_html: str,
     }});
   }}
 </script>
+
+{_RELATED_JS}
 
 </body>
 </html>"""
@@ -732,9 +820,13 @@ def format_tool(parts: dict, template: str,
                 topic_info: dict) -> tuple:
     """
     Inject bagian dinamis dari AI ke dalam HTML template.
-    parts    : dict dari generate_tool_parts() di ai_caller.py
-    template : isi file templates/calculator.html
+    parts    : dict dari generate_tool_parts()
+    template : isi file HTML template kalkulator
     Return   : tuple (assembled_html, filename)
+
+    CATATAN v4.0: Fungsi ini adalah sisa dari sistem lama (v3.x).
+    Di v4.0, konten tool ditulis manual dan dibungkus dengan
+    wrap_tool_html(). Fungsi ini tidak dipanggil oleh run_pipeline.py.
     """
     slug      = topic_info.get("tool_slug", "untitled-tool")
     tool_name = topic_info.get("tool_name", "Calculator")
@@ -776,11 +868,25 @@ def format_tool(parts: dict, template: str,
 def wrap_article_html(body_html: str, slug: str) -> str:
     """
     Bungkus body artikel ke full HTML page.
-    Input : body HTML saja (mulai dari <h1>)
+    Input : body HTML saja (mulai dari <h1>, boleh diawali
+            <meta name="cluster"> sebelum <h1>)
     Output: full HTML page siap publish
 
     Judul diambil otomatis dari tag <h1> pertama.
+    Cluster diambil dari <meta name="cluster"> jika ada,
+    lalu meta tag itu dihapus dari body sebelum render.
     """
+    # Ekstrak cluster_id dari meta tag (ditulis Claude di baris pertama output)
+    cluster_match = re.search(
+        r'<meta\s+name=["\']cluster["\']\s+content=["\']([^"\']*)["\'][^>]*/?>',
+        body_html, re.IGNORECASE
+    )
+    cluster_id = cluster_match.group(1).strip() if cluster_match else ""
+    # Hapus meta tag dari body — ini metadata internal, bukan konten halaman
+    if cluster_match:
+        body_html = body_html[:cluster_match.start()] + body_html[cluster_match.end():]
+        body_html = body_html.lstrip("\n")
+
     date_str = datetime.utcnow().strftime("%Y-%m-%d")
 
     h1_match = re.search(r'<h1[^>]*>(.*?)</h1>',
@@ -797,17 +903,18 @@ def wrap_article_html(body_html: str, slug: str) -> str:
         "slug":            slug,
         "date":            date_str,
         "primary_keyword": "",
-        "cluster_id":      "",
+        "cluster_id":      cluster_id,
         "word_count":      word_count
     }
 
-    return _build_article_html(fm, body_html, slug, date_str)
+    return _build_article_html(fm, body_html, slug, date_str, cluster_id)
 
 
 def wrap_tool_html(body_html: str, slug: str) -> str:
     """
     Bungkus body tool/kalkulator ke full HTML page.
-    Input : body HTML saja — tanpa <html>/<head>/<style>.
+    Input : body HTML saja — boleh diawali <meta name="cluster">
+            sebelum <h1>. Tanpa <html>/<head>/<style>.
             Gunakan CSS class yang tersedia di bawah.
     Output: full HTML page siap publish
 
@@ -822,8 +929,19 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
     .related-link, .related-link a
     .subtitle
     """
-    site_url = "https://saas.blogtrick.eu.org"
-    tool_url = f"{site_url}/tools/{slug}"
+    # Ekstrak cluster_id dari meta tag
+    cluster_match = re.search(
+        r'<meta\s+name=["\']cluster["\']\s+content=["\']([^"\']*)["\'][^>]*/?>',
+        body_html, re.IGNORECASE
+    )
+    cluster_id = cluster_match.group(1).strip() if cluster_match else ""
+    if cluster_match:
+        body_html = body_html[:cluster_match.start()] + body_html[cluster_match.end():]
+        body_html = body_html.lstrip("\n")
+
+    site_url     = "https://saas.blogtrick.eu.org"
+    tool_url     = f"{site_url}/tools/{slug}"
+    cluster_meta = f'<meta name="cluster" content="{cluster_id}">' if cluster_id else ""
 
     h1_match = re.search(r'<h1[^>]*>(.*?)</h1>',
                          body_html, re.IGNORECASE | re.DOTALL)
@@ -839,11 +957,12 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{title_clean} — SaaS Tools for Bootstrapped Founders</title>
   <meta name="description" content="{title_clean}. Free calculator for bootstrapped SaaS founders.">
+  {cluster_meta}
   <link rel="canonical" href="{tool_url}">
   {_FONT}
   <style>
-{_BASE_CSS}
-{_NAV_CSS}
+{{_BASE_CSS}}
+{{_NAV_CSS}}
 
     /* ── LAYOUT ── */
     .container {{ max-width: 680px; margin: 0 auto; padding: 40px 20px 80px; }}
@@ -1041,7 +1160,8 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
     }}
     .related-link a:hover {{ color: var(--accent-h); }}
 
-{_FOOTER_CSS}
+{_RELATED_CSS}
+{{_FOOTER_CSS}}
 
     @media (max-width: 600px) {{
       .container {{ padding: 28px 16px 60px; }}
@@ -1063,9 +1183,12 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
 
 <div class="container">
 {body_html}
+<div id="related-content"></div>
 </div>
 
 {_FOOTER_HTML}
+
+{_RELATED_JS}
 
 </body>
 </html>"""
