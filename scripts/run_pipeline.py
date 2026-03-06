@@ -1,81 +1,60 @@
 """
 run_pipeline.py
-Pipeline publish konten dari staging/ready/.
-
-CARA KERJA:
-1. Baca manifest.json (antrian berurutan)
-2. Sync manifest dengan file aktual di ready/:
-   - File baru → tambah ke akhir antrian
-   - File terhapus → hapus dari antrian
-   - File dimodifikasi → posisi antrian tidak berubah
-3. Publish file pertama di antrian
-4. Hapus file dari staging setelah berhasil
-5. Update editorial_memory.json otomatis
-
-FORMAT FILE DI STAGING:
-- Artikel : body HTML saja (mulai dari <h1>)
-- Tools   : body HTML saja (gunakan CSS classes dari postprocess.py)
+Pipeline utama: ambil konten dari staging, wrap template,
+publish ke output branch, update tracking files.
 """
 import os
-import sys
 import re
+import sys
 import json
+import base64
+import urllib.request
 from datetime import datetime
 
-sys.path.insert(0, os.path.dirname(__file__))
-
-from loader import (
-    list_folder, fetch_json, update_file,
-    delete_file, write_log
-)
+from loader    import fetch_file, fetch_json, update_file, list_folder, delete_file
 from postprocess import wrap_article_html, wrap_tool_html
-from publisher import publish
-import sitemap_gen
+from publisher  import publish_html
+
+ENGINE_REPO   = os.environ.get("ENGINE_REPO", "")
+GITHUB_TOKEN  = os.environ.get("GITHUB_TOKEN", "")
+TASK_TYPE     = os.environ.get("TASK_TYPE", "article")
 
 
-# ─────────────────────────────────────────────
-# MANIFEST
-# ─────────────────────────────────────────────
-
-def sync_manifest(staging_ready: str, manifest_path: str) -> tuple:
+def sync_manifest(staging_ready_path: str, manifest_path: str) -> tuple:
     """
-    Sync manifest dengan file aktual di staging/ready.
+    Sinkronisasi manifest dengan file aktual di staging.
+    - File baru (tidak di manifest) → tambah ke akhir antrian
+    - File yang sudah dihapus → hapus dari manifest
+    - File yang dimodifikasi → posisi tidak berubah
 
-    Return: (queue, actual_files)
-      queue        : list of dict {filename, added_at} — urut terbit
-      actual_files : dict {filename: {name, path, sha}}
+    Return: (queue list, actual_files dict {filename: sha})
     """
-    # Ambil file aktual di folder ready
-    actual_files = {
-        f["name"]: f
-        for f in list_folder(staging_ready)
-        if f["name"].endswith(".html")
-    }
+    # Ambil file aktual
+    actual_files_list = list_folder(staging_ready_path)
+    actual_files = {f["name"]: f["sha"] for f in actual_files_list}
 
-    # Baca manifest yang ada
+    # Ambil manifest
     try:
         manifest = fetch_json(manifest_path)
         queue = manifest.get("queue", [])
     except Exception:
         queue = []
 
-    # Hapus dari antrian jika file sudah tidak ada (terhapus)
-    queue = [item for item in queue
-             if item["filename"] in actual_files]
+    # Hapus entri untuk file yang sudah tidak ada
+    queue = [e for e in queue if e["filename"] in actual_files]
 
     # Tambah file baru ke akhir antrian
-    # File baru = ada di actual_files tapi belum ada di queue
-    # Urut alfabetis untuk konsistensi saat banyak file baru sekaligus
-    # (gunakan prefix 01-, 02-, dst jika ingin kontrol urutan spesifik)
-    existing = {item["filename"] for item in queue}
-    for filename in sorted(actual_files.keys()):
-        if filename not in existing:
-            queue.append({
-                "filename": filename,
-                "added_at": datetime.utcnow().isoformat()
-            })
+    queued_names = {e["filename"] for e in queue}
+    new_files = sorted(
+        [f for f in actual_files if f not in queued_names]
+    )
+    for filename in new_files:
+        queue.append({
+            "filename": filename,
+            "added_at": datetime.utcnow().isoformat()
+        })
 
-    # Simpan manifest yang sudah disync
+    # Simpan manifest yang sudah disinkron
     update_file(
         manifest_path,
         json.dumps({"queue": queue}, indent=2),
@@ -85,30 +64,28 @@ def sync_manifest(staging_ready: str, manifest_path: str) -> tuple:
     return queue, actual_files
 
 
-# ─────────────────────────────────────────────
-# EDITORIAL MEMORY
-# ─────────────────────────────────────────────
+def slug_from_filename(filename: str) -> str:
+    """Konversi nama file ke slug URL."""
+    slug = filename.replace(".html", "").replace(".md", "")
+    # Hapus prefix tanggal jika ada (contoh: 2025-01-15-)
+    slug = re.sub(r'^\d{4}-\d{2}-\d{2}-', '', slug)
+    return slug
+
 
 def update_editorial_memory(slug: str, body_html: str,
                              content_type: str) -> None:
-    """
-    Tambah entry ke editorial_memory.json setelah konten dipublish.
-    Dijalankan otomatis — tidak perlu update manual.
-
-    content_type: 'articles' atau 'tools'
-    """
+    """Update editorial_memory.json setelah konten dipublish."""
     try:
         memory = fetch_json("editorial_memory.json")
     except Exception:
         memory = {
-            "last_updated":      "",
+            "last_updated": "",
             "published_articles": [],
-            "published_tools":    []
+            "published_tools": []
         }
 
     date_str = datetime.utcnow().strftime("%Y-%m-%d")
 
-    # Ekstrak judul dari <h1>
     h1_match = re.search(r'<h1[^>]*>(.*?)</h1>',
                          body_html, re.IGNORECASE | re.DOTALL)
     title = (re.sub(r'<[^>]+>', '', h1_match.group(1)).strip()
@@ -120,14 +97,12 @@ def update_editorial_memory(slug: str, body_html: str,
         "published_date": date_str
     }
 
-    if content_type == "articles":
-        existing = {a.get("slug") for a in
-                    memory.get("published_articles", [])}
+    if content_type == "article":
+        existing = {a["slug"] for a in memory.get("published_articles", [])}
         if slug not in existing:
             memory.setdefault("published_articles", []).append(entry)
     else:
-        existing = {t.get("slug") for t in
-                    memory.get("published_tools", [])}
+        existing = {t["slug"] for t in memory.get("published_tools", [])}
         if slug not in existing:
             memory.setdefault("published_tools", []).append(entry)
 
@@ -136,16 +111,13 @@ def update_editorial_memory(slug: str, body_html: str,
     update_file(
         "editorial_memory.json",
         json.dumps(memory, indent=2),
-        f"[pipeline] Add to editorial memory: {slug}"
+        f"[pipeline] Update editorial memory: {slug}"
     )
     print(f"Editorial memory updated: {slug}")
 
 
 def update_tool_registry(slug: str, body_html: str) -> None:
-    """
-    Tambah tool baru ke tool_registry.json setelah dipublish.
-    Dijalankan otomatis — tidak perlu update manual.
-    """
+    """Update tool_registry.json setelah tool dipublish."""
     try:
         registry = fetch_json("tool_registry.json")
     except Exception:
@@ -153,13 +125,11 @@ def update_tool_registry(slug: str, body_html: str) -> None:
 
     date_str = datetime.utcnow().strftime("%Y-%m-%d")
 
-    # Ekstrak judul dari <h1>
     h1_match = re.search(r'<h1[^>]*>(.*?)</h1>',
                          body_html, re.IGNORECASE | re.DOTALL)
     title = (re.sub(r'<[^>]+>', '', h1_match.group(1)).strip()
              if h1_match else slug.replace("-", " ").title())
 
-    # Cek apakah sudah ada
     existing = {t.get("slug") for t in registry.get("tools", [])}
     if slug not in existing:
         registry.setdefault("tools", []).append({
@@ -177,173 +147,147 @@ def update_tool_registry(slug: str, body_html: str) -> None:
         )
         print(f"Tool registry updated: {slug}")
 
-# ─────────────────────────────────────────────
-# SITEMAP
-# ─────────────────────────────────────────────
 
-def refresh_sitemap(output_folder: str) -> None:
-    """Update sitemap.xml dan halaman index setelah publish."""
+def extract_cluster(body_html: str) -> str:
+    """Ekstrak cluster_id dari meta tag di body HTML staging."""
+    match = re.search(
+        r'<meta\s+name=["\']cluster["\']\s+content=["\']([^"\']*)["\'][^>]*/?>',
+        body_html, re.IGNORECASE
+    )
+    return match.group(1).strip() if match else ""
+
+
+def update_content_index(slug: str, title: str, cluster_id: str,
+                          content_type: str, date_str: str) -> None:
+    """
+    Update content-index.json di branch output ENGINE_REPO.
+    File ini dibaca oleh JavaScript di setiap halaman untuk
+    menampilkan Related Articles dan Related Tools secara otomatis.
+    """
+    path    = "content-index.json"
+    api_url = f"https://api.github.com/repos/{ENGINE_REPO}/contents/{path}"
+    headers = {
+        "Authorization": f"token {GITHUB_TOKEN}",
+        "Accept":        "application/vnd.github.v3+json",
+        "User-Agent":    "ai-engine"
+    }
+
+    # Baca content-index.json yang sudah ada
+    sha   = None
+    index = {"articles": [], "tools": []}
     try:
-        files = sitemap_gen.get_output_files()
-        sitemap_gen.publish_file(
-            "sitemap.xml",
-            sitemap_gen.build_sitemap(files),
-            "Sitemap"
+        req = urllib.request.Request(
+            f"{api_url}?ref=output", headers=headers
         )
-        if output_folder == "articles":
-            sitemap_gen.publish_file(
-                "articles/index.html",
-                sitemap_gen.build_articles_index(files),
-                "Articles index"
-            )
-        else:
-            sitemap_gen.publish_file(
-                "tools/index.html",
-                sitemap_gen.build_tools_index(files),
-                "Tools index"
-            )
-        print("Sitemap and index updated")
+        with urllib.request.urlopen(req) as r:
+            data    = json.loads(r.read())
+            sha     = data.get("sha")
+            raw     = base64.b64decode(data["content"]).decode("utf-8")
+            index   = json.loads(raw)
+    except Exception:
+        pass  # File belum ada → mulai dari kosong
+
+    # Tambah entry baru (skip jika slug sudah ada)
+    key            = "articles" if content_type == "article" else "tools"
+    existing_slugs = {e["slug"] for e in index.get(key, [])}
+    if slug not in existing_slugs:
+        index.setdefault(key, []).append({
+            "slug":    slug,
+            "title":   title,
+            "cluster": cluster_id,
+            "date":    date_str
+        })
+
+    # Simpan kembali ke branch output
+    payload = {
+        "message": f"[pipeline] Update content index: {slug}",
+        "content": base64.b64encode(
+            json.dumps(index, indent=2).encode("utf-8")
+        ).decode("utf-8"),
+        "branch":  "output"
+    }
+    if sha:
+        payload["sha"] = sha
+
+    req = urllib.request.Request(
+        api_url,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={**headers, "Content-Type": "application/json"},
+        method="PUT"
+    )
+    try:
+        with urllib.request.urlopen(req) as r:
+            print(f"Content index updated: {slug} (HTTP {r.status})")
     except Exception as e:
-        # Jangan gagalkan pipeline hanya karena sitemap error
-        print(f"Warning: sitemap update failed: {e}")
+        print(f"Warning: Could not update content index: {e}")
 
 
-# ─────────────────────────────────────────────
-# PIPELINE
-# ─────────────────────────────────────────────
+def run_pipeline(task_type: str) -> None:
+    is_article  = (task_type == "article")
+    folder_type = "articles" if is_article else "tools"
+    output_dir  = folder_type
 
-def run_pipeline(task_type: str) -> dict:
-    """
-    Ambil file pertama dari antrian dan publish ke branch output.
+    staging_ready = f"staging/{folder_type}/ready"
+    manifest_path = f"staging/{folder_type}/manifest.json"
 
-    task_type: 'article' atau 'calculator_tool'
-    """
-    if task_type == "article":
-        staging_ready   = "staging/articles/ready"
-        manifest_path   = "staging/articles/manifest.json"
-        output_folder   = "articles"
-        is_article      = True
-    elif task_type == "calculator_tool":
-        staging_ready   = "staging/tools/ready"
-        manifest_path   = "staging/tools/manifest.json"
-        output_folder   = "tools"
-        is_article      = False
-    else:
-        print(f"Unknown task_type: {task_type}")
-        sys.exit(1)
+    print(f"Task type: {task_type}")
+    print("Syncing manifest...")
 
-    print(f"\n=== PIPELINE: {task_type.upper()} ===")
-    print(f"Staging folder : {staging_ready}")
-
-    # Sync manifest dengan file aktual
     queue, actual_files = sync_manifest(staging_ready, manifest_path)
 
     if not queue:
-        print("Staging is empty. Nothing to publish.")
-        with open("/tmp/queue_empty.flag", "w") as f:
-            f.write(task_type)
-        return {"success": False, "issues": [f"Staging empty: {staging_ready}"]}
+        print(f"STAGING_EMPTY: No {folder_type} in staging/ready.")
+        sys.exit(2)
 
-    # Ambil file pertama dari antrian
+    # Ambil item pertama dari antrian
     next_item = queue[0]
     filename  = next_item["filename"]
-    file_info = actual_files[filename]
+    file_sha  = actual_files[filename]
+    slug      = slug_from_filename(filename)
 
-    # Slug = nama file tanpa ekstensi, tanpa prefix angka opsional
-    slug = re.sub(r'^\d+-', '', filename.replace(".html", ""))
-
-    print(f"Publishing     : {filename}")
-    print(f"Slug           : {slug}")
-    print(f"Queued at      : {next_item.get('added_at', 'unknown')}")
-    print(f"Remaining      : {len(queue) - 1} file(s) in staging")
+    print(f"Publishing: {filename} → slug: {slug}")
 
     # Ambil body HTML dari staging
-    from loader import fetch_file
-    body_html = fetch_file(file_info["path"])
+    body_html = fetch_file(f"{staging_ready}/{filename}")
 
-    # Wrap body ke full HTML page
+    # Wrap dengan template
     if is_article:
-        print("Applying article template...")
-        final_html      = wrap_article_html(body_html, slug)
-        output_filename = f"{slug}.html"
+        full_html = wrap_article_html(body_html, slug)
     else:
-        print("Applying tool template...")
-        final_html      = wrap_tool_html(body_html, slug)
-        output_filename = f"{slug}.html"
+        full_html = wrap_tool_html(body_html, slug)
 
     # Publish ke branch output
-    success = publish(output_filename, final_html, output_folder)
-
-    if success:
-        print(f"Published: {output_folder}/{output_filename}")
-
-        # Hapus file dari staging
-        delete_file(
-            file_info["path"],
-            file_info["sha"],
-            f"[staging] Published: {filename}"
-        )
-        print(f"Removed from staging: {filename}")
-
-        # Update editorial_memory otomatis
-        update_editorial_memory(slug, body_html, output_folder)
-
-        # Update tool registry jika ini adalah tool
-        if not is_article:
-            update_tool_registry(slug, body_html)
-
-        # Update sitemap dan index
-        refresh_sitemap(output_folder)
-
-        return {
-            "success":  True,
-            "filename": output_filename,
-            "slug":     slug
-        }
-    else:
-        return {"success": False, "issues": ["Publishing failed"]}
-
-
-# ─────────────────────────────────────────────
-# ENTRY POINT
-# ─────────────────────────────────────────────
-
-def main():
-    print(f"Pipeline started at {datetime.utcnow().isoformat()}")
-
-    task_type = os.environ.get("TASK_TYPE", "article")
-    date_str  = datetime.utcnow().strftime("%Y-%m-%d")
-
-    try:
-        result   = run_pipeline(task_type)
-        is_empty = "Staging empty" in str(result.get("issues", []))
-
-        # Log hanya jika bukan sekadar staging kosong
-        if not is_empty:
-            write_log(date_str, {
-                "timestamp": datetime.utcnow().isoformat(),
-                "task_type": task_type,
-                "result":    result
-            }, "success" if result.get("success") else "failures")
-
-        if result.get("success"):
-            print(f"\nSUCCESS: {result.get('filename')}")
-        elif is_empty:
-            print("\nStaging is empty — nothing to publish.")
-        else:
-            print(f"\nFAILED: {result.get('issues')}")
-            with open("/tmp/pipeline_error.log", "w") as f:
-                f.write(str(result.get("issues")))
-            sys.exit(1)
-
-    except Exception as e:
-        import traceback
-        error_msg = traceback.format_exc()
-        print(f"\nUnexpected error:\n{error_msg}")
-        with open("/tmp/pipeline_error.log", "w") as f:
-            f.write(error_msg)
+    success = publish_html(output_dir, f"{slug}.html", full_html)
+    if not success:
+        print(f"PUBLISH_FAILED: Could not publish {slug}.html")
         sys.exit(1)
+
+    print(f"Published successfully: {output_dir}/{slug}.html")
+
+    # Hapus dari staging
+    delete_file(
+        f"{staging_ready}/{filename}",
+        file_sha,
+        f"[pipeline] Remove published: {filename}"
+    )
+    print(f"Removed from staging: {filename}")
+
+    # Update tracking files
+    update_editorial_memory(slug, body_html, task_type)
+    if not is_article:
+        update_tool_registry(slug, body_html)
+
+    # Update content-index.json untuk related content otomatis
+    h1_match   = re.search(r'<h1[^>]*>(.*?)</h1>', body_html,
+                            re.IGNORECASE | re.DOTALL)
+    page_title = (re.sub(r'<[^>]+>', '', h1_match.group(1)).strip()
+                  if h1_match else slug.replace("-", " ").title())
+    cluster_id = extract_cluster(body_html)
+    date_str   = datetime.utcnow().strftime("%Y-%m-%d")
+    update_content_index(slug, page_title, cluster_id, task_type, date_str)
+
+    print("Pipeline completed successfully.")
 
 
 if __name__ == "__main__":
-    main()
+    run_pipeline(TASK_TYPE)
