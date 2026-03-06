@@ -1,56 +1,48 @@
 """
 publisher.py
-Commit file output ke branch 'output' di repo ai-engine.
+Publish file HTML ke branch output di repo ai-engine.
 """
 import os
 import json
 import base64
 import urllib.request
-import urllib.error
 
-ENGINE_REPO   = os.environ.get("ENGINE_REPO", "YOUR_USERNAME/ai-engine")
-ENGINE_TOKEN  = os.environ.get("GITHUB_TOKEN")
+ENGINE_REPO   = os.environ.get("ENGINE_REPO", "")
+GITHUB_TOKEN  = os.environ.get("GITHUB_TOKEN", "")
 OUTPUT_BRANCH = "output"
 API_BASE      = "https://api.github.com"
 
 
 def _headers():
     return {
-        "Authorization": f"token {ENGINE_TOKEN}",
-        "Accept": "application/vnd.github.v3+json",
-        "Content-Type": "application/json",
-        "User-Agent": "ai-engine"
+        "Authorization": f"token {GITHUB_TOKEN}",
+        "Accept":        "application/vnd.github.v3+json",
+        "User-Agent":    "ai-engine"
     }
 
 
-def publish(filename: str, content: str,
-            subfolder: str = "articles") -> bool:
+def publish_html(folder: str, filename: str, html: str) -> bool:
     """
-    Publish file ke branch output di ai-engine.
-    subfolder: 'articles' atau 'tools'
-    Return: True jika berhasil, False jika gagal.
+    Publish file HTML ke folder articles/ atau tools/ di branch output.
+    Return True jika berhasil.
     """
-    path = f"{subfolder}/{filename}"
+    path = f"{folder}/{filename}"
     url  = f"{API_BASE}/repos/{ENGINE_REPO}/contents/{path}"
     sha  = None
 
-    # Cek apakah file sudah ada
     try:
         req = urllib.request.Request(
-            f"{url}?ref={OUTPUT_BRANCH}",
-            headers=_headers()
+            f"{url}?ref={OUTPUT_BRANCH}", headers=_headers()
         )
         with urllib.request.urlopen(req) as r:
             sha = json.loads(r.read()).get("sha")
-    except urllib.error.HTTPError:
-        pass  # File baru
+    except Exception:
+        pass
 
     payload = {
-        "message": f"[engine] Publish {path}",
-        "content": base64.b64encode(
-            content.encode("utf-8")
-        ).decode("utf-8"),
-        "branch": OUTPUT_BRANCH
+        "message": f"[pipeline] Publish {folder}/{filename}",
+        "content": base64.b64encode(html.encode("utf-8")).decode("utf-8"),
+        "branch":  OUTPUT_BRANCH
     }
     if sha:
         payload["sha"] = sha
@@ -58,16 +50,8 @@ def publish(filename: str, content: str,
     req = urllib.request.Request(
         url,
         data=json.dumps(payload).encode("utf-8"),
-        headers=_headers(),
+        headers={**_headers(), "Content-Type": "application/json"},
         method="PUT"
     )
-    try:
-        with urllib.request.urlopen(req) as r:
-            ok = r.status in (200, 201)
-            if ok:
-                print(f"Published: {path}")
-            return ok
-    except urllib.error.HTTPError as e:
-        body = e.read().decode()
-        print(f"Publish failed for {path}: {e.code} {body}")
-        return False
+    with urllib.request.urlopen(req) as r:
+        return r.status in (200, 201)
