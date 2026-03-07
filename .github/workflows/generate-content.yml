@@ -41,14 +41,14 @@ jobs:
 
       - name: Set task type artikel
         run: |
-          echo "TASK_TYPE=article" >> \$GITHUB_ENV
+          echo "TASK_TYPE=article" >> $GITHUB_ENV
 
       - name: Jalankan Pipeline
         env:
-          BRAIN_PAT:    \${{ secrets.BRAIN_PAT }}
-          GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}
-          ENGINE_REPO:  \${{ github.repository }}
-          BRAIN_REPO:   YOUR_USERNAME/ai-brain
+          BRAIN_PAT:    ${{ secrets.BRAIN_PAT }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ENGINE_REPO:  ${{ github.repository }}
+          BRAIN_REPO:   akunTools/ai-brain
         run: python scripts/run_pipeline.py
 
       - name: Kirim email notifikasi sukses
@@ -57,11 +57,11 @@ jobs:
         with:
           server_address: smtp-relay.brevo.com
           server_port:    587
-          username:       \${{ secrets.BREVO_USERNAME }}
-          password:       \${{ secrets.BREVO_PASSWORD }}
+          username:       ${{ secrets.BREVO_USERNAME }}
+          password:       ${{ secrets.BREVO_PASSWORD }}
           subject:        "[AI Engine] Published: Article"
-          to:             \${{ secrets.NOTIFY_EMAIL }}
-          from:           \${{ secrets.BREVO_FROM_EMAIL }}
+          to:             ${{ secrets.NOTIFY_EMAIL }}
+          from:           ${{ secrets.BREVO_FROM_EMAIL }}
           body:           "Article published successfully. Check the website."
 
       - name: Kirim email staging kosong
@@ -70,11 +70,11 @@ jobs:
         with:
           server_address: smtp-relay.brevo.com
           server_port:    587
-          username:       \${{ secrets.BREVO_USERNAME }}
-          password:       \${{ secrets.BREVO_PASSWORD }}
+          username:       ${{ secrets.BREVO_USERNAME }}
+          password:       ${{ secrets.BREVO_PASSWORD }}
           subject:        "[AI Engine] ⚠️ Staging Empty — No Article to Publish"
-          to:             \${{ secrets.NOTIFY_EMAIL }}
-          from:           \${{ secrets.BREVO_FROM_EMAIL }}
+          to:             ${{ secrets.NOTIFY_EMAIL }}
+          from:           ${{ secrets.BREVO_FROM_EMAIL }}
           body:           "Staging is empty. Add new articles to staging/articles/ready/ in ai-brain."
 
   generate-tool:
@@ -96,14 +96,14 @@ jobs:
 
       - name: Set task type tool
         run: |
-          echo "TASK_TYPE=tool" >> \$GITHUB_ENV
+          echo "TASK_TYPE=tool" >> $GITHUB_ENV
 
       - name: Jalankan Pipeline
         env:
-          BRAIN_PAT:    \${{ secrets.BRAIN_PAT }}
-          GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}
-          ENGINE_REPO:  \${{ github.repository }}
-          BRAIN_REPO:   YOUR_USERNAME/ai-brain
+          BRAIN_PAT:    ${{ secrets.BRAIN_PAT }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ENGINE_REPO:  ${{ github.repository }}
+          BRAIN_REPO:   akunTools/ai-brain
         run: python scripts/run_pipeline.py
 
       - name: Kirim email notifikasi sukses
@@ -112,11 +112,11 @@ jobs:
         with:
           server_address: smtp-relay.brevo.com
           server_port:    587
-          username:       \${{ secrets.BREVO_USERNAME }}
-          password:       \${{ secrets.BREVO_PASSWORD }}
+          username:       ${{ secrets.BREVO_USERNAME }}
+          password:       ${{ secrets.BREVO_PASSWORD }}
           subject:        "[AI Engine] Published: Tool"
-          to:             \${{ secrets.NOTIFY_EMAIL }}
-          from:           \${{ secrets.BREVO_FROM_EMAIL }}
+          to:             ${{ secrets.NOTIFY_EMAIL }}
+          from:           ${{ secrets.BREVO_FROM_EMAIL }}
           body:           "Tool published successfully. Check the website."
 
       - name: Kirim email staging kosong
@@ -125,9 +125,9 @@ jobs:
         with:
           server_address: smtp-relay.brevo.com
           server_port:    587
-          username:       \${{ secrets.BREVO_USERNAME }}
-          password:       \${{ secrets.BREVO_PASSWORD }}
+          username:       ${{ secrets.BREVO_USERNAME }}
+          password:       ${{ secrets.BREVO_PASSWORD }}
           subject:        "[AI Engine] ⚠️ Staging Empty — No Tool to Publish"
-          to:             \${{ secrets.NOTIFY_EMAIL }}
-          from:           \${{ secrets.BREVO_FROM_EMAIL }}
+          to:             ${{ secrets.NOTIFY_EMAIL }}
+          from:           ${{ secrets.BREVO_FROM_EMAIL }}
           body:           "Tool staging is empty. Add new tools to staging/tools/ready/ in ai-brain."
