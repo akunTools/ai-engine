@@ -1,107 +1,127 @@
 """
 reporter.py
-Generate laporan harian.
-Menampilkan: publish kemarin, staging count, failed publish.
+Buat laporan harian tentang status staging dan publish log.
 """
 import os
-import sys
 import json
+import smtplib
+import urllib.request
+from email.mime.text import MIMEText
 from datetime import datetime, timedelta
 
-sys.path.insert(0, os.path.dirname(__file__))
-from loader import fetch_file, update_file, list_folder
+BRAIN_PAT     = os.environ.get("BRAIN_PAT", "")
+BRAIN_REPO    = os.environ.get("BRAIN_REPO", "")
+ENGINE_REPO   = os.environ.get("ENGINE_REPO", "")
+GITHUB_TOKEN  = os.environ.get("GITHUB_TOKEN", "")
+SMTP_SERVER   = os.environ.get("BREVO_SMTP_SERVER", "smtp-relay.brevo.com")
+SMTP_PORT     = int(os.environ.get("BREVO_SMTP_PORT", 587))
+SMTP_USER     = os.environ.get("BREVO_USERNAME", "")
+SMTP_PASS     = os.environ.get("BREVO_PASSWORD", "")
+FROM_EMAIL    = os.environ.get("BREVO_FROM_EMAIL", "")
+NOTIFY_EMAIL  = os.environ.get("NOTIFY_EMAIL", "")
+API_BASE      = "https://api.github.com"
 
 
-def count_staging(folder: str) -> int:
-    """Hitung jumlah file HTML di folder staging."""
-    try:
-        return len([
-            f for f in list_folder(folder)
-            if f["name"].endswith(".html")
-        ])
-    except Exception:
-        return 0
+def _headers(token):
+    return {
+        "Authorization": f"token {token}",
+        "Accept": "application/vnd.github.v3+json",
+        "User-Agent": "ai-engine"
+    }
 
 
-def run():
-    yesterday = datetime.utcnow() - timedelta(days=1)
-    date_str  = yesterday.strftime("%Y-%m-%d")
+def count_staging(folder: str) -> dict:
+    """Hitung file di staging ready dan drafts."""
+    def _count(path):
+        url = f"{API_BASE}/repos/{BRAIN_REPO}/contents/{path}"
+        req = urllib.request.Request(url, headers=_headers(BRAIN_PAT))
+        try:
+            with urllib.request.urlopen(req) as r:
+                items = json.loads(r.read())
+            return len([i for i in items
+                        if i["type"] == "file" and i["name"] != ".gitkeep"])
+        except Exception:
+            return 0
 
-    # Baca log kemarin
-    success_count   = 0
-    failure_entries = []
+    return {
+        "ready":  _count(f"staging/{folder}/ready"),
+        "drafts": _count(f"staging/{folder}/drafts")
+    }
 
-    try:
-        d = json.loads(fetch_file(f"logs/success/{date_str}.json"))
-        success_count = len(d.get("entries", []))
-    except Exception:
-        pass
 
-    try:
-        d = json.loads(fetch_file(f"logs/failures/{date_str}.json"))
-        failure_entries = d.get("entries", [])
-    except Exception:
-        pass
+def get_recent_publishes() -> list:
+    """Ambil daftar file yang dipublish dalam 24 jam terakhir."""
+    published = []
+    for folder in ["articles", "tools"]:
+        url = (f"{API_BASE}/repos/{ENGINE_REPO}/contents/{folder}"
+               f"?ref=output")
+        req = urllib.request.Request(url, headers=_headers(GITHUB_TOKEN))
+        try:
+            with urllib.request.urlopen(req) as r:
+                items = json.loads(r.read())
+            for item in items:
+                if item["name"] not in (".gitkeep", "index.html"):
+                    published.append({
+                        "folder": folder,
+                        "name": item["name"]
+                    })
+        except Exception:
+            pass
+    return published
 
-    # Hitung staging
-    articles_ready  = count_staging("staging/articles/ready")
-    articles_drafts = count_staging("staging/articles/drafts")
-    tools_ready     = count_staging("staging/tools/ready")
-    tools_drafts    = count_staging("staging/tools/drafts")
 
-    # Status staging
-    staging_status = "OK"
-    if articles_ready == 0 and tools_ready == 0:
-        staging_status = "EMPTY — Write new content and save to staging/ready"
-    elif articles_ready == 0:
-        staging_status = "Articles empty — Add articles to staging/articles/ready"
-    elif tools_ready == 0:
-        staging_status = "Tools empty — Add tools to staging/tools/ready"
+def build_report() -> str:
+    """Buat teks laporan harian."""
+    today = datetime.utcnow().strftime("%Y-%m-%d")
 
-    failure_lines = "\n".join([
-        f"- {e.get('task_type','?')}: "
-        f"{e.get('result', {}).get('issues', [])}"
-        for e in failure_entries
-    ]) or "None"
+    articles = count_staging("articles")
+    tools    = count_staging("tools")
 
-    report = f"""# Daily Report — {date_str}
+    total_ready = articles["ready"] + tools["ready"]
 
-## Published Yesterday
-- Success : {success_count}
-- Failed  : {len(failure_entries)}
+    if total_ready == 0:
+        status = "⚠️ STAGING EMPTY"
+        action = "Tambah konten baru ke staging/articles/ready/ atau staging/tools/ready/"
+    else:
+        status = "✅ OPERATIONAL"
+        action = "None — system is healthy."
+
+    report = f"""# Daily Report — {today}
+
+## Status
+{status}
 
 ## Staging Queue
-- Articles ready  : {articles_ready} waiting to publish
-- Articles drafts : {articles_drafts} in progress
-- Tools ready     : {tools_ready} waiting to publish
-- Tools drafts    : {tools_drafts} in progress
-- Status          : {staging_status}
-
-## Publish Failures
-{failure_lines}
+- Articles ready  : {articles['ready']}
+- Articles drafts : {articles['drafts']}
+- Tools ready     : {tools['ready']}
+- Tools drafts    : {tools['drafts']}
 
 ## Action Required
-{"Review publish failures. Check Actions tab for error details." if failure_entries else "None — system healthy."}
+{action}
 
 ---
-Generated at {datetime.utcnow().isoformat()}
+Next article publish: automatic (every 2 days at 02:00 UTC)
+Next tool publish   : automatic (1st and 15th of each month at 06:00 UTC)
 """
+    return report
 
-    update_file(
-        f"logs/reports/{date_str}-daily.md",
-        report,
-        f"[reporter] Daily report {date_str}"
-    )
 
-    with open("/tmp/daily_report.txt", "w") as f:
-        f.write(report)
+def send_email(subject: str, body: str) -> None:
+    msg = MIMEText(body, "plain")
+    msg["Subject"] = subject
+    msg["From"]    = FROM_EMAIL
+    msg["To"]      = NOTIFY_EMAIL
 
-    if failure_entries:
-        with open("/tmp/has_failures.flag", "w") as f:
-            f.write(str(len(failure_entries)))
-
-    print(report)
+    with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
+        server.starttls()
+        server.login(SMTP_USER, SMTP_PASS)
+        server.sendmail(FROM_EMAIL, [NOTIFY_EMAIL], msg.as_string())
+    print(f"Email sent: {subject}")
 
 
 if __name__ == "__main__":
-    run()
+    report  = build_report()
+    subject = "[AI Engine] Daily Report"
+    send_email(subject, report)
+    print(report)
