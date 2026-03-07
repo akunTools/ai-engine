@@ -3,20 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Financial Guides for SaaS Founders — Articles</title>
-  <meta name="description" content="Plain-English financial guides for bootstrapped SaaS founders. Runway, pricing, MRR math, burn rate, and more.">
+  <title>Articles — SaaS Tools for Bootstrapped Founders</title>
+  <meta name="description" content="No-fluff guides on SaaS finances, pricing, and growth for bootstrapped founders.">
   <link rel="canonical" href="https://saas.blogtrick.eu.org/articles/">
-  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
   <style>
-    
+
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
-    --bg:           #ffffff;
-    --surface:      #f8fafc;
-    --text:         #0f172a;
-    --muted:        #64748b;
-    --subtle:       #94a3b8;
-    --border:       #e2e8f0;
+    --bg:           #f7f6f3;
+    --surface:      #ffffff;
+    --text:         #18181b;
+    --muted:        #71717a;
+    --subtle:       #a1a1aa;
+    --border:       #e4e4e7;
     --accent:       #4f46e5;
     --accent-h:     #4338ca;
     --accent-light: #eef2ff;
@@ -24,35 +24,33 @@
     --danger-bg:    #fef2f2;
     --warning:      #f59e0b;
     --warning-bg:   #fffbeb;
-    --success:      #16a34a;
+    --success:      #10b981;
     --success-bg:   #f0fdf4;
     --r:            10px;
     --shadow:       0 1px 3px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.04);
     --shadow-md:    0 4px 16px rgba(0,0,0,.08);
   }
   body {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     background: var(--bg);
     color: var(--text);
-    font-size: 16px;
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
   }
   a { color: var(--accent); text-decoration: none; }
   a:hover { color: var(--accent-h); }
 
-    
+
   nav {
-    background: var(--bg);
+    background: var(--surface);
     border-bottom: 1px solid var(--border);
-    padding: 0 1.5rem;
+    padding: 0 20px;
     position: sticky;
     top: 0;
     z-index: 100;
   }
   .nav-inner {
-    max-width: 820px;
+    max-width: 720px;
     margin: 0 auto;
     height: 56px;
     display: flex;
@@ -80,141 +78,122 @@
     border-radius: 8px;
     transition: all .15s;
   }
-  .nav-links a:hover { color: var(--text); background: var(--surface); }
+  .nav-links a:hover { color: var(--text); background: var(--bg); }
   .nav-links a.active { color: var(--accent); background: var(--accent-light); }
 
 
-    /* ── Layout ── */
-    .container {
-      max-width: 820px;
-      margin: 0 auto;
-      padding: 0 1.5rem;
-    }
-
-    /* ── Page header ── */
     .page-header {
-      padding: 3.75rem 0 2.75rem;
+      background: var(--surface);
       border-bottom: 1px solid var(--border);
+      padding: 48px 20px 40px;
     }
-
-    .page-header h1 {
-      font-size: 1.875rem;
-      font-weight: 700;
-      letter-spacing: -.02em;
-      line-height: 1.2;
-      margin-bottom: .5rem;
+    .page-header-inner {
+      max-width: 720px;
+      margin: 0 auto;
     }
-
-    .page-header-meta {
-      font-size: .9375rem;
-      color: var(--muted);
-      line-height: 1.5;
-    }
-
-    .page-header-meta strong {
-      color: var(--text);
-      font-weight: 600;
-    }
-
-    /* ── Article list ── */
-    .article-section { padding: 2.5rem 0 4rem; }
-
-    .article-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-
-    .article-item {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 2rem;
-      padding: 1.375rem 0;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .article-item:first-child { border-top: 1px solid var(--border); }
-
-    .article-item-body {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .article-item-title {
-      display: block;
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--text);
-      line-height: 1.4;
-      text-decoration: none;
-      transition: color .12s;
-    }
-    .article-item-title:hover { color: var(--accent); }
-
-    .article-item-aside {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: .125rem;
-      flex-shrink: 0;
-      padding-top: .125rem;
-    }
-
-    .article-meta {
-      font-size: .8125rem;
-      color: var(--muted);
-      white-space: nowrap;
-    }
-
-    .article-readtime {
+    .page-eyebrow {
       font-size: .75rem;
-      color: var(--subtle);
-      white-space: nowrap;
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .page-header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -.03em;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .page-header p {
+      font-size: .95rem;
+      color: var(--muted);
+      line-height: 1.6;
     }
 
-    
+    .container { max-width: 720px; margin: 0 auto; padding: 40px 20px; }
+
+    .article-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 18px 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      margin-bottom: 8px;
+      text-decoration: none;
+      transition: all .2s;
+    }
+    .article-row:hover {
+      border-color: var(--accent);
+      box-shadow: var(--shadow-md);
+      transform: translateX(2px);
+    }
+    .article-row:hover .row-arrow {
+      transform: translateX(4px);
+      color: var(--accent);
+    }
+    .row-content { flex: 1; }
+    .row-title {
+      font-size: .95rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 3px;
+      line-height: 1.4;
+    }
+    .row-date { font-size: .78rem; color: var(--subtle); }
+    .row-arrow {
+      font-size: .9rem;
+      color: var(--subtle);
+      transition: all .2s;
+      flex-shrink: 0;
+    }
+    .empty {
+      text-align: center;
+      color: var(--muted);
+      font-size: .9rem;
+      padding: 48px 0;
+    }
+
+
   footer {
     border-top: 1px solid var(--border);
-    padding: 48px 1.5rem;
-    margin-top: 2rem;
+    background: var(--surface);
+    padding: 32px 20px;
   }
-  .footer-inner {
-    max-width: 820px;
-    margin: 0 auto;
-    text-align: center;
+  .footer-inner { max-width: 720px; margin: 0 auto; }
+  .footer-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
   }
   .footer-brand {
-    font-size: .8rem;
-    font-weight: 600;
-    color: var(--muted);
-    margin-bottom: 16px;
-    letter-spacing: .02em;
-    text-transform: uppercase;
+    font-size: .95rem;
+    font-weight: 700;
+    color: var(--text);
+    text-decoration: none;
+    letter-spacing: -.02em;
   }
-  .footer-links {
-    display: flex;
-    justify-content: center;
-    gap: 28px;
-    margin-bottom: 16px;
-  }
-  .footer-links a {
+  .footer-accent { color: var(--accent); }
+  .footer-nav { display: flex; gap: 24px; }
+  .footer-nav a {
     font-size: .8rem;
     color: var(--muted);
     text-decoration: none;
     transition: color .15s;
   }
-  .footer-links a:hover { color: var(--accent); }
-  .footer-copy { font-size: .75rem; color: var(--subtle); }
+  .footer-nav a:hover { color: var(--accent); }
+  .footer-bottom {
+    font-size: .75rem;
+    color: var(--subtle);
+    border-top: 1px solid var(--border);
+    padding-top: 16px;
+  }
 
-
-    /* ── Responsive ── */
-    @media (max-width: 600px) {
-      .page-header { padding: 2.25rem 0 1.75rem; }
-      .page-header h1 { font-size: 1.5rem; }
-      .article-item { flex-direction: column; gap: .5rem; padding: 1.25rem 0; }
-      .article-item-aside { flex-direction: row; align-items: center; gap: .625rem; }
-    }
   </style>
 </head>
 <body>
@@ -231,43 +210,35 @@
   </div>
 </nav>
 
-<main>
-  <div class="container">
-
-    <header class="page-header">
-      <h1>Financial guides</h1>
-      <p class="page-header-meta">
-        <strong>1</strong> article covering runway,
-        pricing strategy, MRR math, burn rate, and SaaS unit economics.
-      </p>
-    </header>
-
-    <section class="article-section">
-      <ul class="article-list">
-      <li class="article-item">
-        <div class="article-item-body">
-          <a class="article-item-title" href="https://saas.blogtrick.eu.org/articles/test-pipeline">Test Pipeline</a>
-        </div>
-        <div class="article-item-aside">
-          <span class="article-meta"></span>
-        </div>
-      </li>
-      </ul>
-    </section>
-
+<div class="page-header">
+  <div class="page-header-inner">
+    <div class="page-eyebrow">Reading List</div>
+    <h1>Articles</h1>
+    <p>No-fluff analysis for bootstrapped SaaS founders. Real numbers, real trade-offs.</p>
   </div>
-</main>
+</div>
+
+<div class="container">
+    <a href="https://saas.blogtrick.eu.org/articles/test-pipeline" class="article-row">
+      <div class="row-content">
+        <div class="row-title">Test Pipeline</div>
+        
+      </div>
+      <div class="row-arrow">→</div>
+    </a>
+</div>
 
 <footer>
   <div class="footer-inner">
-    <div class="footer-brand">SaaS Tools for Bootstrapped Founders</div>
-    <div class="footer-links">
-      <a href="/">Home</a>
-      <a href="/articles/">Articles</a>
-      <a href="/tools/">Tools</a>
+    <div class="footer-top">
+      <a href="/" class="footer-brand">SaaS<span class="footer-accent">Tools</span></a>
+      <nav class="footer-nav">
+        <a href="/articles/">Articles</a>
+        <a href="/tools/">Tools</a>
+      </nav>
     </div>
-    <div class="footer-copy">
-      Free tools and analysis for independent SaaS founders in the US &amp; Canada.
+    <div class="footer-bottom">
+      Free calculators and guides for bootstrapped founders.
     </div>
   </div>
 </footer>
