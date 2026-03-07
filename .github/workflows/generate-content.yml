@@ -1,22 +1,34 @@
 name: Generate Content
 
 on:
-  schedule:
-    # Artikel: setiap 2 hari, jam 8 pagi UTC
-    - cron: '0 8 */2 * *'
-    # Tools: setiap 14 hari, jam 9 pagi UTC
-    - cron: '0 9 */14 * *'
   workflow_dispatch:
     inputs:
       task_type:
-        description: 'Jenis konten: article atau calculator_tool'
+        description: 'Jenis konten yang akan dipublish'
         required: true
         default: 'article'
+        type: choice
+        options:
+          - article
+          - tool
+
+  repository_dispatch:
+    types: [run-task]
+
+  schedule:
+    # Artikel: setiap 2 hari jam 02:00 UTC (09:00 WIB)
+    - cron: '0 2 */2 * *'
+    # Tools: tanggal 1 dan 15 setiap bulan jam 06:00 UTC
+    - cron: '0 6 1,15 * *'
 
 jobs:
-  publish:
+  generate-article:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    if: |
+      (github.event_name == 'schedule' && github.event.schedule == '0 2 */2 * *') ||
+      (github.event_name == 'repository_dispatch' && github.event.client_payload.task_type == 'article') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.task_type == 'article')
 
     steps:
       - name: Checkout ai-engine
@@ -27,84 +39,95 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Tentukan task_type
-        id: tasktype
+      - name: Set task type artikel
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "type=${{ github.event.inputs.task_type }}" >> $GITHUB_OUTPUT
-          elif [ "${{ github.event.schedule }}" = "0 9 */14 * *" ]; then
-            echo "type=calculator_tool" >> $GITHUB_OUTPUT
-          else
-            echo "type=article" >> $GITHUB_OUTPUT
-          fi
+          echo "TASK_TYPE=article" >> \$GITHUB_ENV
 
       - name: Jalankan Pipeline
         env:
-          BRAIN_PAT:    ${{ secrets.BRAIN_PAT }}
-          BRAIN_REPO:   akunTools/ai-brain
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ENGINE_REPO:  ${{ github.repository }}
-          SITE_BASE_URL: https://saas.blogtrick.eu.org
-          TASK_TYPE:    ${{ steps.tasktype.outputs.type }}
+          BRAIN_PAT:    \${{ secrets.BRAIN_PAT }}
+          GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}
+          ENGINE_REPO:  \${{ github.repository }}
+          BRAIN_REPO:   YOUR_USERNAME/ai-brain
         run: python scripts/run_pipeline.py
 
-      - name: Email berhasil publish
-        if: success() && hashFiles('/tmp/queue_empty.flag') == ''
-        uses: dawidd6/action-send-mail@v4
+      - name: Kirim email notifikasi sukses
+        if: success()
+        uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp-relay.brevo.com
-          server_port: 587
-          secure: false
-          username: ${{ secrets.BREVO_USERNAME }}
-          password: ${{ secrets.BREVO_PASSWORD }}
-          subject: '[AI Engine] Published: ${{ steps.tasktype.outputs.type }}'
-          to: ${{ secrets.NOTIFICATION_EMAIL }}
-          from: AI Engine <${{ secrets.GMAIL_USERNAME }}>
-          body: |
-            Content published successfully.
+          server_port:    587
+          username:       \${{ secrets.BREVO_USERNAME }}
+          password:       \${{ secrets.BREVO_PASSWORD }}
+          subject:        "[AI Engine] Published: Article"
+          to:             \${{ secrets.NOTIFY_EMAIL }}
+          from:           \${{ secrets.BREVO_FROM_EMAIL }}
+          body:           "Article published successfully. Check the website."
 
-            Type : ${{ steps.tasktype.outputs.type }}
-
-            View site : https://saas.blogtrick.eu.org
-            View run  : https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-
-      - name: Email staging kosong
-        if: success() && hashFiles('/tmp/queue_empty.flag') != ''
-        uses: dawidd6/action-send-mail@v4
-        with:
-          server_address: smtp-relay.brevo.com
-          server_port: 587
-          secure: false
-          username: ${{ secrets.BREVO_USERNAME }}
-          password: ${{ secrets.BREVO_PASSWORD }}
-          subject: '[AI Engine] Staging Empty — Action Required'
-          to: ${{ secrets.NOTIFICATION_EMAIL }}
-          from: AI Engine <${{ secrets.GMAIL_USERNAME }}>
-          body: |
-            Staging is empty. No content to publish.
-
-            Type checked: ${{ steps.tasktype.outputs.type }}
-
-            Write new content with Claude and save the body HTML to:
-            staging/articles/ready/ or staging/tools/ready/
-            in the ai-brain repository.
-
-      - name: Email gagal
+      - name: Kirim email staging kosong
         if: failure()
-        uses: dawidd6/action-send-mail@v4
+        uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp-relay.brevo.com
-          server_port: 587
-          secure: false
-          username: ${{ secrets.BREVO_USERNAME }}
-          password: ${{ secrets.BREVO_PASSWORD }}
-          subject: '[AI Engine] Publish Failed'
-          to: ${{ secrets.NOTIFICATION_EMAIL }}
-          from: AI Engine <${{ secrets.GMAIL_USERNAME }}>
-          body: |
-            Pipeline failed during publish.
+          server_port:    587
+          username:       \${{ secrets.BREVO_USERNAME }}
+          password:       \${{ secrets.BREVO_PASSWORD }}
+          subject:        "[AI Engine] ⚠️ Staging Empty — No Article to Publish"
+          to:             \${{ secrets.NOTIFY_EMAIL }}
+          from:           \${{ secrets.BREVO_FROM_EMAIL }}
+          body:           "Staging is empty. Add new articles to staging/articles/ready/ in ai-brain."
 
-            Type   : ${{ steps.tasktype.outputs.type }}
+  generate-tool:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: |
+      (github.event_name == 'schedule' && github.event.schedule == '0 6 1,15 * *') ||
+      (github.event_name == 'repository_dispatch' && github.event.client_payload.task_type == 'tool') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.task_type == 'tool')
 
-            Check Actions tab:
-            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    steps:
+      - name: Checkout ai-engine
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Set task type tool
+        run: |
+          echo "TASK_TYPE=tool" >> \$GITHUB_ENV
+
+      - name: Jalankan Pipeline
+        env:
+          BRAIN_PAT:    \${{ secrets.BRAIN_PAT }}
+          GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}
+          ENGINE_REPO:  \${{ github.repository }}
+          BRAIN_REPO:   YOUR_USERNAME/ai-brain
+        run: python scripts/run_pipeline.py
+
+      - name: Kirim email notifikasi sukses
+        if: success()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp-relay.brevo.com
+          server_port:    587
+          username:       \${{ secrets.BREVO_USERNAME }}
+          password:       \${{ secrets.BREVO_PASSWORD }}
+          subject:        "[AI Engine] Published: Tool"
+          to:             \${{ secrets.NOTIFY_EMAIL }}
+          from:           \${{ secrets.BREVO_FROM_EMAIL }}
+          body:           "Tool published successfully. Check the website."
+
+      - name: Kirim email staging kosong
+        if: failure()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp-relay.brevo.com
+          server_port:    587
+          username:       \${{ secrets.BREVO_USERNAME }}
+          password:       \${{ secrets.BREVO_PASSWORD }}
+          subject:        "[AI Engine] ⚠️ Staging Empty — No Tool to Publish"
+          to:             \${{ secrets.NOTIFY_EMAIL }}
+          from:           \${{ secrets.BREVO_FROM_EMAIL }}
+          body:           "Tool staging is empty. Add new tools to staging/tools/ready/ in ai-brain."
