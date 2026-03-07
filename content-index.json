@@ -1,0 +1,11 @@
+{
+  "articles": [
+    {
+      "slug": "test-pipeline",
+      "title": "Test Pipeline Article",
+      "cluster": "",
+      "date": "2026-03-07"
+    }
+  ],
+  "tools": []
+}
