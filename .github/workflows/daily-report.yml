@@ -22,12 +22,12 @@ jobs:
 
       - name: Jalankan Reporter
         env:
-          BRAIN_PAT:        \${{ secrets.BRAIN_PAT }}
-          BRAIN_REPO:       YOUR_USERNAME/ai-brain
-          ENGINE_REPO:      \${{ github.repository }}
-          GITHUB_TOKEN:     \${{ secrets.GITHUB_TOKEN }}
-          BREVO_USERNAME:   \${{ secrets.BREVO_USERNAME }}
-          BREVO_PASSWORD:   \${{ secrets.BREVO_PASSWORD }}
-          BREVO_FROM_EMAIL: \${{ secrets.BREVO_FROM_EMAIL }}
-          NOTIFY_EMAIL:     \${{ secrets.NOTIFY_EMAIL }}
+          BRAIN_PAT:        ${{ secrets.BRAIN_PAT }}
+          BRAIN_REPO:       akunTools/ai-brain
+          ENGINE_REPO:      ${{ github.repository }}
+          GITHUB_TOKEN:     ${{ secrets.GITHUB_TOKEN }}
+          BREVO_USERNAME:   ${{ secrets.BREVO_USERNAME }}
+          BREVO_PASSWORD:   ${{ secrets.BREVO_PASSWORD }}
+          BREVO_FROM_EMAIL: ${{ secrets.BREVO_FROM_EMAIL }}
+          NOTIFY_EMAIL:     ${{ secrets.NOTIFY_EMAIL }}
         run: python scripts/reporter.py
