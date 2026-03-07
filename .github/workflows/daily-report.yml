@@ -23,7 +23,7 @@ jobs:
 
       - name: Generate laporan harian
         env:
-          BRAIN_PAT:  \${{ secrets.BRAIN_PAT }}
+          BRAIN_PAT:  ${{ secrets.BRAIN_PAT }}
           BRAIN_REPO: akunTools/ai-brain
         run: python scripts/reporter.py
 
