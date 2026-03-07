@@ -11,7 +11,7 @@ import urllib.request
 import urllib.error
 from datetime import datetime
 
-ENGINE_REPO   = os.environ.get("ENGINE_REPO", "akunTools/ai-engine")
+ENGINE_REPO   = os.environ.get("ENGINE_REPO", "YOUR_USERNAME/ai-engine")
 ENGINE_TOKEN  = os.environ.get("GITHUB_TOKEN")
 SITE_URL      = os.environ.get("SITE_BASE_URL", "https://saas.blogtrick.eu.org")
 OUTPUT_BRANCH = "output"
@@ -527,9 +527,9 @@ def build_homepage(files: list) -> str:
         <div class="prop-desc">Calculators work in real-time, no signup needed</div>
       </div>
       <div class="prop">
-        <div class="prop-icon">🇺🇸</div>
+        <div class="prop-icon">🌍</div>
         <div class="prop-title">Founder-first</div>
-        <div class="prop-desc">Benchmarks and context for North American SaaS</div>
+        <div class="prop-desc">Practical benchmarks for bootstrapped SaaS founders</div>
       </div>
     </div>
   </div>
