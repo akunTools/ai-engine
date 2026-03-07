@@ -72,18 +72,20 @@ def slug_to_title(slug: str) -> str:
 _FONT = (
     '<link rel="preconnect" href="https://fonts.googleapis.com">'
     '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
-    '<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">'
+    '<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,'
+    'wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400'
+    '&display=swap" rel="stylesheet">'
 )
 
 _BASE_CSS = """
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
-    --bg:           #ffffff;
-    --surface:      #f8fafc;
-    --text:         #0f172a;
-    --muted:        #64748b;
-    --subtle:       #94a3b8;
-    --border:       #e2e8f0;
+    --bg:           #f7f6f3;
+    --surface:      #ffffff;
+    --text:         #18181b;
+    --muted:        #71717a;
+    --subtle:       #a1a1aa;
+    --border:       #e4e4e7;
     --accent:       #4f46e5;
     --accent-h:     #4338ca;
     --accent-light: #eef2ff;
@@ -91,20 +93,18 @@ _BASE_CSS = """
     --danger-bg:    #fef2f2;
     --warning:      #f59e0b;
     --warning-bg:   #fffbeb;
-    --success:      #16a34a;
+    --success:      #10b981;
     --success-bg:   #f0fdf4;
     --r:            10px;
     --shadow:       0 1px 3px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.04);
     --shadow-md:    0 4px 16px rgba(0,0,0,.08);
   }
   body {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     background: var(--bg);
     color: var(--text);
-    font-size: 16px;
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
   }
   a { color: var(--accent); text-decoration: none; }
   a:hover { color: var(--accent-h); }
@@ -112,15 +112,15 @@ _BASE_CSS = """
 
 _NAV_CSS = """
   nav {
-    background: var(--bg);
+    background: var(--surface);
     border-bottom: 1px solid var(--border);
-    padding: 0 1.5rem;
+    padding: 0 20px;
     position: sticky;
     top: 0;
     z-index: 100;
   }
   .nav-inner {
-    max-width: 820px;
+    max-width: 720px;
     margin: 0 auto;
     height: 56px;
     display: flex;
@@ -148,48 +148,50 @@ _NAV_CSS = """
     border-radius: 8px;
     transition: all .15s;
   }
-  .nav-links a:hover { color: var(--text); background: var(--surface); }
+  .nav-links a:hover { color: var(--text); background: var(--bg); }
   .nav-links a.active { color: var(--accent); background: var(--accent-light); }
 """
 
 _FOOTER_CSS = """
   footer {
     border-top: 1px solid var(--border);
-    padding: 48px 1.5rem;
-    margin-top: 2rem;
+    background: var(--surface);
+    padding: 32px 20px;
   }
-  .footer-inner {
-    max-width: 820px;
-    margin: 0 auto;
-    text-align: center;
+  .footer-inner { max-width: 720px; margin: 0 auto; }
+  .footer-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
   }
   .footer-brand {
-    font-size: .8rem;
-    font-weight: 600;
-    color: var(--muted);
-    margin-bottom: 16px;
-    letter-spacing: .02em;
-    text-transform: uppercase;
+    font-size: .95rem;
+    font-weight: 700;
+    color: var(--text);
+    text-decoration: none;
+    letter-spacing: -.02em;
   }
-  .footer-links {
-    display: flex;
-    justify-content: center;
-    gap: 28px;
-    margin-bottom: 16px;
-  }
-  .footer-links a {
+  .footer-accent { color: var(--accent); }
+  .footer-nav { display: flex; gap: 24px; }
+  .footer-nav a {
     font-size: .8rem;
     color: var(--muted);
     text-decoration: none;
     transition: color .15s;
   }
-  .footer-links a:hover { color: var(--accent); }
-  .footer-copy { font-size: .75rem; color: var(--subtle); }
+  .footer-nav a:hover { color: var(--accent); }
+  .footer-bottom {
+    font-size: .75rem;
+    color: var(--subtle);
+    border-top: 1px solid var(--border);
+    padding-top: 16px;
+  }
 """
 
 
 def _nav(active: str = "") -> str:
-    art_cls  = ' class="active"' if active == "articles" else ""
+    art_cls = ' class="active"' if active == "articles" else ""
     tool_cls = ' class="active"' if active == "tools" else ""
     return f"""<nav>
   <div class="nav-inner">
@@ -206,14 +208,15 @@ def _nav(active: str = "") -> str:
 
 _FOOTER = """<footer>
   <div class="footer-inner">
-    <div class="footer-brand">SaaS Tools for Bootstrapped Founders</div>
-    <div class="footer-links">
-      <a href="/">Home</a>
-      <a href="/articles/">Articles</a>
-      <a href="/tools/">Tools</a>
+    <div class="footer-top">
+      <a href="/" class="footer-brand">SaaS<span class="footer-accent">Tools</span></a>
+      <nav class="footer-nav">
+        <a href="/articles/">Articles</a>
+        <a href="/tools/">Tools</a>
+      </nav>
     </div>
-    <div class="footer-copy">
-      Free tools and analysis for independent SaaS founders in the US &amp; Canada.
+    <div class="footer-bottom">
+      Free calculators and guides for bootstrapped founders.
     </div>
   </div>
 </footer>"""
@@ -257,442 +260,237 @@ def build_homepage(files: list) -> str:
     article_files = sorted(
         [f for f in files if f["folder"] == "articles"],
         key=lambda x: x["name"], reverse=True
-    )[:5]
+    )[:5]  # last 5 articles
 
     tool_files = sorted(
         [f for f in files if f["folder"] == "tools"],
         key=lambda x: x["name"]
-    )[:6]
+    )[:6]  # up to 6 tools
 
-    # ── Article items ──────────────────────────────────────────────────────
-    # Injects <li class="article-item"> matching homepage CSS
+    # Recent articles HTML
     if article_files:
         articles_html = ""
         for f in article_files:
             slug  = file_to_slug(f["name"])
             url   = file_to_url("articles", f["name"])
             title = slug_to_title(slug)
-            date_match = re.match(r'^(\d{4}-\d{2}-\d{2})', f["name"])
-            date_str = date_match.group(1) if date_match else ""
-            try:
-                from datetime import datetime as _dt
-                display_date = (
-                    _dt.strptime(date_str, "%Y-%m-%d").strftime("%b %-d, %Y")
-                    if date_str else ""
-                )
-            except Exception:
-                display_date = date_str
-
-            articles_html += f"""      <li class="article-item">
-        <div class="article-item-body">
-          <a class="article-item-title" href="{url}">{title}</a>
-        </div>
-        <span class="article-meta">{display_date}</span>
-      </li>\n"""
+            articles_html += f"""
+      <a href="{url}" class="article-item">
+        <span class="item-title">{title}</span>
+        <span class="item-arrow">→</span>
+      </a>"""
     else:
-        articles_html = (
-            '      <li class="article-item" style="border:none; color:var(--muted); '
-            'font-size:.9rem; padding:1rem 0;">No articles yet — check back soon.</li>\n'
-        )
+        articles_html = '<p class="empty-note">No articles yet — check back soon.</p>'
 
-    # ── Tool cards ─────────────────────────────────────────────────────────
-    # Injects <a class="tool-card"> matching homepage CSS
-    _CTA = {
-        "runway":     "Calculate your runway",
-        "burn":       "Model your burn rate",
-        "break-even": "Find your break-even point",
-        "ltv":        "Check your unit economics",
-        "cac":        "Check your unit economics",
-        "churn":      "Measure your churn rate",
-        "mrr":        "Track your MRR growth",
-        "pricing":    "Find your price point",
-    }
-    _ICONS = {
-        "runway": "🛫", "burn": "🔥", "break-even": "⚖️",
-        "ltv": "📈", "cac": "📊", "churn": "📉",
-        "mrr": "💹", "pricing": "🏷️",
-    }
-    _DESCS = {
-        "runway":     "Enter MRR and monthly burn. Get months of runway and break-even projection.",
-        "burn":       "Calculate your real monthly cash burn across all cost categories.",
-        "break-even": "How many customers do you need to cover all fixed costs?",
-        "ltv":        "Is your LTV:CAC ratio healthy enough to scale paid acquisition?",
-        "cac":        "Is your LTV:CAC ratio healthy enough to scale paid acquisition?",
-        "churn":      "What percentage of customers and revenue are you losing monthly?",
-        "mrr":        "How fast is your MRR actually growing month over month?",
-        "pricing":    "Is your pricing model financially sound for your cost structure?",
-    }
-
-    def _tool_meta(slug: str, key: str, default: str) -> str:
-        slug_lower = slug.lower()
-        for kw, val in {"runway": _CTA, "burn": _CTA, "break-even": _CTA,
-                        "ltv": _CTA, "cac": _CTA, "churn": _CTA,
-                        "mrr": _CTA, "pricing": _CTA}[key if False else key].items() \
-                if False else {kw: {"cta": _CTA, "icon": _ICONS, "desc": _DESCS}[key].get(kw, default)
-                               for kw in _CTA}.items():
-            if kw in slug_lower:
-                return val
-        return default
-
-    def _get_cta(slug: str)  -> str:
-        for kw, val in _CTA.items():
-            if kw in slug.lower():
-                return val
-        return "Open calculator"
-
-    def _get_icon(slug: str) -> str:
-        for kw, val in _ICONS.items():
-            if kw in slug.lower():
-                return val
-        return "⚡"
-
-    def _get_desc(slug: str) -> str:
-        for kw, val in _DESCS.items():
-            if kw in slug.lower():
-                return val
-        return "Calculate and understand your key SaaS metrics."
-
+    # Tools grid HTML
     if tool_files:
         tools_html = ""
         for f in tool_files:
             slug  = file_to_slug(f["name"])
             url   = file_to_url("tools", f["name"])
             title = slug_to_title(slug)
-            icon  = _get_icon(slug)
-            desc  = _get_desc(slug)
-            cta   = _get_cta(slug)
-            tools_html += f"""      <a class="tool-card" href="{url}">
-        <span class="tool-card-icon">{icon}</span>
-        <span class="tool-card-title">{title}</span>
-        <span class="tool-card-desc">{desc}</span>
-        <span class="tool-card-cta">{cta} →</span>
-      </a>\n"""
+            tools_html += f"""
+      <a href="{url}" class="tool-card">
+        <div class="tool-icon">⚡</div>
+        <div class="tool-name">{title}</div>
+        <div class="tool-cta">Open calculator →</div>
+      </a>"""
     else:
-        tools_html = (
-            '      <p style="color:var(--muted); font-size:.9rem;">'
-            'No tools yet — check back soon.</p>\n'
-        )
+        tools_html = '<p class="empty-note">No tools yet — check back soon.</p>'
 
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SaaS Financial Tools — Calculators &amp; Guides for Bootstrapped Founders</title>
-  <meta name="description" content="Free financial calculators and plain-English guides to help bootstrapped SaaS founders model runway, price products, and understand their numbers.">
+  <title>SaaS Tools for Bootstrapped Founders — Financial Calculators &amp; Guides</title>
+  <meta name="description" content="Free financial calculators and no-fluff guides for bootstrapped SaaS founders. Runway, burn rate, break-even, LTV/CAC, and more.">
   <link rel="canonical" href="{SITE_URL}/">
   {_FONT}
   <style>
-    {_BASE_CSS}
-    {_NAV_CSS}
+{_BASE_CSS}
+{_NAV_CSS}
 
-    /* ── Hero ── */
+    /* ── HERO ── */
     .hero {{
-      padding: 5rem 0 4rem;
+      background: var(--surface);
       border-bottom: 1px solid var(--border);
+      padding: 72px 20px 64px;
+      text-align: center;
     }}
-
     .hero-eyebrow {{
-      display: inline-flex;
-      align-items: center;
-      gap: .375rem;
+      display: inline-block;
+      background: var(--accent-light);
+      color: var(--accent);
       font-size: .75rem;
       font-weight: 600;
-      letter-spacing: .08em;
+      padding: 4px 12px;
+      border-radius: 20px;
+      letter-spacing: .04em;
       text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 1.375rem;
+      margin-bottom: 20px;
     }}
-
-    .hero-eyebrow::before {{
-      content: '';
-      display: inline-block;
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--accent);
-      flex-shrink: 0;
-    }}
-
     .hero h1 {{
-      font-size: 2.5rem;
+      font-size: clamp(1.75rem, 5vw, 2.75rem);
       font-weight: 700;
-      line-height: 1.14;
-      letter-spacing: -.025em;
+      line-height: 1.15;
+      letter-spacing: -.03em;
       color: var(--text);
-      max-width: 580px;
-      margin-bottom: 1.125rem;
+      max-width: 640px;
+      margin: 0 auto 16px;
     }}
-
-    .hero-subtitle {{
-      font-size: 1.0625rem;
+    .hero h1 em {{
+      font-style: normal;
+      color: var(--accent);
+    }}
+    .hero-sub {{
+      font-size: 1.05rem;
       color: var(--muted);
-      max-width: 500px;
-      line-height: 1.7;
-      margin-bottom: 2.25rem;
+      max-width: 480px;
+      margin: 0 auto 32px;
+      line-height: 1.6;
     }}
-
-    /* ── Buttons — min 44px tap target ── */
     .hero-actions {{
       display: flex;
-      gap: .75rem;
-      flex-wrap: wrap;
-      align-items: center;
-    }}
-
-    .btn {{
-      display: inline-flex;
-      align-items: center;
+      gap: 12px;
       justify-content: center;
-      gap: .375rem;
-      font-size: .9375rem;
-      font-weight: 600;
-      min-height: 44px;
-      padding: 0 1.375rem;
-      border-radius: var(--r);
-      text-decoration: none;
-      transition: background .14s ease, border-color .14s ease,
-                  color .14s ease, box-shadow .14s;
-      white-space: nowrap;
-      cursor: pointer;
-      border: 1px solid transparent;
+      flex-wrap: wrap;
     }}
-
     .btn-primary {{
+      display: inline-block;
       background: var(--accent);
-      color: #fff;
+      color: white;
+      font-weight: 600;
+      font-size: .9rem;
+      padding: 11px 24px;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: background .15s;
     }}
-    .btn-primary:hover {{
-      background: var(--accent-h);
-      color: #fff;
-      box-shadow: 0 2px 12px rgba(79,70,229,.25);
+    .btn-primary:hover {{ background: var(--accent-h); color: white; }}
+    .btn-secondary {{
+      display: inline-block;
+      background: var(--bg);
+      color: var(--text);
+      font-weight: 500;
+      font-size: .9rem;
+      padding: 11px 24px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      text-decoration: none;
+      transition: border-color .15s;
     }}
+    .btn-secondary:hover {{ border-color: var(--accent); color: var(--accent); }}
 
-    .btn-ghost {{
-      background: transparent;
-      color: var(--muted);
-      border-color: var(--border);
-    }}
-    .btn-ghost:hover {{
-      border-color: var(--accent);
-      color: var(--accent);
-      background: var(--accent-light);
-    }}
-
-    /* ── Layout ── */
-    .container {{
-      max-width: 820px;
-      margin: 0 auto;
-      padding: 0 1.5rem;
-    }}
-
-    /* ── Sections ── */
-    .section {{ padding: 3rem 0; }}
-    .section + .section {{ border-top: 1px solid var(--border); }}
-
+    /* ── SECTIONS ── */
+    .sections {{ max-width: 720px; margin: 0 auto; padding: 56px 20px; }}
+    .section {{ margin-bottom: 56px; }}
     .section-header {{
       display: flex;
       align-items: baseline;
       justify-content: space-between;
-      gap: 1rem;
-      margin-bottom: 1.75rem;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--border);
     }}
-
     .section-title {{
-      font-size: 1.0625rem;
-      font-weight: 600;
-      letter-spacing: -.01em;
+      font-size: 1.1rem;
+      font-weight: 700;
       color: var(--text);
+      letter-spacing: -.01em;
     }}
-
     .section-link {{
-      font-size: .875rem;
+      font-size: .8rem;
       font-weight: 500;
       color: var(--accent);
-      white-space: nowrap;
-      flex-shrink: 0;
-      text-decoration: none;
     }}
-    .section-link:hover {{ text-decoration: underline; color: var(--accent-h); }}
+    .section-link:hover {{ color: var(--accent-h); }}
 
-    /* ── Article list ── */
-    .article-list {{
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }}
-
+    /* ── ARTICLE LIST ── */
     .article-item {{
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       justify-content: space-between;
-      gap: 1.75rem;
-      padding: 1.125rem 0;
+      padding: 14px 0;
       border-bottom: 1px solid var(--border);
-    }}
-
-    .article-item:first-child {{ border-top: 1px solid var(--border); }}
-
-    .article-item-body {{
-      flex: 1;
-      min-width: 0;
-    }}
-
-    .article-item-title {{
-      display: block;
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--text);
-      line-height: 1.4;
       text-decoration: none;
-      transition: color .12s;
+      transition: all .15s;
+      gap: 12px;
     }}
-    .article-item-title:hover {{ color: var(--accent); }}
-
-    .article-meta {{
-      font-size: .8125rem;
-      color: var(--muted);
-      white-space: nowrap;
+    .article-item:last-child {{ border-bottom: none; }}
+    .article-item:hover .item-title {{ color: var(--accent); }}
+    .article-item:hover .item-arrow {{ transform: translateX(4px); color: var(--accent); }}
+    .item-title {{
+      font-size: .95rem;
+      font-weight: 500;
+      color: var(--text);
+      transition: color .15s;
+      flex: 1;
+    }}
+    .item-arrow {{
+      font-size: .9rem;
+      color: var(--subtle);
+      transition: all .15s;
       flex-shrink: 0;
-      padding-top: .125rem;
     }}
 
-    /* ── Tool cards ── */
+    /* ── TOOLS GRID ── */
     .tools-grid {{
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 1rem;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px;
     }}
-
     .tool-card {{
-      display: flex;
-      flex-direction: column;
-      gap: .375rem;
-      padding: 1.25rem;
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--r);
+      padding: 20px;
       text-decoration: none;
-      color: var(--text);
-      position: relative;
-      overflow: hidden;
-      transition: border-color .15s, box-shadow .15s, transform .12s;
+      transition: all .2s;
     }}
-
-    .tool-card::before {{
-      content: '';
-      position: absolute;
-      left: 0; top: 0; bottom: 0;
-      width: 3px;
-      background: var(--accent);
-      border-radius: 3px 0 0 3px;
-      transform: scaleY(0);
-      transform-origin: bottom;
-      transition: transform .18s ease;
-    }}
-
     .tool-card:hover {{
       border-color: var(--accent);
-      box-shadow: 0 4px 20px rgba(79,70,229,.08);
+      box-shadow: var(--shadow-md);
       transform: translateY(-2px);
     }}
-
-    .tool-card:hover::before {{ transform: scaleY(1); }}
-    .tool-card:active {{ transform: translateY(0); box-shadow: none; }}
-
-    .tool-card-icon {{
-      font-size: 1.375rem;
-      line-height: 1;
-      margin-bottom: .375rem;
-      display: block;
-    }}
-
-    .tool-card-title {{
-      font-size: .9375rem;
+    .tool-icon {{ font-size: 1.5rem; margin-bottom: 10px; }}
+    .tool-name {{
+      font-size: .9rem;
       font-weight: 600;
       color: var(--text);
+      margin-bottom: 8px;
       line-height: 1.3;
-      display: block;
     }}
+    .tool-cta {{ font-size: .78rem; color: var(--accent); font-weight: 500; }}
 
-    .tool-card-desc {{
-      font-size: .8125rem;
-      color: var(--muted);
-      line-height: 1.55;
-      flex: 1;
-      display: block;
-    }}
-
-    .tool-card-cta {{
-      font-size: .8125rem;
-      font-weight: 600;
-      color: var(--accent);
-      margin-top: .5rem;
-      display: block;
-    }}
-
-    /* ── Affiliate strip ── */
-    .affiliate-strip {{
-      margin: 3rem 0;
-      padding: 1.125rem 1.375rem;
-      background: var(--success-bg);
-      border: 1px solid #bbf7d0;
+    /* ── VALUE PROPS ── */
+    .props {{
+      background: var(--surface);
+      border: 1px solid var(--border);
       border-radius: var(--r);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1rem;
-      flex-wrap: wrap;
+      padding: 28px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 24px;
     }}
-
-    .affiliate-strip p {{
-      font-size: .875rem;
-      color: var(--text);
-      flex: 1;
-      min-width: 180px;
-      line-height: 1.55;
-    }}
-
-    .affiliate-strip strong {{ color: var(--success); font-weight: 600; }}
-
-    .affiliate-link {{
-      display: inline-flex;
-      align-items: center;
-      min-height: 44px;
-      padding: 0 1rem;
+    .prop {{ text-align: center; }}
+    .prop-icon {{ font-size: 1.5rem; margin-bottom: 8px; }}
+    .prop-title {{
       font-size: .875rem;
       font-weight: 600;
-      color: var(--success);
-      border: 1px solid #86efac;
-      border-radius: 8px;
-      text-decoration: none;
-      white-space: nowrap;
-      flex-shrink: 0;
-      transition: background .13s, border-color .13s;
+      color: var(--text);
+      margin-bottom: 4px;
     }}
-    .affiliate-link:hover {{
-      background: #dcfce7;
-      border-color: var(--success);
-      color: var(--success);
-    }}
+    .prop-desc {{ font-size: .8rem; color: var(--muted); line-height: 1.5; }}
 
-    {_FOOTER_CSS}
+    .empty-note {{ font-size: .9rem; color: var(--muted); padding: 16px 0; }}
 
-    /* ── Responsive ── */
+{_FOOTER_CSS}
+
     @media (max-width: 600px) {{
-      .hero {{ padding: 2.75rem 0 2.25rem; }}
-      .hero h1 {{ font-size: 1.875rem; }}
-      .hero-subtitle {{ font-size: 1rem; margin-bottom: 1.75rem; }}
-      .tools-grid {{ grid-template-columns: 1fr; }}
-      .article-item {{ flex-direction: column; gap: .375rem; }}
-      .article-meta {{ padding-top: 0; }}
-      .affiliate-strip {{ flex-direction: column; align-items: flex-start; }}
-    }}
-
-    @media (max-width: 400px) {{
-      .hero h1 {{ font-size: 1.625rem; }}
-      .hero-actions {{ flex-direction: column; align-items: stretch; }}
-      .btn {{ justify-content: center; }}
+      .hero {{ padding: 48px 20px 40px; }}
+      .tools-grid {{ grid-template-columns: 1fr 1fr; }}
+      .props {{ grid-template-columns: 1fr; }}
     }}
   </style>
 </head>
@@ -700,70 +498,63 @@ def build_homepage(files: list) -> str:
 
 {_nav()}
 
-<main>
-  <div class="container">
-
-    <!-- ── Hero ── -->
-    <section class="hero">
-      <span class="hero-eyebrow">Free · No login · No data stored</span>
-      <h1>Know your numbers.<br>Ship with confidence.</h1>
-      <p class="hero-subtitle">
-        Financial calculators and plain-English guides built for bootstrapped
-        SaaS founders — runway, pricing, LTV:CAC, burn rate, and more.
-        No spreadsheet consultant required.
-      </p>
-      <div class="hero-actions">
-        <a href="/tools/" class="btn btn-primary">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2.5"
-               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <rect x="2" y="3" width="20" height="14" rx="2"/>
-            <line x1="8" y1="21" x2="16" y2="21"/>
-            <line x1="12" y1="17" x2="12" y2="21"/>
-          </svg>
-          Open the calculators
-        </a>
-        <a href="/articles/" class="btn btn-ghost">Read the guides →</a>
-      </div>
-    </section>
-
-    <!-- ── Recent articles ── -->
-    <section class="section">
-      <div class="section-header">
-        <h2 class="section-title">Recent guides</h2>
-        <a href="/articles/" class="section-link">All articles →</a>
-      </div>
-      <ul class="article-list">
-{articles_html}      </ul>
-    </section>
-
-    <!-- ── Tools ── -->
-    <section class="section">
-      <div class="section-header">
-        <h2 class="section-title">Financial calculators</h2>
-        <a href="/tools/" class="section-link">All tools →</a>
-      </div>
-      <div class="tools-grid">
-{tools_html}      </div>
-    </section>
-
-    <!-- ── Affiliate callout ── -->
-    <div class="affiliate-strip">
-      <p>
-        This site runs on <strong>Cloudways</strong> — managed cloud hosting
-        that removes server maintenance from your plate. Starts at $14/mo,
-        scales without a DevOps hire.
-      </p>
-      <a
-        href="https://www.cloudways.com?id=YOURREF"
-        target="_blank"
-        rel="noopener sponsored"
-        class="affiliate-link"
-      >Try Cloudways →</a>
-    </div>
-
+<div class="hero">
+  <div class="hero-eyebrow">For Bootstrapped SaaS Founders</div>
+  <h1>Make better decisions with <em>real numbers</em></h1>
+  <p class="hero-sub">
+    Free calculators and no-fluff guides to help you manage finances,
+    price your product, and reach profitability — without a CFO.
+  </p>
+  <div class="hero-actions">
+    <a href="/tools/" class="btn-primary">Explore Calculators</a>
+    <a href="/articles/" class="btn-secondary">Read Articles</a>
   </div>
-</main>
+</div>
+
+<div class="sections">
+
+  <!-- VALUE PROPS -->
+  <div class="section">
+    <div class="props">
+      <div class="prop">
+        <div class="prop-icon">🎯</div>
+        <div class="prop-title">No investor fluff</div>
+        <div class="prop-desc">Written for founders who fund their own growth, anywhere</div>
+      </div>
+      <div class="prop">
+        <div class="prop-icon">⚡</div>
+        <div class="prop-title">Instant results</div>
+        <div class="prop-desc">Calculators work in real-time, no signup needed</div>
+      </div>
+      <div class="prop">
+        <div class="prop-icon">🇺🇸</div>
+        <div class="prop-title">Founder-first</div>
+        <div class="prop-desc">Benchmarks and context for North American SaaS</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOOLS -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">Free Calculators</div>
+      <a href="/tools/" class="section-link">View all →</a>
+    </div>
+    <div class="tools-grid">{tools_html}
+    </div>
+  </div>
+
+  <!-- ARTICLES -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">Latest Articles</div>
+      <a href="/articles/" class="section-link">View all →</a>
+    </div>
+    <div class="articles-list">{articles_html}
+    </div>
+  </div>
+
+</div>
 
 {_FOOTER}
 
@@ -782,10 +573,7 @@ def build_articles_index(files: list) -> str:
         key=lambda x: x["name"], reverse=True
     )
 
-    total  = len(article_files)
-    plural = "s" if total != 1 else ""
-
-    articles_html = ""
+    items_html = ""
     for f in article_files:
         slug  = file_to_slug(f["name"])
         url   = file_to_url("articles", f["name"])
@@ -794,164 +582,128 @@ def build_articles_index(files: list) -> str:
         date_str = date_match.group(1) if date_match else ""
         try:
             from datetime import datetime as _dt
-            display_date = (
-                _dt.strptime(date_str, "%Y-%m-%d").strftime("%b %-d, %Y")
-                if date_str else ""
-            )
+            display_date = _dt.strptime(date_str, "%Y-%m-%d").strftime("%b %-d, %Y") if date_str else ""
         except Exception:
             display_date = date_str
 
-        articles_html += f"""      <li class="article-item">
-        <div class="article-item-body">
-          <a class="article-item-title" href="{url}">{title}</a>
-        </div>
-        <div class="article-item-aside">
-          <span class="article-meta">{display_date}</span>
-        </div>
-      </li>\n"""
+        items_html += f"""
+    <a href="{url}" class="article-row">
+      <div class="row-content">
+        <div class="row-title">{title}</div>
+        {f'<div class="row-date">{display_date}</div>' if display_date else ''}
+      </div>
+      <div class="row-arrow">→</div>
+    </a>"""
 
-    if not articles_html:
-        articles_html = (
-            '      <li class="article-item" style="border:none; justify-content:center; '
-            'color:var(--muted); font-size:.9rem; padding:3rem 0;">'
-            'No articles yet — check back soon.</li>\n'
-        )
+    if not items_html:
+        items_html = '\n    <div class="empty">No articles yet. Check back soon.</div>'
 
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Financial Guides for SaaS Founders — Articles</title>
-  <meta name="description" content="Plain-English financial guides for bootstrapped SaaS founders. Runway, pricing, MRR math, burn rate, and more.">
+  <title>Articles — SaaS Tools for Bootstrapped Founders</title>
+  <meta name="description" content="No-fluff guides on SaaS finances, pricing, and growth for bootstrapped founders.">
   <link rel="canonical" href="{SITE_URL}/articles/">
   {_FONT}
   <style>
-    {_BASE_CSS}
-    {_NAV_CSS}
+{_BASE_CSS}
+{_NAV_CSS}
 
-    /* ── Layout ── */
-    .container {{
-      max-width: 820px;
-      margin: 0 auto;
-      padding: 0 1.5rem;
-    }}
-
-    /* ── Page header ── */
     .page-header {{
-      padding: 3.75rem 0 2.75rem;
+      background: var(--surface);
       border-bottom: 1px solid var(--border);
+      padding: 48px 20px 40px;
     }}
-
-    .page-header h1 {{
-      font-size: 1.875rem;
-      font-weight: 700;
-      letter-spacing: -.02em;
-      line-height: 1.2;
-      margin-bottom: .5rem;
+    .page-header-inner {{
+      max-width: 720px;
+      margin: 0 auto;
     }}
-
-    .page-header-meta {{
-      font-size: .9375rem;
-      color: var(--muted);
-      line-height: 1.5;
-    }}
-
-    .page-header-meta strong {{
-      color: var(--text);
-      font-weight: 600;
-    }}
-
-    /* ── Article list ── */
-    .article-section {{ padding: 2.5rem 0 4rem; }}
-
-    .article-list {{
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }}
-
-    .article-item {{
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 2rem;
-      padding: 1.375rem 0;
-      border-bottom: 1px solid var(--border);
-    }}
-
-    .article-item:first-child {{ border-top: 1px solid var(--border); }}
-
-    .article-item-body {{
-      flex: 1;
-      min-width: 0;
-    }}
-
-    .article-item-title {{
-      display: block;
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--text);
-      line-height: 1.4;
-      text-decoration: none;
-      transition: color .12s;
-    }}
-    .article-item-title:hover {{ color: var(--accent); }}
-
-    .article-item-aside {{
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: .125rem;
-      flex-shrink: 0;
-      padding-top: .125rem;
-    }}
-
-    .article-meta {{
-      font-size: .8125rem;
-      color: var(--muted);
-      white-space: nowrap;
-    }}
-
-    .article-readtime {{
+    .page-eyebrow {{
       font-size: .75rem;
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }}
+    .page-header h1 {{
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -.03em;
+      color: var(--text);
+      margin-bottom: 8px;
+    }}
+    .page-header p {{
+      font-size: .95rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }}
+
+    .container {{ max-width: 720px; margin: 0 auto; padding: 40px 20px; }}
+
+    .article-row {{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 18px 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      margin-bottom: 8px;
+      text-decoration: none;
+      transition: all .2s;
+    }}
+    .article-row:hover {{
+      border-color: var(--accent);
+      box-shadow: var(--shadow-md);
+      transform: translateX(2px);
+    }}
+    .article-row:hover .row-arrow {{
+      transform: translateX(4px);
+      color: var(--accent);
+    }}
+    .row-content {{ flex: 1; }}
+    .row-title {{
+      font-size: .95rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 3px;
+      line-height: 1.4;
+    }}
+    .row-date {{ font-size: .78rem; color: var(--subtle); }}
+    .row-arrow {{
+      font-size: .9rem;
       color: var(--subtle);
-      white-space: nowrap;
+      transition: all .2s;
+      flex-shrink: 0;
+    }}
+    .empty {{
+      text-align: center;
+      color: var(--muted);
+      font-size: .9rem;
+      padding: 48px 0;
     }}
 
-    {_FOOTER_CSS}
-
-    /* ── Responsive ── */
-    @media (max-width: 600px) {{
-      .page-header {{ padding: 2.25rem 0 1.75rem; }}
-      .page-header h1 {{ font-size: 1.5rem; }}
-      .article-item {{ flex-direction: column; gap: .5rem; padding: 1.25rem 0; }}
-      .article-item-aside {{ flex-direction: row; align-items: center; gap: .625rem; }}
-    }}
+{_FOOTER_CSS}
   </style>
 </head>
 <body>
 
 {_nav("articles")}
 
-<main>
-  <div class="container">
-
-    <header class="page-header">
-      <h1>Financial guides</h1>
-      <p class="page-header-meta">
-        <strong>{total}</strong> article{plural} covering runway,
-        pricing strategy, MRR math, burn rate, and SaaS unit economics.
-      </p>
-    </header>
-
-    <section class="article-section">
-      <ul class="article-list">
-{articles_html}      </ul>
-    </section>
-
+<div class="page-header">
+  <div class="page-header-inner">
+    <div class="page-eyebrow">Reading List</div>
+    <h1>Articles</h1>
+    <p>No-fluff analysis for bootstrapped SaaS founders. Real numbers, real trade-offs.</p>
   </div>
-</main>
+</div>
+
+<div class="container">{items_html}
+</div>
 
 {_FOOTER}
 
@@ -970,318 +722,161 @@ def build_tools_index(files: list) -> str:
         key=lambda x: x["name"]
     )
 
-    total = len(tool_files)
-
-    _CTA = {
-        "runway":     "Calculate your runway",
-        "burn":       "Model your burn rate",
-        "break-even": "Find your break-even point",
-        "ltv":        "Check your unit economics",
-        "cac":        "Check your unit economics",
-        "churn":      "Measure your churn rate",
-        "mrr":        "Track your MRR growth",
-        "pricing":    "Find your price point",
+    # Tool descriptions by keyword match — fallback to generic
+    _DESCRIPTIONS = {
+        "runway":     "How many months before cash runs out?",
+        "burn":       "What is your real monthly cash burn?",
+        "break-even": "How many customers to cover all fixed costs?",
+        "ltv":        "Is your LTV:CAC ratio healthy?",
+        "cac":        "Is your LTV:CAC ratio healthy?",
+        "churn":      "What percentage of customers are you losing?",
+        "mrr":        "How fast is your MRR actually growing?",
+        "pricing":    "Is your pricing model financially sound?",
     }
-    _ICONS = {
-        "runway": "🛫", "burn": "🔥", "break-even": "⚖️",
-        "ltv": "📈", "cac": "📊", "churn": "📉",
-        "mrr": "💹", "pricing": "🏷️",
-    }
-    _DESCS = {
-        "runway":     "Enter MRR and monthly burn. Get months of runway and a break-even projection.",
-        "burn":       "Calculate your real monthly cash burn across all cost categories.",
-        "break-even": "How many customers do you need to cover all fixed costs?",
-        "ltv":        "Is your LTV:CAC ratio healthy enough to scale paid acquisition?",
-        "cac":        "Is your LTV:CAC ratio healthy enough to scale paid acquisition?",
-        "churn":      "What percentage of customers and revenue are you losing monthly?",
-        "mrr":        "How fast is your MRR actually growing month over month?",
-        "pricing":    "Is your pricing model financially sound for your cost structure?",
-    }
-
-    def _get_cta(slug: str) -> str:
-        for kw, val in _CTA.items():
-            if kw in slug.lower():
-                return val
-        return "Open calculator"
-
-    def _get_icon(slug: str) -> str:
-        for kw, val in _ICONS.items():
-            if kw in slug.lower():
-                return val
-        return "⚡"
 
     def _get_desc(slug: str) -> str:
-        for kw, val in _DESCS.items():
-            if kw in slug.lower():
-                return val
-        return "Calculate and understand your key SaaS metrics."
+        slug_lower = slug.lower()
+        for kw, desc in _DESCRIPTIONS.items():
+            if kw in slug_lower:
+                return desc
+        return "Calculate and understand your SaaS metrics."
 
-    tools_html = ""
+    items_html = ""
     for f in tool_files:
         slug  = file_to_slug(f["name"])
         url   = file_to_url("tools", f["name"])
         title = slug_to_title(slug)
-        icon  = _get_icon(slug)
         desc  = _get_desc(slug)
-        cta   = _get_cta(slug)
-        tools_html += f"""      <a class="tool-card" href="{url}">
-        <span class="tool-card-icon">{icon}</span>
-        <span class="tool-card-title">{title}</span>
-        <span class="tool-card-desc">{desc}</span>
-        <span class="tool-card-cta">{cta} →</span>
-      </a>\n"""
+        items_html += f"""
+    <a href="{url}" class="tool-card">
+      <div class="tool-inner">
+        <div class="tool-icon">⚡</div>
+        <div>
+          <div class="tool-name">{title}</div>
+          <div class="tool-desc">{desc}</div>
+        </div>
+      </div>
+      <div class="tool-arrow">→</div>
+    </a>"""
 
-    if not tools_html:
-        tools_html = (
-            '      <p style="color:var(--muted); font-size:.9rem; '
-            'padding:3rem 0; text-align:center; grid-column:1/-1;">'
-            'No tools yet — check back soon.</p>\n'
-        )
+    if not items_html:
+        items_html = '\n    <div class="empty">No tools yet. Check back soon.</div>'
 
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Free SaaS Financial Calculators — Tools for Bootstrapped Founders</title>
-  <meta name="description" content="Free financial calculators for bootstrapped SaaS founders. Runway, burn rate, LTV:CAC, pricing, and more. No login required.">
+  <title>Free SaaS Calculators — SaaS Tools for Bootstrapped Founders</title>
+  <meta name="description" content="Free real-time SaaS calculators for bootstrapped founders. Runway, burn rate, break-even, LTV/CAC, churn rate, and MRR growth.">
   <link rel="canonical" href="{SITE_URL}/tools/">
   {_FONT}
   <style>
-    {_BASE_CSS}
-    {_NAV_CSS}
+{_BASE_CSS}
+{_NAV_CSS}
 
-    /* ── Layout ── */
-    .container {{
-      max-width: 820px;
-      margin: 0 auto;
-      padding: 0 1.5rem;
-    }}
-
-    /* ── Page header ── */
     .page-header {{
-      padding: 3.75rem 0 2.75rem;
+      background: var(--surface);
       border-bottom: 1px solid var(--border);
+      padding: 48px 20px 40px;
     }}
-
-    .page-header h1 {{
-      font-size: 1.875rem;
-      font-weight: 700;
-      letter-spacing: -.02em;
-      line-height: 1.2;
-      margin-bottom: .5rem;
+    .page-header-inner {{
+      max-width: 720px;
+      margin: 0 auto;
     }}
-
-    .page-header-meta {{
-      font-size: .9375rem;
-      color: var(--muted);
-      line-height: 1.5;
-    }}
-
-    .page-header-meta strong {{
-      color: var(--text);
+    .page-eyebrow {{
+      font-size: .75rem;
       font-weight: 600;
+      color: var(--accent);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
     }}
-
-    /* ── Trust signals ── */
-    .trust-row {{
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1.25rem;
-      margin-top: 1rem;
+    .page-header h1 {{
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -.03em;
+      color: var(--text);
+      margin-bottom: 8px;
     }}
-
-    .trust-item {{
-      display: flex;
-      align-items: center;
-      gap: .375rem;
-      font-size: .8125rem;
+    .page-header p {{
+      font-size: .95rem;
       color: var(--muted);
     }}
 
-    .trust-item svg {{ color: var(--success); flex-shrink: 0; }}
-
-    /* ── Tools section ── */
-    .tools-section {{ padding: 2.5rem 0 2rem; }}
-
-    /* ── Tool cards ── */
-    .tools-grid {{
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
-      gap: 1rem;
-    }}
+    .container {{ max-width: 720px; margin: 0 auto; padding: 40px 20px; }}
 
     .tool-card {{
       display: flex;
-      flex-direction: column;
-      gap: .375rem;
-      padding: 1.375rem;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--r);
+      padding: 20px;
+      margin-bottom: 10px;
       text-decoration: none;
-      color: var(--text);
-      position: relative;
-      overflow: hidden;
-      min-height: 160px;
-      transition: border-color .15s, box-shadow .15s, transform .12s;
+      transition: all .2s;
     }}
-
-    .tool-card::before {{
-      content: '';
-      position: absolute;
-      left: 0; top: 0; bottom: 0;
-      width: 3px;
-      background: var(--accent);
-      border-radius: 3px 0 0 3px;
-      transform: scaleY(0);
-      transform-origin: bottom;
-      transition: transform .18s ease;
-    }}
-
     .tool-card:hover {{
       border-color: var(--accent);
-      box-shadow: 0 4px 20px rgba(79,70,229,.08);
-      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      transform: translateX(2px);
     }}
-
-    .tool-card:hover::before {{ transform: scaleY(1); }}
-    .tool-card:active {{ transform: translateY(0); box-shadow: none; }}
-
-    .tool-card-icon {{
-      font-size: 1.5rem;
-      line-height: 1;
-      margin-bottom: .4375rem;
-      display: block;
-    }}
-
-    .tool-card-title {{
-      font-size: .9375rem;
-      font-weight: 600;
-      color: var(--text);
-      line-height: 1.3;
-      display: block;
-    }}
-
-    .tool-card-desc {{
-      font-size: .8125rem;
-      color: var(--muted);
-      line-height: 1.6;
-      flex: 1;
-      display: block;
-    }}
-
-    .tool-card-cta {{
-      font-size: .8125rem;
-      font-weight: 600;
+    .tool-card:hover .tool-arrow {{
+      transform: translateX(4px);
       color: var(--accent);
-      margin-top: .625rem;
-      display: block;
     }}
-
-    /* ── Hosting note ── */
-    .hosting-note {{
-      margin-top: 2.5rem;
-      margin-bottom: 3rem;
-      padding: 1rem 1.25rem;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--r);
+    .tool-inner {{ display: flex; align-items: center; gap: 14px; flex: 1; }}
+    .tool-icon {{
+      font-size: 1.4rem;
+      width: 44px;
+      height: 44px;
+      background: var(--accent-light);
+      border-radius: 10px;
       display: flex;
-      align-items: flex-start;
-      gap: .75rem;
-    }}
-
-    .hosting-note-icon {{
-      font-size: .875rem;
-      line-height: 1.6;
+      align-items: center;
+      justify-content: center;
       flex-shrink: 0;
     }}
-
-    .hosting-note p {{
-      font-size: .875rem;
+    .tool-name {{
+      font-size: .95rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 3px;
+    }}
+    .tool-desc {{ font-size: .8rem; color: var(--muted); }}
+    .tool-arrow {{
+      font-size: .9rem;
+      color: var(--subtle);
+      transition: all .2s;
+      flex-shrink: 0;
+    }}
+    .empty {{
+      text-align: center;
       color: var(--muted);
-      line-height: 1.6;
+      font-size: .9rem;
+      padding: 48px 0;
     }}
 
-    .hosting-note a {{
-      color: var(--accent);
-      font-weight: 500;
-      text-decoration: none;
-    }}
-    .hosting-note a:hover {{ text-decoration: underline; color: var(--accent-h); }}
-
-    {_FOOTER_CSS}
-
-    /* ── Responsive ── */
-    @media (max-width: 600px) {{
-      .page-header {{ padding: 2.25rem 0 1.75rem; }}
-      .page-header h1 {{ font-size: 1.5rem; }}
-      .tools-grid {{ grid-template-columns: 1fr; }}
-      .trust-row {{ gap: .875rem; }}
-      .tool-card {{ min-height: unset; }}
-    }}
+{_FOOTER_CSS}
   </style>
 </head>
 <body>
 
 {_nav("tools")}
 
-<main>
-  <div class="container">
-
-    <header class="page-header">
-      <h1>Financial calculators</h1>
-      <p class="page-header-meta">
-        <strong>{total}</strong> free tools for SaaS unit economics,
-        pricing, and runway planning.
-      </p>
-      <div class="trust-row">
-        <span class="trust-item">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2.5"
-               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <polyline points="20 6 9 17 4 12"/>
-          </svg>
-          No login required
-        </span>
-        <span class="trust-item">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2.5"
-               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <polyline points="20 6 9 17 4 12"/>
-          </svg>
-          No data stored
-        </span>
-        <span class="trust-item">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2.5"
-               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <polyline points="20 6 9 17 4 12"/>
-          </svg>
-          Runs in your browser
-        </span>
-      </div>
-    </header>
-
-    <section class="tools-section">
-      <div class="tools-grid">
-{tools_html}      </div>
-
-      <div class="hosting-note">
-        <span class="hosting-note-icon">💡</span>
-        <p>
-          Modeling infrastructure costs?
-          <a href="https://www.cloudways.com?id=YOURREF"
-             target="_blank" rel="noopener sponsored">Cloudways</a>
-          publishes transparent per-server pricing — useful as a concrete
-          baseline when you're projecting hosting spend against MRR.
-        </p>
-      </div>
-    </section>
-
+<div class="page-header">
+  <div class="page-header-inner">
+    <div class="page-eyebrow">Free Calculators</div>
+    <h1>SaaS Tools</h1>
+    <p>Real-time calculators for the metrics that matter. No signup. No nonsense.</p>
   </div>
-</main>
+</div>
+
+<div class="container">{items_html}
+</div>
 
 {_FOOTER}
 
@@ -1332,10 +927,14 @@ def prune_content_index(files: list) -> None:
     """
     Hapus entri dari content-index.json yang file-nya
     sudah tidak ada di branch output.
+
+    Dipanggil setiap kali generate-sitemap berjalan —
+    termasuk saat artikel atau tool dihapus dari branch output.
     """
     path    = "content-index.json"
     api_url = f"{API_BASE}/repos/{ENGINE_REPO}/contents/{path}"
 
+    # Baca content-index.json yang ada
     sha   = None
     index = {"articles": [], "tools": []}
     try:
@@ -1351,12 +950,14 @@ def prune_content_index(files: list) -> None:
         print("content-index.json not found — skip pruning")
         return
 
+    # Bangun set slug aktual dari file yang ada di branch output
     active_slugs = set()
     for f in files:
         slug = f["name"].replace(".html", "").replace(".md", "")
         slug = re.sub(r'^\d{4}-\d{2}-\d{2}-', '', slug)
         active_slugs.add(slug)
 
+    # Hapus entri yang slug-nya tidak ada di branch output
     before_articles = len(index.get("articles", []))
     before_tools    = len(index.get("tools", []))
 
@@ -1376,6 +977,7 @@ def prune_content_index(files: list) -> None:
         print("content-index.json: no stale entries found")
         return
 
+    # Simpan kembali hanya jika ada yang dihapus
     payload = {
         "message": f"[sitemap] Prune {removed} stale entries from content-index",
         "content": base64.b64encode(
@@ -1407,10 +1009,10 @@ if __name__ == "__main__":
     files = get_output_files()
     print(f"Found {len(files)} content files in output branch")
 
-    publish_file("sitemap.xml",         build_sitemap(files),         "Sitemap")
-    publish_file("index.html",          build_homepage(files),         "Homepage")
-    publish_file("articles/index.html", build_articles_index(files),  "Articles index")
-    publish_file("tools/index.html",    build_tools_index(files),     "Tools index")
+    publish_file("sitemap.xml",         build_sitemap(files),        "Sitemap")
+    publish_file("index.html",          build_homepage(files),        "Homepage")
+    publish_file("articles/index.html", build_articles_index(files), "Articles index")
+    publish_file("tools/index.html",    build_tools_index(files),    "Tools index")
     prune_content_index(files)
 
     print("Done")
