@@ -237,6 +237,8 @@ def run_pipeline(task_type: str) -> None:
 
     if not queue:
         print(f"STAGING_EMPTY: No {folder_type} in staging/ready.")
+        # Tulis flag agar workflow bisa membedakan staging kosong vs error
+        open("/tmp/staging_empty", "w").close()
         sys.exit(2)
 
     # Ambil item pertama dari antrian
