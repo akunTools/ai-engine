@@ -385,6 +385,7 @@ def _build_article_html(fm: dict, body_html: str,
 
     kw_meta      = f'<meta name="keywords" content="{keyword}">' if keyword else ""
     cluster_meta = f'<meta name="cluster" content="{cluster_id}">' if cluster_id else ""
+    meta_desc    = fm.get("meta_desc", title)
     kw_badge = (
         f'<span class="meta-divider">·</span>'
         f'<span class="meta-tag">{keyword}</span>'
@@ -396,7 +397,7 @@ def _build_article_html(fm: dict, body_html: str,
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{title} — SaaS Tools for Bootstrapped Founders</title>
-  <meta name="description" content="{title}">
+  <meta name="description" content="{meta_desc}">
   {kw_meta}
   {cluster_meta}
   <meta property="og:title" content="{title}">
@@ -869,22 +870,34 @@ def wrap_article_html(body_html: str, slug: str) -> str:
     """
     Bungkus body artikel ke full HTML page.
     Input : body HTML saja (mulai dari <h1>, boleh diawali
-            <meta name="cluster"> sebelum <h1>)
+            <meta name="cluster"> dan/atau <meta name="description">
+            sebelum <h1>)
     Output: full HTML page siap publish
 
     Judul diambil otomatis dari tag <h1> pertama.
-    Cluster diambil dari <meta name="cluster"> jika ada,
-    lalu meta tag itu dihapus dari body sebelum render.
+    Cluster diambil dari <meta name="cluster"> jika ada.
+    Meta description diambil dari <meta name="description"> jika ada,
+    fallback ke judul jika tidak ada.
+    Kedua meta tag dihapus dari body sebelum render.
     """
-    # Ekstrak cluster_id dari meta tag (ditulis Claude di baris pertama output)
+    # Ekstrak cluster_id
     cluster_match = re.search(
         r'<meta\s+name=["\']cluster["\']\s+content=["\']([^"\']*)["\'][^>]*/?>',
         body_html, re.IGNORECASE
     )
     cluster_id = cluster_match.group(1).strip() if cluster_match else ""
-    # Hapus meta tag dari body — ini metadata internal, bukan konten halaman
     if cluster_match:
         body_html = body_html[:cluster_match.start()] + body_html[cluster_match.end():]
+        body_html = body_html.lstrip("\n")
+
+    # Ekstrak meta description
+    desc_match = re.search(
+        r'<meta\s+name=["\']description["\']\s+content=["\']([^"\']*)["\'][^>]*/?>',
+        body_html, re.IGNORECASE
+    )
+    meta_desc = desc_match.group(1).strip() if desc_match else ""
+    if desc_match:
+        body_html = body_html[:desc_match.start()] + body_html[desc_match.end():]
         body_html = body_html.lstrip("\n")
 
     date_str = datetime.utcnow().strftime("%Y-%m-%d")
@@ -898,12 +911,17 @@ def wrap_article_html(body_html: str, slug: str) -> str:
     title_clean = re.sub(r'<[^>]+>', '', title).strip()
     word_count  = len(re.sub(r'<[^>]+>', '', body_html).split())
 
+    # Fallback: gunakan judul jika Claude tidak menulis meta description
+    if not meta_desc:
+        meta_desc = title_clean
+
     fm = {
         "title":           title_clean,
         "slug":            slug,
         "date":            date_str,
         "primary_keyword": "",
         "cluster_id":      cluster_id,
+        "meta_desc":       meta_desc,
         "word_count":      word_count
     }
 
@@ -939,6 +957,16 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
         body_html = body_html[:cluster_match.start()] + body_html[cluster_match.end():]
         body_html = body_html.lstrip("\n")
 
+    # Ekstrak meta description
+    desc_match = re.search(
+        r'<meta\s+name=["\']description["\']\s+content=["\']([^"\']*)["\'][^>]*/?>',
+        body_html, re.IGNORECASE
+    )
+    meta_desc = desc_match.group(1).strip() if desc_match else ""
+    if desc_match:
+        body_html = body_html[:desc_match.start()] + body_html[desc_match.end():]
+        body_html = body_html.lstrip("\n")
+
     site_url     = "https://saas.blogtrick.eu.org"
     tool_url     = f"{site_url}/tools/{slug}"
     cluster_meta = f'<meta name="cluster" content="{cluster_id}">' if cluster_id else ""
@@ -950,13 +978,17 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
              else slug.replace("-", " ").title())
     title_clean = re.sub(r'<[^>]+>', '', title).strip()
 
+    # Fallback: generate deskripsi standar jika Claude tidak menulis meta description
+    if not meta_desc:
+        meta_desc = f"{title_clean}. Free calculator for bootstrapped SaaS founders."
+
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{title_clean} — SaaS Tools for Bootstrapped Founders</title>
-  <meta name="description" content="{title_clean}. Free calculator for bootstrapped SaaS founders.">
+  <meta name="description" content="{meta_desc}">
   {cluster_meta}
   <link rel="canonical" href="{tool_url}">
   {_FONT}
