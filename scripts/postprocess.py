@@ -107,48 +107,58 @@ _NAV_CSS = """
 
 _FOOTER_HTML = """<footer>
   <div class="footer-inner">
-    <div class="footer-brand">SaaS Tools for Bootstrapped Founders</div>
-    <div class="footer-links">
-      <a href="/">Home</a>
-      <a href="/articles/">Articles</a>
-      <a href="/tools/">Tools</a>
+    <div class="footer-top">
+      <a href="/" class="footer-brand">SaaS<span class="footer-accent">Tools</span></a>
+      <nav class="footer-nav">
+        <a href="/articles/">Articles</a>
+        <a href="/tools/">Tools</a>
+      </nav>
     </div>
-    <div class="footer-copy">Free tools and analysis for independent SaaS founders.</div>
+    <div class="footer-bottom">
+      Free calculators and guides for bootstrapped founders.
+    </div>
   </div>
 </footer>"""
 
 _FOOTER_CSS = """
   footer {
     border-top: 1px solid var(--border);
-    padding: 48px 20px;
+    background: var(--surface);
+    padding: 32px 20px;
+    margin-top: 64px;
   }
   .footer-inner {
     max-width: 720px;
     margin: 0 auto;
-    text-align: center;
+  }
+  .footer-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
   }
   .footer-brand {
-    font-size: .8rem;
-    font-weight: 600;
-    color: var(--muted);
-    margin-bottom: 16px;
-    letter-spacing: .02em;
-    text-transform: uppercase;
+    font-size: .95rem;
+    font-weight: 700;
+    color: var(--text);
+    text-decoration: none;
+    letter-spacing: -.02em;
   }
-  .footer-links {
-    display: flex;
-    justify-content: center;
-    gap: 28px;
-    margin-bottom: 16px;
-  }
-  .footer-links a {
+  .footer-accent { color: var(--accent); }
+  .footer-nav { display: flex; gap: 24px; }
+  .footer-nav a {
     font-size: .8rem;
     color: var(--muted);
     text-decoration: none;
     transition: color .15s;
   }
-  .footer-links a:hover { color: var(--accent); }
-  .footer-copy { font-size: .75rem; color: var(--subtle); }
+  .footer-nav a:hover { color: var(--accent); }
+  .footer-bottom {
+    font-size: .75rem;
+    color: var(--subtle);
+    border-top: 1px solid var(--border);
+    padding-top: 16px;
+  }
 """
 
 _TOOL_CSS = ""  # CSS disediakan oleh wrap_tool_html — tidak dipakai standalone
@@ -283,8 +293,8 @@ def _build_article_html(fm: dict, body_html: str,
   <link rel="canonical" href="{article_url}">
   {_FONT}
   <style>
-{{_BASE_CSS}}
-{{_NAV_CSS}}
+{_BASE_CSS}
+{_NAV_CSS}
 
     /* ── LAYOUT ── */
     .container {{
@@ -457,7 +467,7 @@ def _build_article_html(fm: dict, body_html: str,
     }}
 
 {_RELATED_CSS}
-{{_FOOTER_CSS}}
+{_FOOTER_CSS}
 
     @media (max-width: 600px) {{
       .container {{ padding: 32px 16px 60px; }}
@@ -714,8 +724,8 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
   <link rel="canonical" href="{tool_url}">
   {_FONT}
   <style>
-{{_BASE_CSS}}
-{{_NAV_CSS}}
+{_BASE_CSS}
+{_NAV_CSS}
 
     /* ── LAYOUT ── */
     .container {{ max-width: 680px; margin: 0 auto; padding: 40px 20px 80px; }}
@@ -914,7 +924,7 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
     .related-link a:hover {{ color: var(--accent-h); }}
 
 {_RELATED_CSS}
-{{_FOOTER_CSS}}
+{_FOOTER_CSS}
 
     @media (max-width: 600px) {{
       .container {{ padding: 28px 16px 60px; }}
