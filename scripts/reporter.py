@@ -7,7 +7,7 @@ import json
 import smtplib
 import urllib.request
 from email.mime.text import MIMEText
-from datetime import datetime, timedelta
+from datetime import datetime
 
 BRAIN_PAT     = os.environ.get("BRAIN_PAT", "")
 BRAIN_REPO    = os.environ.get("BRAIN_REPO", "")
@@ -47,27 +47,6 @@ def count_staging(folder: str) -> dict:
         "ready":  _count(f"staging/{folder}/ready"),
         "drafts": _count(f"staging/{folder}/drafts")
     }
-
-
-def get_recent_publishes() -> list:
-    """Ambil daftar file yang dipublish dalam 24 jam terakhir."""
-    published = []
-    for folder in ["articles", "tools"]:
-        url = (f"{API_BASE}/repos/{ENGINE_REPO}/contents/{folder}"
-               f"?ref=output")
-        req = urllib.request.Request(url, headers=_headers(GITHUB_TOKEN))
-        try:
-            with urllib.request.urlopen(req) as r:
-                items = json.loads(r.read())
-            for item in items:
-                if item["name"] not in (".gitkeep", "index.html"):
-                    published.append({
-                        "folder": folder,
-                        "name": item["name"]
-                    })
-        except Exception:
-            pass
-    return published
 
 
 def build_report() -> str:
