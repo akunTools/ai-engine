@@ -163,6 +163,11 @@ _FOOTER_CSS = """
 
 _TOOL_CSS = ""  # CSS disediakan oleh wrap_tool_html — tidak dipakai standalone
 
+# ─────────────────────────────────────────────
+# RELATED CONTENT
+# Plain strings (NOT f-strings) — brace characters are single { }
+# ─────────────────────────────────────────────
+
 _RELATED_CSS = """
     /* ── RELATED CONTENT ── */
     .related-content { margin-bottom: 32px; }
@@ -174,17 +179,17 @@ _RELATED_CSS = """
       letter-spacing: .05em;
       margin-bottom: 10px;
       margin-top: 20px;
-    }}
-    .related-heading:first-child {{ margin-top: 0; }}
-    .related-list {{
+    }
+    .related-heading:first-child { margin-top: 0; }
+    .related-list {
       list-style: none;
       margin: 0;
       padding: 0;
       display: flex;
       flex-direction: column;
       gap: 6px;
-    }}
-    .related-list li a {{
+    }
+    .related-list li a {
       font-size: .875rem;
       color: var(--accent);
       text-decoration: none;
@@ -194,52 +199,53 @@ _RELATED_CSS = """
       border: 1px solid var(--border);
       border-radius: 7px;
       transition: border-color .15s;
-    }}
-    .related-list li a:hover {{
+    }
+    .related-list li a:hover {
       border-color: var(--accent);
-    }}
+    }
 """
 
+# Plain string — { } are literal JS braces, NOT f-string escapes.
 _RELATED_JS = """<script>
-(function() {{
+(function() {
   var meta    = document.querySelector('meta[name="cluster"]');
   var cluster = meta ? meta.getAttribute('content') : '';
   if (!cluster) return;
   var parts       = window.location.pathname.split('/').filter(Boolean);
   var currentSlug = (parts[parts.length - 1] || '').replace('.html', '');
   fetch('/content-index.json')
-    .then(function(r) {{ return r.json(); }})
-    .then(function(idx) {{
+    .then(function(r) { return r.json(); })
+    .then(function(idx) {
       var articles = (idx.articles || [])
-        .filter(function(a) {{ return a.cluster === cluster && a.slug !== currentSlug; }})
+        .filter(function(a) { return a.cluster === cluster && a.slug !== currentSlug; })
         .slice(0, 3);
       var tools = (idx.tools || [])
-        .filter(function(t) {{ return t.cluster === cluster && t.slug !== currentSlug; }})
+        .filter(function(t) { return t.cluster === cluster && t.slug !== currentSlug; })
         .slice(0, 2);
       var html = '';
-      if (articles.length) {{
+      if (articles.length) {
         html += '<h3 class="related-heading">Related Articles</h3>'
               + '<ul class="related-list">';
-        articles.forEach(function(a) {{
+        articles.forEach(function(a) {
           html += '<li><a href="/articles/' + a.slug + '">' + a.title + '</a></li>';
-        }});
+        });
         html += '</ul>';
-      }}
-      if (tools.length) {{
+      }
+      if (tools.length) {
         html += '<h3 class="related-heading">Related Tools</h3>'
               + '<ul class="related-list">';
-        tools.forEach(function(t) {{
+        tools.forEach(function(t) {
           html += '<li><a href="/tools/' + t.slug + '">' + t.title + '</a></li>';
-        }});
+        });
         html += '</ul>';
-      }}
-      if (html) {{
+      }
+      if (html) {
         var el = document.getElementById('related-content');
         if (el) el.innerHTML = html;
-      }}
-    }})
-    .catch(function() {{}});
-}})();
+      }
+    })
+    .catch(function() {});
+})();
 </script>"""
 
 
@@ -270,24 +276,29 @@ def _build_article_html(fm: dict, body_html: str,
     kw_meta      = f'<meta name="keywords" content="{keyword}">' if keyword else ""
     cluster_meta = f'<meta name="cluster" content="{cluster_id}">' if cluster_id else ""
     meta_desc    = fm.get("meta_desc", title)
+
+    # kw_badge: full markup including wrapper — renders nothing if no keyword
     kw_badge = (
-        f'<span class="meta-divider">·</span>'
-        f'<span class="meta-tag">{keyword}</span>'
+        f'<span class="article-header__kw">'
+        f'<span class="kw-badge">{keyword}</span>'
+        f'</span>'
     ) if keyword else ""
+
+    title_encoded = title.replace(" ", "%20")
 
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{title} — SaaS Tools for Bootstrapped Founders</title>
+  <title>{title} — blogtrick</title>
   <meta name="description" content="{meta_desc}">
   {kw_meta}
   {cluster_meta}
   <meta property="og:title" content="{title}">
   <meta property="og:url" content="{article_url}">
   <meta property="og:type" content="article">
-  <meta property="og:site_name" content="SaaS Tools for Bootstrapped Founders">
+  <meta property="og:site_name" content="blogtrick">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="{title}">
   <link rel="canonical" href="{article_url}">
@@ -296,182 +307,284 @@ def _build_article_html(fm: dict, body_html: str,
 {_BASE_CSS}
 {_NAV_CSS}
 
-    /* ── LAYOUT ── */
-    .container {{
-      max-width: 720px;
+    /* ── Layout ───────────────────────────────────── */
+    .article-wrap {{
+      max-width: 680px;
       margin: 0 auto;
-      padding: 48px 20px 80px;
+      padding: 0 1.25rem;
     }}
 
-    /* ── ARTICLE HEADER ── */
-    .article-header {{ margin-bottom: 40px; }}
-    .article-header h1 {{
-      font-size: clamp(1.5rem, 4vw, 2.1rem);
-      font-weight: 700;
-      line-height: 1.2;
-      letter-spacing: -.03em;
-      color: var(--text);
-      margin-bottom: 16px;
+    /* ── Article Header ───────────────────────────── */
+    .article-header {{
+      padding: 3rem 0 2.25rem;
+      border-bottom: 1px solid var(--border);
     }}
-    .article-meta {{
+
+    .article-header__title {{
+      font-size: clamp(1.625rem, 4.5vw, 2.25rem);
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      line-height: 1.18;
+      color: var(--text);
+      margin-bottom: 1rem;
+    }}
+
+    .article-header__meta {{
       display: flex;
+      align-items: center;
       flex-wrap: wrap;
-      align-items: center;
-      gap: 10px;
+      gap: 0.5rem;
+      font-size: 0.8125rem;
+      color: var(--subtle);
+      line-height: 1;
     }}
-    .meta-item {{
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      font-size: .8rem;
-      color: var(--muted);
-    }}
-    .meta-tag {{
-      display: inline-block;
-      background: var(--accent-light);
-      color: var(--accent);
-      font-size: .72rem;
-      font-weight: 600;
-      padding: 3px 10px;
-      border-radius: 20px;
-      letter-spacing: .02em;
-    }}
-    .meta-divider {{ color: var(--border); font-size: .7rem; }}
 
-    /* ── ARTICLE BODY ── */
-    .article-body {{
-      font-size: 1.025rem;
-      line-height: 1.75;
-      margin-bottom: 56px;
+    .article-header__meta-sep {{
+      color: var(--border);
+      user-select: none;
     }}
-    .article-body h2 {{
-      font-size: 1.35rem;
+
+    /* kw_badge renders as:
+       <span class="article-header__kw">
+         <span class="kw-badge">keyword</span>
+       </span>
+    */
+    .kw-badge {{
+      display: inline-block;
+      font-size: 0.6875rem;
       font-weight: 700;
-      letter-spacing: -.02em;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-light);
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      vertical-align: middle;
+    }}
+
+    /* ── Article Body ─────────────────────────────── */
+    .article-body {{
+      padding: 2.25rem 0;
+    }}
+
+    .article-body > * + * {{
+      margin-top: 1.375rem;
+    }}
+
+    .article-body p {{
+      font-size: 1rem;
+      line-height: 1.75;
       color: var(--text);
-      margin: 44px 0 14px;
-      padding-top: 44px;
-      border-top: 1px solid var(--border);
     }}
-    .article-body h2:first-child {{
-      margin-top: 0; padding-top: 0; border-top: none;
+
+    /* h2: left accent bar — same visual motif as article list hover */
+    .article-body h2 {{
+      font-size: 1.1875rem;
+      font-weight: 700;
+      letter-spacing: -0.015em;
+      line-height: 1.25;
+      color: var(--text);
+      padding-left: 0.875rem;
+      border-left: 3px solid var(--accent);
+      margin-top: 2.25rem;
     }}
+
     .article-body h3 {{
-      font-size: 1.1rem;
+      font-size: 1rem;
       font-weight: 600;
+      letter-spacing: -0.01em;
       color: var(--text);
-      margin: 28px 0 10px;
+      margin-top: 1.75rem;
     }}
+
     .article-body h4 {{
       font-size: .95rem;
       font-weight: 600;
       color: var(--text);
-      margin: 22px 0 8px;
+      margin-top: 1.375rem;
     }}
-    .article-body p {{ margin-bottom: 20px; }}
-    .article-body p:last-child {{ margin-bottom: 0; }}
-    .article-body ul, .article-body ol {{
-      margin: 0 0 20px 20px;
+
+    .article-body ul,
+    .article-body ol {{
+      padding-left: 1.375rem;
     }}
-    .article-body li {{ margin-bottom: 6px; }}
-    .article-body blockquote {{
-      border-left: 3px solid var(--accent);
-      background: var(--accent-light);
-      padding: 14px 20px;
-      margin: 24px 0;
-      border-radius: 0 var(--r) var(--r) 0;
+
+    .article-body li {{
+      font-size: 1rem;
+      line-height: 1.7;
       color: var(--text);
+    }}
+
+    .article-body li + li {{
+      margin-top: 0.375rem;
+    }}
+
+    /* blockquote: neutral border, italic muted text — not accent-colored */
+    .article-body blockquote {{
+      border-left: 3px solid var(--border);
+      padding: 0.5rem 0 0.5rem 1.125rem;
+      margin-left: 0;
+    }}
+
+    .article-body blockquote p {{
       font-style: italic;
+      color: var(--muted);
     }}
+
+    /* inline code: accent-light chip */
     .article-body code {{
-      background: #f4f4f5;
-      border: 1px solid var(--border);
-      padding: 2px 6px;
-      border-radius: 5px;
-      font-size: .87em;
-      font-family: 'SFMono-Regular', Consolas, monospace;
+      font-family: 'DM Mono', 'Fira Code', 'Courier New', monospace;
+      font-size: 0.875em;
+      background: var(--accent-light);
       color: var(--accent);
+      padding: 0.15em 0.4em;
+      border-radius: 4px;
     }}
+
+    /* code block: dark surface, distinct from interactive elements */
+    .article-body pre {{
+      background: #18181b;
+      border-radius: var(--r);
+      padding: 1.125rem 1.25rem;
+      overflow-x: auto;
+      margin-top: 1.375rem;
+    }}
+
+    .article-body pre code {{
+      background: none;
+      color: #e4e4e7;
+      padding: 0;
+      font-size: 0.875rem;
+      line-height: 1.65;
+      border-radius: 0;
+    }}
+
     .article-body hr {{
       border: none;
       border-top: 1px solid var(--border);
-      margin: 36px 0;
+      margin: 2rem 0;
     }}
-    .article-body strong {{ font-weight: 600; color: var(--text); }}
+
+    .article-body strong {{
+      font-weight: 600;
+      color: var(--text);
+    }}
+
+    .article-body table {{
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }}
+
+    .article-body th,
+    .article-body td {{
+      padding: 0.625rem 0.75rem;
+      border: 1px solid var(--border);
+      text-align: left;
+      vertical-align: top;
+    }}
+
+    .article-body th {{
+      background: var(--bg);
+      font-weight: 600;
+      font-size: 0.8125rem;
+      letter-spacing: 0.03em;
+    }}
+
     .article-body a {{
       color: var(--accent);
       text-decoration: underline;
-      text-decoration-color: rgba(79,70,229,.3);
+      text-underline-offset: 3px;
     }}
+
     .article-body a:hover {{
       color: var(--accent-h);
-      text-decoration-color: var(--accent-h);
     }}
 
-    /* ── SHARE ── */
-    .share-box {{
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--r);
-      padding: 24px;
-      margin-bottom: 48px;
+    /* ── Share Row ────────────────────────────────── */
+    /* Text links separated by dots — no background boxes */
+    .share-section {{
+      border-top: 1px solid var(--border);
+      padding: 1.5rem 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
     }}
-    .share-label {{
-      font-size: .75rem;
+
+    .share-section__label {{
+      font-size: 0.8125rem;
       font-weight: 600;
       color: var(--subtle);
+      letter-spacing: 0.05em;
       text-transform: uppercase;
-      letter-spacing: .05em;
-      margin-bottom: 14px;
-    }}
-    .share-buttons {{ display: flex; flex-wrap: wrap; gap: 8px; }}
-    .share-btn {{
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      padding: 8px 16px;
-      border-radius: 8px;
-      font-size: .82rem;
-      font-weight: 500;
-      text-decoration: none;
-      cursor: pointer;
-      border: 1px solid transparent;
-      transition: all .15s;
-      font-family: inherit;
-    }}
-    .share-btn.x-btn {{ background: #000; color: white; }}
-    .share-btn.x-btn:hover {{ background: #111; color: white; }}
-    .share-btn.li-btn {{ background: #0a66c2; color: white; }}
-    .share-btn.li-btn:hover {{ background: #004182; color: white; }}
-    .share-btn.copy-btn {{
-      background: var(--bg);
-      color: var(--text);
-      border-color: var(--border);
-    }}
-    .share-btn.copy-btn:hover {{ border-color: var(--accent); color: var(--accent); }}
-    .share-btn.copy-btn.copied {{
-      background: var(--success-bg);
-      color: var(--success);
-      border-color: var(--success);
+      margin-right: 0.25rem;
     }}
 
-    /* ── COMMENTS ── */
-    .comments-box {{ margin-bottom: 48px; }}
-    .comments-box h2 {{
-      font-size: 1.1rem;
+    .share-btn {{
+      background: none;
+      border: none;
+      padding: 0;
+      font-family: inherit;
+      font-size: 0.9rem;
+      color: var(--accent);
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+    }}
+
+    .share-btn:hover {{
+      color: var(--accent-h);
+    }}
+
+    .share-sep {{
+      color: var(--border);
+      font-size: 0.875rem;
+      user-select: none;
+    }}
+
+    /* ── Comments ─────────────────────────────────── */
+    /* No border box — giscus renders natively */
+    .comments-section {{
+      border-top: 1px solid var(--border);
+      padding: 2rem 0 3rem;
+    }}
+
+    .comments-section__label {{
+      font-size: 0.8125rem;
       font-weight: 700;
-      color: var(--text);
-      margin-bottom: 20px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid var(--border);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--subtle);
+      margin-bottom: 1.375rem;
     }}
 
 {_RELATED_CSS}
 {_FOOTER_CSS}
 
+    /* ── Responsive ───────────────────────────────── */
     @media (max-width: 600px) {{
-      .container {{ padding: 32px 16px 60px; }}
-      .article-header h1 {{ font-size: 1.4rem; }}
+      .article-header {{
+        padding: 2rem 0 1.75rem;
+      }}
+
+      .article-body h2 {{
+        font-size: 1.0625rem;
+      }}
+
+      .article-body pre {{
+        padding: 0.875rem 1rem;
+        border-radius: 8px;
+      }}
+
+      .article-body table {{
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }}
     }}
   </style>
 </head>
@@ -487,32 +600,14 @@ def _build_article_html(fm: dict, body_html: str,
   </div>
 </nav>
 
-<div class="container">
+<main class="article-wrap">
 
   <header class="article-header">
-    <h1>{title}</h1>
-    <div class="article-meta">
-      <span class="meta-item">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2"
-             stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-          <line x1="16" y1="2" x2="16" y2="6"/>
-          <line x1="8" y1="2" x2="8" y2="6"/>
-          <line x1="3" y1="10" x2="21" y2="10"/>
-        </svg>
-        {display_date}
-      </span>
-      <span class="meta-divider">·</span>
-      <span class="meta-item">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2"
-             stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"/>
-          <polyline points="12 6 12 12 16 14"/>
-        </svg>
-        {read_time} min read
-      </span>
+    <h1 class="article-header__title">{title}</h1>
+    <div class="article-header__meta">
+      <span>{display_date}</span>
+      <span class="article-header__meta-sep">·</span>
+      <span>{read_time} min read</span>
       {kw_badge}
     </div>
   </header>
@@ -521,29 +616,23 @@ def _build_article_html(fm: dict, body_html: str,
     {body_html}
   </article>
 
-  <div id="related-content"></div>
+  <div id="related-content" class="related-content"></div>
 
-  <div class="share-box">
-    <div class="share-label">Share this article</div>
-    <div class="share-buttons">
-      <a class="share-btn x-btn"
-         href="https://twitter.com/intent/tweet?text={title.replace(' ', '%20')}&url={article_url}"
-         target="_blank" rel="noopener">
-        𝕏 Post on X
-      </a>
-      <a class="share-btn li-btn"
-         href="https://www.linkedin.com/sharing/share-offsite/?url={article_url}"
-         target="_blank" rel="noopener">
-        in Share
-      </a>
-      <button class="share-btn copy-btn" id="copy-btn" onclick="copyLink()">
-        🔗 Copy link
-      </button>
-    </div>
+  <div class="share-section">
+    <span class="share-section__label">Share</span>
+    <a class="share-btn"
+       href="https://twitter.com/intent/tweet?url={article_url}&amp;text={title_encoded}"
+       target="_blank" rel="noopener noreferrer">Twitter / X</a>
+    <span class="share-sep">·</span>
+    <a class="share-btn"
+       href="https://www.linkedin.com/sharing/share-offsite/?url={article_url}"
+       target="_blank" rel="noopener noreferrer">LinkedIn</a>
+    <span class="share-sep">·</span>
+    <button class="share-btn" id="copy-btn" onclick="copyLink()">Copy link</button>
   </div>
 
-  <div class="comments-box">
-    <h2>Discussion</h2>
+  <section class="comments-section">
+    <div class="comments-section__label">Discussion</div>
     <script src="https://giscus.app/client.js"
       data-repo="akunTools/ai-engine"
       data-repo-id="R_kgDORZ0kXg"
@@ -564,9 +653,9 @@ def _build_article_html(fm: dict, body_html: str,
         Enable JavaScript to load comments.
       </p>
     </noscript>
-  </div>
+  </section>
 
-</div>
+</main>
 
 {_FOOTER_HTML}
 
@@ -574,12 +663,9 @@ def _build_article_html(fm: dict, body_html: str,
   function copyLink() {{
     navigator.clipboard.writeText("{article_url}").then(function() {{
       var btn = document.getElementById("copy-btn");
-      btn.textContent = "✓ Copied!";
-      btn.classList.add("copied");
-      setTimeout(function() {{
-        btn.textContent = "🔗 Copy link";
-        btn.classList.remove("copied");
-      }}, 2000);
+      var original = btn.textContent;
+      btn.textContent = "Copied!";
+      setTimeout(function() {{ btn.textContent = original; }}, 2000);
     }});
   }}
 </script>
@@ -588,7 +674,6 @@ def _build_article_html(fm: dict, body_html: str,
 
 </body>
 </html>"""
-
 
 
 # ─────────────────────────────────────────────
@@ -662,21 +747,34 @@ def wrap_article_html(body_html: str, slug: str) -> str:
 def wrap_tool_html(body_html: str, slug: str) -> str:
     """
     Bungkus body tool/kalkulator ke full HTML page.
-    Input : body HTML saja — boleh diawali <meta name="cluster">
-            sebelum <h1>. Tanpa <html>/<head>/<style>.
-            Gunakan CSS class yang tersedia di bawah.
-    Output: full HTML page siap publish
 
-    CSS classes yang tersedia:
-    .card, .card h2
-    .input-group, label, .input-wrapper, .input-prefix
-    input[type="number"]
-    .result-card, .result-label, .result-number, .result-unit
-    .interpretation, .secondary-result
-    .formula-box, .formula-box h3, .formula-box p
-    .affiliate-box, .affiliate-box a
-    .related-link, .related-link a
-    .subtitle
+    Input : body HTML tanpa <h1> — tulis konten mulai dari
+            <meta name="cluster"> (opsional), <meta name="description">
+            (opsional), lalu langsung konten kalkulator.
+            Tanpa <html>/<head>/<style>.
+
+    PENTING: Jangan sertakan <h1> di body_html.
+    Judul diambil dari <meta name="description"> fallback ke slug,
+    dan dirender di page header di atas tool-well.
+    Jika body_html mengandung <h1>, tag tersebut dihapus otomatis
+    untuk menghindari duplikasi dengan page header.
+
+    CSS classes yang tersedia di dalam .tool-well:
+      Layout   : .field, .field-hint, .tool-divider, .tool-note
+      Inputs   : label, input[type="number"], input[type="text"],
+                 select, .input-affix, .input-affix__prefix,
+                 .input-affix__suffix, .input-affix--suffix
+      Results  : .results, .result-item, .result-item--primary,
+                 .result-label, .result-value, .result-unit
+      Actions  : .tool-btn
+      Explainer: .tool-explainer, .tool-explainer__title
+
+    Legacy classes (tetap didukung untuk tool yang sudah ada):
+      .card, .card h2, .input-group, .input-wrapper, .input-prefix,
+      .result-card, .result-label, .result-number, .result-unit,
+      .interpretation, .secondary-result, .formula-box, .formula-box h3,
+      .formula-box p, .affiliate-box, .affiliate-box a,
+      .related-link, .related-link a, .subtitle
     """
     # Ekstrak cluster_id dari meta tag
     cluster_match = re.search(
@@ -698,27 +796,33 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
         body_html = body_html[:desc_match.start()] + body_html[desc_match.end():]
         body_html = body_html.lstrip("\n")
 
+    # Ekstrak title dari h1, lalu strip h1 dari body (title goes to page header)
+    h1_match = re.search(r'<h1[^>]*>(.*?)</h1>',
+                         body_html, re.IGNORECASE | re.DOTALL)
+    if h1_match:
+        raw_title = h1_match.group(1).strip()
+        title_clean = re.sub(r'<[^>]+>', '', raw_title).strip()
+        body_html = (body_html[:h1_match.start()]
+                     + body_html[h1_match.end():]).lstrip("\n")
+    else:
+        title_clean = slug.replace("-", " ").title()
+
     site_url     = "https://saas.blogtrick.eu.org"
     tool_url     = f"{site_url}/tools/{slug}"
     cluster_meta = f'<meta name="cluster" content="{cluster_id}">' if cluster_id else ""
 
-    h1_match = re.search(r'<h1[^>]*>(.*?)</h1>',
-                         body_html, re.IGNORECASE | re.DOTALL)
-    title = (h1_match.group(1).strip()
-             if h1_match
-             else slug.replace("-", " ").title())
-    title_clean = re.sub(r'<[^>]+>', '', title).strip()
-
-    # Fallback: generate deskripsi standar jika Claude tidak menulis meta description
+    # Fallback: generate deskripsi standar jika tidak ada meta description
     if not meta_desc:
         meta_desc = f"{title_clean}. Free calculator for bootstrapped SaaS founders."
+
+    title_encoded = title_clean.replace(" ", "%20")
 
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{title_clean} — SaaS Tools for Bootstrapped Founders</title>
+  <title>{title_clean} — blogtrick</title>
   <meta name="description" content="{meta_desc}">
   {cluster_meta}
   <link rel="canonical" href="{tool_url}">
@@ -727,25 +831,272 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
 {_BASE_CSS}
 {_NAV_CSS}
 
-    /* ── LAYOUT ── */
-    .container {{ max-width: 680px; margin: 0 auto; padding: 40px 20px 80px; }}
+    /* ── Layout ───────────────────────────────────── */
+    .tool-wrap {{
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 0 1.25rem;
+    }}
 
-    /* ── TYPOGRAPHY ── */
-    h1 {{
-      font-size: clamp(1.5rem, 4vw, 1.9rem);
+    /* ── Tool Header ──────────────────────────────── */
+    .tool-header {{
+      padding: 3rem 0 2rem;
+    }}
+
+    .tool-header__eyebrow {{
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      font-size: 0.6875rem;
       font-weight: 700;
-      letter-spacing: -.03em;
-      color: var(--text);
-      margin-bottom: 6px;
-    }}
-    .subtitle {{
-      color: var(--muted);
-      font-size: .95rem;
-      margin-bottom: 28px;
-      line-height: 1.5;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-light);
+      padding: 0.25rem 0.625rem;
+      border-radius: 4px;
+      margin-bottom: 1rem;
     }}
 
-    /* ── CARD ── */
+    .tool-header__title {{
+      font-size: clamp(1.5rem, 4vw, 2.125rem);
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      line-height: 1.18;
+      color: var(--text);
+      margin-bottom: 0.75rem;
+    }}
+
+    .tool-header__desc {{
+      font-size: 1rem;
+      color: var(--muted);
+      line-height: 1.7;
+      max-width: 560px;
+    }}
+
+    /* ── Calculator Well ──────────────────────────── */
+    /* White surface container for body_html.
+       All tool inputs and results go inside body_html.
+       This wrapper is the visual shell only. */
+    .tool-well {{
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      box-shadow: var(--shadow-md);
+      padding: 1.875rem;
+      margin-bottom: 2.25rem;
+    }}
+
+    /* ── New tool convention classes ─────────────── */
+    .tool-well .field {{
+      margin-bottom: 1.125rem;
+    }}
+
+    .tool-well .field:last-child {{
+      margin-bottom: 0;
+    }}
+
+    .tool-well label {{
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.375rem;
+    }}
+
+    .tool-well .field-hint {{
+      display: block;
+      font-size: 0.8rem;
+      color: var(--subtle);
+      margin-top: 0.25rem;
+    }}
+
+    .tool-well input[type="number"],
+    .tool-well input[type="text"],
+    .tool-well select {{
+      width: 100%;
+      height: 44px;
+      padding: 0 0.875rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 1rem;
+      color: var(--text);
+      background: var(--bg);
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: textfield;
+      transition: border-color 0.13s ease, box-shadow 0.13s ease;
+    }}
+
+    .tool-well input[type="number"]::-webkit-outer-spin-button,
+    .tool-well input[type="number"]::-webkit-inner-spin-button {{
+      -webkit-appearance: none;
+    }}
+
+    .tool-well input:focus,
+    .tool-well select:focus {{
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
+    }}
+
+    .tool-well .input-affix {{
+      position: relative;
+      display: flex;
+      align-items: center;
+    }}
+
+    .tool-well .input-affix__prefix,
+    .tool-well .input-affix__suffix {{
+      position: absolute;
+      font-size: 0.9375rem;
+      color: var(--subtle);
+      pointer-events: none;
+      line-height: 1;
+    }}
+
+    .tool-well .input-affix__prefix {{ left: 0.75rem; }}
+    .tool-well .input-affix__suffix {{ right: 0.875rem; }}
+
+    .tool-well .input-affix input {{
+      padding-left: 1.75rem;
+    }}
+
+    .tool-well .input-affix--suffix input {{
+      padding-right: 2rem;
+    }}
+
+    .tool-well .tool-divider {{
+      height: 1px;
+      background: var(--border);
+      margin: 1.5rem 0;
+    }}
+
+    .tool-well .results {{
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.875rem;
+    }}
+
+    .tool-well .result-item {{
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.875rem 1rem;
+    }}
+
+    .tool-well .result-item--primary {{
+      background: var(--accent-light);
+      border-color: transparent;
+    }}
+
+    .tool-well .result-label {{
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--subtle);
+      margin-bottom: 0.375rem;
+    }}
+
+    .tool-well .result-item--primary .result-label {{
+      color: var(--accent);
+    }}
+
+    .tool-well .result-value {{
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      line-height: 1;
+    }}
+
+    /* Primary result: larger — the number that justifies this calculator */
+    .tool-well .result-item--primary .result-value {{
+      font-size: 1.875rem;
+      color: var(--accent);
+    }}
+
+    .tool-well .result-unit {{
+      font-size: 0.875rem;
+      font-weight: 400;
+      color: var(--muted);
+      margin-left: 0.25rem;
+    }}
+
+    .tool-well .tool-btn {{
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 44px;
+      padding: 0 1.25rem;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 0.9375rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.13s ease;
+      margin-top: 1.125rem;
+    }}
+
+    .tool-well .tool-btn:hover {{
+      background: var(--accent-h);
+    }}
+
+    .tool-well .tool-note {{
+      font-size: 0.8125rem;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+    }}
+
+    /* ── Methodology explainer ────────────────────── */
+    .tool-explainer {{
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 1.375rem 1.5rem;
+      margin-bottom: 2rem;
+      box-shadow: var(--shadow);
+    }}
+
+    .tool-explainer__title {{
+      font-size: 0.8125rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--subtle);
+      margin-bottom: 0.875rem;
+    }}
+
+    .tool-explainer p {{
+      font-size: 0.9375rem;
+      color: var(--muted);
+      line-height: 1.7;
+    }}
+
+    .tool-explainer p + p {{
+      margin-top: 0.75rem;
+    }}
+
+    .tool-explainer code {{
+      font-family: 'DM Mono', 'Fira Code', 'Courier New', monospace;
+      font-size: 0.875em;
+      background: var(--accent-light);
+      color: var(--accent);
+      padding: 0.15em 0.4em;
+      border-radius: 4px;
+    }}
+
+    /* ── Legacy tool classes ──────────────────────── */
+    /* Kept for backward compatibility with existing tool body_html. */
     .card {{
       background: var(--surface);
       border: 1px solid var(--border);
@@ -753,6 +1104,7 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
       padding: 24px;
       margin-bottom: 14px;
     }}
+
     .card h2 {{
       font-size: .9rem;
       font-weight: 600;
@@ -762,17 +1114,11 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
       margin-bottom: 20px;
     }}
 
-    /* ── INPUTS ── */
     .input-group {{ margin-bottom: 18px; }}
     .input-group:last-child {{ margin-bottom: 0; }}
-    label {{
-      display: block;
-      font-size: .85rem;
-      font-weight: 500;
-      color: var(--text);
-      margin-bottom: 7px;
-    }}
+
     .input-wrapper {{ position: relative; }}
+
     .input-prefix {{
       position: absolute;
       left: 13px;
@@ -783,7 +1129,9 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
       pointer-events: none;
       font-weight: 500;
     }}
-    input[type="number"] {{
+
+    /* Legacy standalone inputs (outside .tool-well) */
+    .input-group input[type="number"] {{
       width: 100%;
       padding: 10px 14px 10px 30px;
       border: 1.5px solid var(--border);
@@ -795,14 +1143,22 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
       transition: border-color .15s, box-shadow .15s;
       -moz-appearance: textfield;
     }}
-    input[type="number"]::-webkit-outer-spin-button,
-    input[type="number"]::-webkit-inner-spin-button {{ -webkit-appearance: none; }}
-    input[type="number"]:focus {{
+
+    .input-group input[type="number"]::-webkit-outer-spin-button,
+    .input-group input[type="number"]::-webkit-inner-spin-button {{
+      -webkit-appearance: none;
+    }}
+
+    .input-group input[type="number"]:focus {{
       outline: none;
       border-color: var(--accent);
       box-shadow: 0 0 0 3px rgba(79,70,229,.1);
     }}
-    input[type="number"].error-input {{ border-color: var(--danger); }}
+
+    .input-group input[type="number"].error-input {{
+      border-color: var(--danger);
+    }}
+
     .error-msg {{
       color: var(--danger);
       font-size: .75rem;
@@ -810,7 +1166,6 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
       display: none;
     }}
 
-    /* ── RESULT ── */
     .result-card {{
       background: var(--accent-light);
       border: 1.5px solid rgba(79,70,229,.2);
@@ -818,7 +1173,8 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
       padding: 28px 24px 24px;
       margin-bottom: 14px;
     }}
-    .result-label {{
+
+    .result-card .result-label {{
       font-size: .75rem;
       font-weight: 600;
       color: var(--accent);
@@ -826,6 +1182,7 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
       letter-spacing: .06em;
       margin-bottom: 6px;
     }}
+
     .result-number {{
       font-size: 3.5rem;
       font-weight: 700;
@@ -834,12 +1191,14 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
       letter-spacing: -.04em;
       margin-bottom: 2px;
     }}
-    .result-unit {{
+
+    .result-card .result-unit {{
       font-size: .875rem;
       color: var(--accent);
       opacity: .7;
       margin-bottom: 16px;
     }}
+
     .interpretation {{
       background: var(--surface);
       border-radius: 8px;
@@ -849,25 +1208,28 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
       line-height: 1.5;
       border-left: 3px solid var(--accent);
     }}
+
     .interpretation.danger {{
       border-color: var(--danger);
       background: var(--danger-bg);
     }}
+
     .interpretation.warning {{
       border-color: var(--warning);
       background: var(--warning-bg);
     }}
+
     .interpretation.healthy {{
       border-color: var(--success);
       background: var(--success-bg);
     }}
+
     .secondary-result {{
       margin-top: 12px;
       font-size: .8rem;
       color: var(--muted);
     }}
 
-    /* ── FORMULA BOX ── */
     .formula-box {{
       background: var(--surface);
       border: 1px solid var(--border);
@@ -875,6 +1237,7 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
       padding: 20px 24px;
       margin-bottom: 14px;
     }}
+
     .formula-box h3 {{
       font-size: .75rem;
       font-weight: 600;
@@ -883,6 +1246,7 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
       letter-spacing: .06em;
       margin-bottom: 10px;
     }}
+
     .formula-box p {{
       font-size: .875rem;
       color: var(--muted);
@@ -890,7 +1254,6 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
       font-family: 'SFMono-Regular', Consolas, monospace;
     }}
 
-    /* ── AFFILIATE BOX ── */
     .affiliate-box {{
       background: var(--success-bg);
       border: 1px solid rgba(16,185,129,.25);
@@ -901,34 +1264,158 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
       color: var(--text);
       line-height: 1.6;
     }}
+
     .affiliate-box a {{
       color: var(--success);
       font-weight: 500;
       text-decoration: underline;
       text-decoration-color: rgba(16,185,129,.4);
     }}
+
     .affiliate-box a:hover {{ color: #059669; }}
 
-    /* ── RELATED LINK ── */
     .related-link {{
       font-size: .85rem;
       color: var(--muted);
       padding: 12px 0;
     }}
+
     .related-link a {{
       color: var(--accent);
       text-decoration: underline;
       text-decoration-color: rgba(79,70,229,.3);
       font-weight: 500;
     }}
+
     .related-link a:hover {{ color: var(--accent-h); }}
+
+    .subtitle {{
+      color: var(--muted);
+      font-size: .95rem;
+      margin-bottom: 28px;
+      line-height: 1.5;
+    }}
+
+    /* ── Share Strip ──────────────────────────────── */
+    .share-section {{
+      border-top: 1px solid var(--border);
+      padding: 1.5rem 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }}
+
+    .share-section__label {{
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--subtle);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-right: 0.25rem;
+    }}
+
+    .share-btn {{
+      background: none;
+      border: none;
+      padding: 0;
+      font-family: inherit;
+      font-size: 0.9rem;
+      color: var(--accent);
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+    }}
+
+    .share-btn:hover {{
+      color: var(--accent-h);
+    }}
+
+    .share-sep {{
+      color: var(--border);
+      font-size: 0.875rem;
+      user-select: none;
+    }}
+
+    /* ── Hosting Nudge ────────────────────────────── */
+    .hosting-nudge {{
+      margin: 0.75rem 0 2.5rem;
+      padding: 1.25rem 1.375rem;
+      background: var(--success-bg);
+      border: 1px solid #a7f3d0;
+      border-radius: var(--r);
+      display: flex;
+      align-items: flex-start;
+      gap: 0.875rem;
+    }}
+
+    .hosting-nudge__dot {{
+      width: 8px;
+      height: 8px;
+      background: var(--success);
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 0.45rem;
+    }}
+
+    .hosting-nudge__body {{
+      flex: 1;
+    }}
+
+    .hosting-nudge__label {{
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--success);
+      margin-bottom: 0.25rem;
+    }}
+
+    .hosting-nudge__text {{
+      font-size: 0.9rem;
+      color: var(--text);
+      line-height: 1.55;
+    }}
+
+    .hosting-nudge__text a {{
+      color: var(--accent);
+      font-weight: 500;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }}
+
+    .hosting-nudge__text a:hover {{
+      color: var(--accent-h);
+    }}
 
 {_RELATED_CSS}
 {_FOOTER_CSS}
 
+    /* ── Responsive ───────────────────────────────── */
     @media (max-width: 600px) {{
-      .container {{ padding: 28px 16px 60px; }}
-      .result-number {{ font-size: 2.75rem; }}
+      .tool-header {{
+        padding: 2rem 0 1.5rem;
+      }}
+
+      .tool-well {{
+        padding: 1.25rem;
+      }}
+
+      .tool-well .results {{
+        grid-template-columns: 1fr;
+      }}
+
+      .result-number {{
+        font-size: 2.75rem;
+      }}
+
+      .hosting-nudge {{
+        flex-direction: column;
+        gap: 0.5rem;
+      }}
     }}
   </style>
 </head>
@@ -936,7 +1423,7 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
 
 <nav>
   <div class="nav-inner">
-    <a href="/tools/" class="nav-back">← All Tools</a>
+    <a href="/tools/" class="nav-back">← Tools</a>
     <div class="nav-links">
       <a href="/articles/">Articles</a>
       <a href="/tools/" class="active">Tools</a>
@@ -944,12 +1431,60 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
   </div>
 </nav>
 
-<div class="container">
-{body_html}
-<div id="related-content"></div>
-</div>
+<main class="tool-wrap">
+
+  <header class="tool-header">
+    <div class="tool-header__eyebrow">Calculator</div>
+    <h1 class="tool-header__title">{title_clean}</h1>
+    <p class="tool-header__desc">{meta_desc}</p>
+  </header>
+
+  <div class="tool-well">
+    {body_html}
+  </div>
+
+  <div id="related-content" class="related-content"></div>
+
+  <div class="share-section">
+    <span class="share-section__label">Share</span>
+    <a class="share-btn"
+       href="https://twitter.com/intent/tweet?url={tool_url}&amp;text={title_encoded}"
+       target="_blank" rel="noopener noreferrer">Twitter / X</a>
+    <span class="share-sep">·</span>
+    <a class="share-btn"
+       href="https://www.linkedin.com/sharing/share-offsite/?url={tool_url}"
+       target="_blank" rel="noopener noreferrer">LinkedIn</a>
+    <span class="share-sep">·</span>
+    <button class="share-btn" id="copy-btn" onclick="copyLink()">Copy link</button>
+  </div>
+
+  <div class="hosting-nudge">
+    <div class="hosting-nudge__dot"></div>
+    <div class="hosting-nudge__body">
+      <div class="hosting-nudge__label">Hosting recommendation</div>
+      <p class="hosting-nudge__text">
+        This site runs on
+        <a href="https://www.cloudways.com" rel="noopener sponsored">Cloudways</a> —
+        managed cloud hosting with per-app scaling, no markup confusion,
+        and SSH access. Worth considering if you are outgrowing shared plans.
+      </p>
+    </div>
+  </div>
+
+</main>
 
 {_FOOTER_HTML}
+
+<script>
+  function copyLink() {{
+    navigator.clipboard.writeText("{tool_url}").then(function() {{
+      var btn = document.getElementById("copy-btn");
+      var original = btn.textContent;
+      btn.textContent = "Copied!";
+      setTimeout(function() {{ btn.textContent = original; }}, 2000);
+    }});
+  }}
+</script>
 
 {_RELATED_JS}
 
