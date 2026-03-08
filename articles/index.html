@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>All Articles — blogtrick</title>
-  <meta name="description" content="No-fluff guides for bootstrapped SaaS founders. 1 articles covering pricing, metrics, ops, and growth.">
+  <title>Articles — SaaS Tools for Bootstrapped Founders</title>
+  <meta name="description" content="No-fluff guides on SaaS finances, pricing, and growth for bootstrapped founders.">
   <link rel="canonical" href="https://saas.blogtrick.eu.org/articles/">
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
   <style>
@@ -82,126 +82,81 @@
   .nav-links a.active { color: var(--accent); background: var(--accent-light); }
 
 
-    /* ── Layout ─────────────────────────────────────── */
-    .page-wrap {
+    .page-header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 48px 20px 40px;
+    }
+    .page-header-inner {
       max-width: 720px;
       margin: 0 auto;
-      padding: 0 1.25rem;
     }
-
-    /* ── Page Header ────────────────────────────────── */
-    .page-header {
-      padding: 3.5rem 0 2.25rem;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .page-header__title {
-      font-size: clamp(1.5rem, 4vw, 2.125rem);
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      color: var(--text);
-      margin-bottom: 0.5rem;
-      line-height: 1.2;
-    }
-
-    .page-header__meta {
-      font-size: 0.9rem;
-      color: var(--muted);
-    }
-
-    .page-header__meta strong {
-      color: var(--text);
+    .page-eyebrow {
+      font-size: .75rem;
       font-weight: 600;
+      color: var(--accent);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .page-header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -.03em;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .page-header p {
+      font-size: .95rem;
+      color: var(--muted);
+      line-height: 1.6;
     }
 
-    /* ── Article List ───────────────────────────────── */
-    .article-list {
-      padding: 0.5rem 0 3rem;
-      display: flex;
-      flex-direction: column;
-    }
+    .container { max-width: 760px; margin: 0 auto; padding: 40px 24px; }
 
-    .article-list .article-item {
+    .article-item {
       display: flex;
-      align-items: baseline;
+      align-items: flex-start;
       justify-content: space-between;
-      gap: 1rem;
-      padding: 1.0625rem 0;
+      gap: 16px;
+      padding: 18px 0;
       border-bottom: 1px solid var(--border);
       text-decoration: none;
-      color: inherit;
-      position: relative;
-      transition: padding-left 0.18s ease;
+      transition: all .15s;
     }
-
-    .article-list .article-item::before {
-      content: '';
-      position: absolute;
-      left: -0.875rem;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 3px;
-      height: 0;
-      background: var(--accent);
-      border-radius: 2px;
-      transition: height 0.18s ease;
-    }
-
-    .article-list .article-item:last-child {
-      border-bottom: none;
-    }
-
-    .article-item__left {
-      min-width: 0;
-      flex: 1;
-    }
-
+    .article-item:last-child { border-bottom: none; }
+    .article-item__left { flex: 1; }
     .article-item__title {
       display: block;
-      font-size: 0.9375rem;
+      font-size: .95rem;
       font-weight: 500;
       color: var(--text);
+      margin-bottom: 4px;
       line-height: 1.4;
-      margin-bottom: 0.25rem;
-      transition: color 0.13s ease;
+      transition: color .15s;
     }
-
-    .article-item__desc {
+    .article-item:hover .article-item__title { color: var(--accent); }
+    .article-item__excerpt {
       display: block;
-      font-size: 0.8125rem;
+      font-size: .875rem;
       color: var(--muted);
-      line-height: 1.5;
+      white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      white-space: nowrap;
+      max-width: 500px;
     }
-
     .article-item__date {
-      font-size: 0.8125rem;
+      font-size: .78rem;
       color: var(--subtle);
       white-space: nowrap;
       flex-shrink: 0;
+      padding-top: 2px;
     }
-
-    @media (hover: hover) {
-      .article-list .article-item:hover {
-        padding-left: 0.5625rem;
-      }
-
-      .article-list .article-item:hover::before {
-        height: 50%;
-      }
-
-      .article-list .article-item:hover .article-item__title {
-        color: var(--accent);
-      }
-    }
-
-    .empty {
+    .empty-note {
       text-align: center;
       color: var(--muted);
-      font-size: 0.9rem;
-      padding: 3rem 0;
+      font-size: .9rem;
+      padding: 48px 0;
     }
 
 
@@ -240,30 +195,6 @@
     padding-top: 16px;
   }
 
-
-    /* ── Responsive ─────────────────────────────────── */
-    @media (max-width: 600px) {
-      .page-header {
-        padding: 2.5rem 0 1.75rem;
-      }
-
-      .article-list .article-item {
-        align-items: flex-start;
-        flex-wrap: wrap;
-        gap: 0.25rem;
-      }
-
-      .article-item__desc {
-        white-space: normal;
-        overflow: visible;
-        text-overflow: unset;
-      }
-
-      .article-item__date {
-        width: 100%;
-        font-size: 0.75rem;
-      }
-    }
   </style>
 </head>
 <body>
@@ -280,27 +211,23 @@
   </div>
 </nav>
 
-<main class="page-wrap">
-
-  <header class="page-header">
-    <h1 class="page-header__title">Articles</h1>
-    <p class="page-header__meta">
-      <strong>1</strong> articles — practical writing for founders
-      who would rather read once and decide than read ten posts and stay confused.
-    </p>
-  </header>
-
-  <div class="article-list">
-    
-      <a href="https://saas.blogtrick.eu.org/articles/test-pipeline" class="article-item">
-        <div class="article-item__left">
-          <span class="article-item__title">Test Pipeline</span>
-        </div>
-        
-      </a>
+<div class="page-header">
+  <div class="page-header-inner">
+    <div class="page-eyebrow">Reading List</div>
+    <h1>Articles</h1>
+    <p>No-fluff analysis for bootstrapped SaaS founders. Real numbers, real trade-offs.</p>
   </div>
+</div>
 
-</main>
+<div class="container">
+    <a href="https://saas.blogtrick.eu.org/articles/test-pipeline" class="article-item">
+      <div class="article-item__left">
+        <span class="article-item__title">Test Pipeline</span>
+        
+      </div>
+      
+    </a>
+</div>
 
 <footer>
   <div class="footer-inner">
