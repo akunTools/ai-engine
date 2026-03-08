@@ -150,82 +150,191 @@ _BASE_CSS = """
   a:hover { color: var(--accent-h); }
 """
 
+# ── Updated: 10.9 design session ──────────────────────────────────────────────
 _NAV_CSS = """
   nav {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 0 20px;
     position: sticky;
     top: 0;
     z-index: 100;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    box-shadow: var(--shadow);
   }
+
   .nav-inner {
-    max-width: 720px;
+    max-width: 1120px;
     margin: 0 auto;
+    padding: 0 24px;
     height: 56px;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 24px;
   }
+
   .nav-brand {
-    font-size: 1rem;
+    font-size: 1.125rem;
     font-weight: 700;
     color: var(--text);
     text-decoration: none;
-    letter-spacing: -.02em;
+    letter-spacing: -0.02em;
+    flex-shrink: 0;
+    line-height: 56px;
+  }
+
+  .nav-brand:hover {
+    color: var(--text);
+  }
+
+  .brand-accent {
+    color: var(--accent);
+  }
+
+  .nav-links {
     display: flex;
     align-items: center;
-    gap: 2px;
+    gap: 4px;
   }
-  .brand-accent { color: var(--accent); }
-  .nav-links { display: flex; gap: 2px; }
+
   .nav-links a {
-    font-size: .875rem;
+    font-size: 0.9rem;
     font-weight: 500;
     color: var(--muted);
     text-decoration: none;
-    padding: 6px 14px;
-    border-radius: 8px;
-    transition: all .15s;
+    padding: 6px 12px;
+    border-radius: 6px;
+    transition: color 0.15s, background 0.15s;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
   }
-  .nav-links a:hover { color: var(--text); background: var(--bg); }
-  .nav-links a.active { color: var(--accent); background: var(--accent-light); }
+
+  .nav-links a:hover {
+    color: var(--text);
+    background: var(--bg);
+  }
+
+  .nav-links a.active {
+    color: var(--accent);
+    background: var(--accent-light);
+  }
+
+  .nav-back {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--muted);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 0;
+    min-height: 44px;
+    transition: color 0.15s;
+  }
+
+  .nav-back:hover {
+    color: var(--accent);
+  }
+
+  @media (max-width: 640px) {
+    .nav-inner {
+      padding: 0 16px;
+    }
+
+    .nav-links a {
+      padding: 6px 8px;
+    }
+  }
 """
 
+# ── Updated: 10.9 design session ──────────────────────────────────────────────
 _FOOTER_CSS = """
   footer {
-    border-top: 1px solid var(--border);
     background: var(--surface);
-    padding: 32px 20px;
+    border-top: 1px solid var(--border);
+    margin-top: 80px;
   }
-  .footer-inner { max-width: 720px; margin: 0 auto; }
+
+  .footer-inner {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
   .footer-top {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 20px;
+    gap: 24px;
+    padding: 28px 0 20px;
   }
+
   .footer-brand {
-    font-size: .95rem;
+    font-size: 1rem;
     font-weight: 700;
     color: var(--text);
     text-decoration: none;
-    letter-spacing: -.02em;
+    letter-spacing: -0.02em;
   }
-  .footer-accent { color: var(--accent); }
-  .footer-nav { display: flex; gap: 24px; }
+
+  .footer-brand:hover {
+    color: var(--text);
+  }
+
+  .footer-accent {
+    color: var(--accent);
+  }
+
+  .footer-nav {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
   .footer-nav a {
-    font-size: .8rem;
+    font-size: 0.875rem;
+    font-weight: 500;
     color: var(--muted);
     text-decoration: none;
-    transition: color .15s;
+    padding: 6px 10px;
+    border-radius: 6px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    transition: color 0.15s;
   }
-  .footer-nav a:hover { color: var(--accent); }
+
+  .footer-nav a:hover {
+    color: var(--accent);
+  }
+
   .footer-bottom {
-    font-size: .75rem;
-    color: var(--subtle);
     border-top: 1px solid var(--border);
-    padding-top: 16px;
+    padding: 16px 0 24px;
+    font-size: 0.8125rem;
+    color: var(--subtle);
+    line-height: 1.5;
+  }
+
+  @media (max-width: 640px) {
+    .footer-inner {
+      padding: 0 16px;
+    }
+
+    .footer-top {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 24px 0 16px;
+    }
+
+    .footer-nav {
+      gap: 0;
+    }
+
+    .footer-nav a {
+      padding: 6px 8px;
+    }
   }
 """
 
@@ -652,7 +761,7 @@ def build_homepage(files: list) -> str:
       margin-top: 2.75rem;
       padding: 1.25rem 1.375rem;
       background: var(--success-bg);
-      border: 1px solid #a7f3d0;
+      border: 1px solid var(--border);
       border-radius: var(--r);
       display: flex;
       align-items: flex-start;
