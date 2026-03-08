@@ -256,11 +256,6 @@ _RELATED_JS = """<script>
 def _build_article_html(fm: dict, body_html: str,
                         slug: str, date_str: str,
                         cluster_id: str = "") -> str:
-    """
-    Bungkus article body HTML ke dalam full HTML page.
-    Menyertakan: navigasi, metadata, share buttons, komentar Giscus,
-    dan related content (artikel + tools dalam cluster yang sama).
-    """
     site_url    = "https://saas.blogtrick.eu.org"
     title       = fm.get("title", slug.replace("-", " ").title())
     keyword     = fm.get("primary_keyword", "")
@@ -277,7 +272,6 @@ def _build_article_html(fm: dict, body_html: str,
     cluster_meta = f'<meta name="cluster" content="{cluster_id}">' if cluster_id else ""
     meta_desc    = fm.get("meta_desc", title)
 
-    # kw_badge: full markup including wrapper — renders nothing if no keyword
     kw_badge = (
         f'<span class="article-header__kw">'
         f'<span class="kw-badge">{keyword}</span>'
@@ -291,30 +285,26 @@ def _build_article_html(fm: dict, body_html: str,
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{title} — blogtrick</title>
+  <title>{title} — SaaS Tools</title>
   <meta name="description" content="{meta_desc}">
   {kw_meta}
   {cluster_meta}
   <meta property="og:title" content="{title}">
   <meta property="og:url" content="{article_url}">
   <meta property="og:type" content="article">
-  <meta property="og:site_name" content="blogtrick">
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="{title}">
   <link rel="canonical" href="{article_url}">
   {_FONT}
   <style>
 {_BASE_CSS}
 {_NAV_CSS}
 
-    /* ── Layout ───────────────────────────────────── */
     .article-wrap {{
       max-width: 680px;
       margin: 0 auto;
       padding: 0 1.25rem;
     }}
 
-    /* ── Article Header ───────────────────────────── */
     .article-header {{
       padding: 3rem 0 2.25rem;
       border-bottom: 1px solid var(--border);
@@ -336,19 +326,10 @@ def _build_article_html(fm: dict, body_html: str,
       gap: 0.5rem;
       font-size: 0.8125rem;
       color: var(--subtle);
-      line-height: 1;
     }}
 
-    .article-header__meta-sep {{
-      color: var(--border);
-      user-select: none;
-    }}
+    .article-header__meta-sep {{ color: var(--border); user-select: none; }}
 
-    /* kw_badge renders as:
-       <span class="article-header__kw">
-         <span class="kw-badge">keyword</span>
-       </span>
-    */
     .kw-badge {{
       display: inline-block;
       font-size: 0.6875rem;
@@ -359,81 +340,36 @@ def _build_article_html(fm: dict, body_html: str,
       background: var(--accent-light);
       padding: 0.2rem 0.5rem;
       border-radius: 4px;
-      vertical-align: middle;
     }}
 
-    /* ── Article Body ─────────────────────────────── */
-    .article-body {{
-      padding: 2.25rem 0;
-    }}
+    .article-body {{ padding: 2.25rem 0; }}
+    .article-body > * + * {{ margin-top: 1.375rem; }}
+    .article-body p {{ font-size: 1rem; line-height: 1.75; color: var(--text); }}
 
-    .article-body > * + * {{
-      margin-top: 1.375rem;
-    }}
-
-    .article-body p {{
-      font-size: 1rem;
-      line-height: 1.75;
-      color: var(--text);
-    }}
-
-    /* h2: left accent bar — same visual motif as article list hover */
     .article-body h2 {{
       font-size: 1.1875rem;
       font-weight: 700;
       letter-spacing: -0.015em;
-      line-height: 1.25;
       color: var(--text);
       padding-left: 0.875rem;
       border-left: 3px solid var(--accent);
       margin-top: 2.25rem;
     }}
 
-    .article-body h3 {{
-      font-size: 1rem;
-      font-weight: 600;
-      letter-spacing: -0.01em;
-      color: var(--text);
-      margin-top: 1.75rem;
-    }}
+    .article-body h3 {{ font-size: 1rem; font-weight: 600; color: var(--text); margin-top: 1.75rem; }}
+    .article-body h4 {{ font-size: .95rem; font-weight: 600; color: var(--text); margin-top: 1.375rem; }}
+    .article-body ul, .article-body ol {{ padding-left: 1.375rem; }}
+    .article-body li {{ font-size: 1rem; line-height: 1.7; color: var(--text); }}
+    .article-body li + li {{ margin-top: 0.375rem; }}
 
-    .article-body h4 {{
-      font-size: .95rem;
-      font-weight: 600;
-      color: var(--text);
-      margin-top: 1.375rem;
-    }}
-
-    .article-body ul,
-    .article-body ol {{
-      padding-left: 1.375rem;
-    }}
-
-    .article-body li {{
-      font-size: 1rem;
-      line-height: 1.7;
-      color: var(--text);
-    }}
-
-    .article-body li + li {{
-      margin-top: 0.375rem;
-    }}
-
-    /* blockquote: neutral border, italic muted text — not accent-colored */
     .article-body blockquote {{
       border-left: 3px solid var(--border);
       padding: 0.5rem 0 0.5rem 1.125rem;
-      margin-left: 0;
     }}
+    .article-body blockquote p {{ font-style: italic; color: var(--muted); }}
 
-    .article-body blockquote p {{
-      font-style: italic;
-      color: var(--muted);
-    }}
-
-    /* inline code: accent-light chip */
     .article-body code {{
-      font-family: 'DM Mono', 'Fira Code', 'Courier New', monospace;
+      font-family: 'DM Mono', 'Fira Code', monospace;
       font-size: 0.875em;
       background: var(--accent-light);
       color: var(--accent);
@@ -441,68 +377,28 @@ def _build_article_html(fm: dict, body_html: str,
       border-radius: 4px;
     }}
 
-    /* code block: dark surface, distinct from interactive elements */
     .article-body pre {{
       background: #18181b;
       border-radius: var(--r);
       padding: 1.125rem 1.25rem;
       overflow-x: auto;
-      margin-top: 1.375rem;
     }}
-
     .article-body pre code {{
-      background: none;
-      color: #e4e4e7;
-      padding: 0;
-      font-size: 0.875rem;
-      line-height: 1.65;
-      border-radius: 0;
+      background: none; color: #e4e4e7; padding: 0;
+      font-size: 0.875rem; line-height: 1.65; border-radius: 0;
     }}
 
-    .article-body hr {{
-      border: none;
-      border-top: 1px solid var(--border);
-      margin: 2rem 0;
-    }}
+    .article-body hr {{ border: none; border-top: 1px solid var(--border); margin: 2rem 0; }}
+    .article-body strong {{ font-weight: 600; color: var(--text); }}
+    .article-body a {{ color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }}
+    .article-body a:hover {{ color: var(--accent-h); }}
 
-    .article-body strong {{
-      font-weight: 600;
-      color: var(--text);
+    .article-body table {{ width: 100%; border-collapse: collapse; font-size: 0.9rem; }}
+    .article-body th, .article-body td {{
+      padding: 0.625rem 0.75rem; border: 1px solid var(--border); text-align: left;
     }}
+    .article-body th {{ background: var(--bg); font-weight: 600; font-size: 0.8125rem; }}
 
-    .article-body table {{
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.9rem;
-    }}
-
-    .article-body th,
-    .article-body td {{
-      padding: 0.625rem 0.75rem;
-      border: 1px solid var(--border);
-      text-align: left;
-      vertical-align: top;
-    }}
-
-    .article-body th {{
-      background: var(--bg);
-      font-weight: 600;
-      font-size: 0.8125rem;
-      letter-spacing: 0.03em;
-    }}
-
-    .article-body a {{
-      color: var(--accent);
-      text-decoration: underline;
-      text-underline-offset: 3px;
-    }}
-
-    .article-body a:hover {{
-      color: var(--accent-h);
-    }}
-
-    /* ── Share Row ────────────────────────────────── */
-    /* Text links separated by dots — no background boxes */
     .share-section {{
       border-top: 1px solid var(--border);
       padding: 1.5rem 0;
@@ -522,69 +418,32 @@ def _build_article_html(fm: dict, body_html: str,
     }}
 
     .share-btn {{
-      background: none;
-      border: none;
-      padding: 0;
-      font-family: inherit;
-      font-size: 0.9rem;
-      color: var(--accent);
-      cursor: pointer;
-      text-decoration: underline;
-      text-underline-offset: 3px;
-      min-height: 44px;
-      display: inline-flex;
-      align-items: center;
+      background: none; border: none; padding: 0;
+      font-family: inherit; font-size: 0.9rem;
+      color: var(--accent); cursor: pointer;
+      text-decoration: underline; text-underline-offset: 3px;
+      min-height: 44px; display: inline-flex; align-items: center;
     }}
+    .share-btn:hover {{ color: var(--accent-h); }}
+    .share-sep {{ color: var(--border); font-size: 0.875rem; user-select: none; }}
 
-    .share-btn:hover {{
-      color: var(--accent-h);
-    }}
-
-    .share-sep {{
-      color: var(--border);
-      font-size: 0.875rem;
-      user-select: none;
-    }}
-
-    /* ── Comments ─────────────────────────────────── */
-    /* No border box — giscus renders natively */
     .comments-section {{
       border-top: 1px solid var(--border);
       padding: 2rem 0 3rem;
     }}
-
     .comments-section__label {{
-      font-size: 0.8125rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--subtle);
-      margin-bottom: 1.375rem;
+      font-size: 0.8125rem; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--subtle); margin-bottom: 1.375rem;
     }}
 
 {_RELATED_CSS}
 {_FOOTER_CSS}
 
-    /* ── Responsive ───────────────────────────────── */
     @media (max-width: 600px) {{
-      .article-header {{
-        padding: 2rem 0 1.75rem;
-      }}
-
-      .article-body h2 {{
-        font-size: 1.0625rem;
-      }}
-
-      .article-body pre {{
-        padding: 0.875rem 1rem;
-        border-radius: 8px;
-      }}
-
-      .article-body table {{
-        display: block;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-      }}
+      .article-header {{ padding: 2rem 0 1.75rem; }}
+      .article-body h2 {{ font-size: 1.0625rem; }}
+      .article-body table {{ display: block; overflow-x: auto; }}
     }}
   </style>
 </head>
@@ -635,9 +494,9 @@ def _build_article_html(fm: dict, body_html: str,
     <div class="comments-section__label">Discussion</div>
     <script src="https://giscus.app/client.js"
       data-repo="akunTools/ai-engine"
-      data-repo-id="R_kgDORZ0kXg"
+      data-repo-id="GANTI_DENGAN_REPO_ID_ANDA"
       data-category="General"
-      data-category-id="DIC_kwDORZ0kXs4C3fKy"
+      data-category-id="GANTI_DENGAN_CATEGORY_ID_ANDA"
       data-mapping="pathname"
       data-strict="0"
       data-reactions-enabled="1"
@@ -678,27 +537,20 @@ def _build_article_html(fm: dict, body_html: str,
 
 # ─────────────────────────────────────────────
 # MANUAL CONTENT WRAPPING
-# Digunakan untuk konten yang ditulis manual
-# dan disimpan sebagai body HTML di staging.
 # ─────────────────────────────────────────────
 
 def wrap_article_html(body_html: str, slug: str) -> str:
     """
     Bungkus body artikel ke full HTML page.
-    Input : body HTML saja (mulai dari <h1>, boleh diawali
-            <meta name="cluster"> dan/atau <meta name="description">
-            sebelum <h1>)
-    Output: full HTML page siap publish
-
-    Judul diambil otomatis dari tag <h1> pertama.
-    Cluster diambil dari <meta name="cluster"> jika ada.
-    Meta description diambil dari <meta name="description"> jika ada,
-    fallback ke judul jika tidak ada.
-    Kedua meta tag dihapus dari body sebelum render.
+    Input : body HTML saja — boleh diawali <meta name="cluster">
+            dan/atau <meta name="description"> sebelum <h1>.
+            JANGAN sertakan <!DOCTYPE>, <html>, <head>, <nav>,
+            atau <footer> — pipeline akan menambahkannya.
+    Output: full HTML page siap publish.
     """
     # Ekstrak cluster_id
     cluster_match = re.search(
-        r'<meta\s+name=["\']cluster["\']\s+content=["\']([^"\']*)["\'][^>]*/?>',
+        r'<meta\s+name=["\'\'\'cluster["\'\'\']\s+content=["\'\'\'([^"\'\'\']*)["\'\'\'"][^>]*/?>',.replace("\\'\\'\\'","'"),
         body_html, re.IGNORECASE
     )
     cluster_id = cluster_match.group(1).strip() if cluster_match else ""
@@ -708,7 +560,7 @@ def wrap_article_html(body_html: str, slug: str) -> str:
 
     # Ekstrak meta description
     desc_match = re.search(
-        r'<meta\s+name=["\']description["\']\s+content=["\']([^"\']*)["\'][^>]*/?>',
+        r'<meta\s+name=["\'\'\'description["\'\'\']\s+content=["\'\'\'([^"\'\'\']*)["\'\'\'"][^>]*/?>',.replace("\\'\\'\\'","'"),
         body_html, re.IGNORECASE
     )
     meta_desc = desc_match.group(1).strip() if desc_match else ""
@@ -724,10 +576,14 @@ def wrap_article_html(body_html: str, slug: str) -> str:
              if h1_match
              else slug.replace("-", " ").title())
 
+    # Strip h1 dari body — judul sudah dirender di page header
+    if h1_match:
+        body_html = (body_html[:h1_match.start()]
+                     + body_html[h1_match.end():]).lstrip("\n")
+
     title_clean = re.sub(r'<[^>]+>', '', title).strip()
     word_count  = len(re.sub(r'<[^>]+>', '', body_html).split())
 
-    # Fallback: gunakan judul jika Claude tidak menulis meta description
     if not meta_desc:
         meta_desc = title_clean
 
@@ -743,38 +599,24 @@ def wrap_article_html(body_html: str, slug: str) -> str:
 
     return _build_article_html(fm, body_html, slug, date_str, cluster_id)
 
-
 def wrap_tool_html(body_html: str, slug: str) -> str:
     """
     Bungkus body tool/kalkulator ke full HTML page.
+    Input : body HTML saja — boleh diawali <meta name="cluster">
+            sebelum <h1>. Tanpa <html>/<head>/<style>.
+            Gunakan CSS class yang tersedia di bawah.
+    Output: full HTML page siap publish
 
-    Input : body HTML tanpa <h1> — tulis konten mulai dari
-            <meta name="cluster"> (opsional), <meta name="description">
-            (opsional), lalu langsung konten kalkulator.
-            Tanpa <html>/<head>/<style>.
-
-    PENTING: Jangan sertakan <h1> di body_html.
-    Judul diambil dari <meta name="description"> fallback ke slug,
-    dan dirender di page header di atas tool-well.
-    Jika body_html mengandung <h1>, tag tersebut dihapus otomatis
-    untuk menghindari duplikasi dengan page header.
-
-    CSS classes yang tersedia di dalam .tool-well:
-      Layout   : .field, .field-hint, .tool-divider, .tool-note
-      Inputs   : label, input[type="number"], input[type="text"],
-                 select, .input-affix, .input-affix__prefix,
-                 .input-affix__suffix, .input-affix--suffix
-      Results  : .results, .result-item, .result-item--primary,
-                 .result-label, .result-value, .result-unit
-      Actions  : .tool-btn
-      Explainer: .tool-explainer, .tool-explainer__title
-
-    Legacy classes (tetap didukung untuk tool yang sudah ada):
-      .card, .card h2, .input-group, .input-wrapper, .input-prefix,
-      .result-card, .result-label, .result-number, .result-unit,
-      .interpretation, .secondary-result, .formula-box, .formula-box h3,
-      .formula-box p, .affiliate-box, .affiliate-box a,
-      .related-link, .related-link a, .subtitle
+    CSS classes yang tersedia:
+    .card, .card h2
+    .input-group, label, .input-wrapper, .input-prefix
+    input[type="number"]
+    .result-card, .result-label, .result-number, .result-unit
+    .interpretation, .secondary-result
+    .formula-box, .formula-box h3, .formula-box p
+    .affiliate-box, .affiliate-box a
+    .related-link, .related-link a
+    .subtitle
     """
     # Ekstrak cluster_id dari meta tag
     cluster_match = re.search(
@@ -796,33 +638,27 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
         body_html = body_html[:desc_match.start()] + body_html[desc_match.end():]
         body_html = body_html.lstrip("\n")
 
-    # Ekstrak title dari h1, lalu strip h1 dari body (title goes to page header)
-    h1_match = re.search(r'<h1[^>]*>(.*?)</h1>',
-                         body_html, re.IGNORECASE | re.DOTALL)
-    if h1_match:
-        raw_title = h1_match.group(1).strip()
-        title_clean = re.sub(r'<[^>]+>', '', raw_title).strip()
-        body_html = (body_html[:h1_match.start()]
-                     + body_html[h1_match.end():]).lstrip("\n")
-    else:
-        title_clean = slug.replace("-", " ").title()
-
     site_url     = "https://saas.blogtrick.eu.org"
     tool_url     = f"{site_url}/tools/{slug}"
     cluster_meta = f'<meta name="cluster" content="{cluster_id}">' if cluster_id else ""
 
-    # Fallback: generate deskripsi standar jika tidak ada meta description
+    h1_match = re.search(r'<h1[^>]*>(.*?)</h1>',
+                         body_html, re.IGNORECASE | re.DOTALL)
+    title = (h1_match.group(1).strip()
+             if h1_match
+             else slug.replace("-", " ").title())
+    title_clean = re.sub(r'<[^>]+>', '', title).strip()
+
+    # Fallback: generate deskripsi standar jika Claude tidak menulis meta description
     if not meta_desc:
         meta_desc = f"{title_clean}. Free calculator for bootstrapped SaaS founders."
-
-    title_encoded = title_clean.replace(" ", "%20")
 
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{title_clean} — blogtrick</title>
+  <title>{title_clean} — SaaS Tools for Bootstrapped Founders</title>
   <meta name="description" content="{meta_desc}">
   {cluster_meta}
   <link rel="canonical" href="{tool_url}">
@@ -831,272 +667,25 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
 {_BASE_CSS}
 {_NAV_CSS}
 
-    /* ── Layout ───────────────────────────────────── */
-    .tool-wrap {{
-      max-width: 680px;
-      margin: 0 auto;
-      padding: 0 1.25rem;
-    }}
+    /* ── LAYOUT ── */
+    .container {{ max-width: 680px; margin: 0 auto; padding: 40px 20px 80px; }}
 
-    /* ── Tool Header ──────────────────────────────── */
-    .tool-header {{
-      padding: 3rem 0 2rem;
-    }}
-
-    .tool-header__eyebrow {{
-      display: inline-flex;
-      align-items: center;
-      gap: 0.375rem;
-      font-size: 0.6875rem;
+    /* ── TYPOGRAPHY ── */
+    h1 {{
+      font-size: clamp(1.5rem, 4vw, 1.9rem);
       font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--accent);
-      background: var(--accent-light);
-      padding: 0.25rem 0.625rem;
-      border-radius: 4px;
-      margin-bottom: 1rem;
-    }}
-
-    .tool-header__title {{
-      font-size: clamp(1.5rem, 4vw, 2.125rem);
-      font-weight: 700;
-      letter-spacing: -0.025em;
-      line-height: 1.18;
+      letter-spacing: -.03em;
       color: var(--text);
-      margin-bottom: 0.75rem;
+      margin-bottom: 6px;
     }}
-
-    .tool-header__desc {{
-      font-size: 1rem;
+    .subtitle {{
       color: var(--muted);
-      line-height: 1.7;
-      max-width: 560px;
+      font-size: .95rem;
+      margin-bottom: 28px;
+      line-height: 1.5;
     }}
 
-    /* ── Calculator Well ──────────────────────────── */
-    /* White surface container for body_html.
-       All tool inputs and results go inside body_html.
-       This wrapper is the visual shell only. */
-    .tool-well {{
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--r);
-      box-shadow: var(--shadow-md);
-      padding: 1.875rem;
-      margin-bottom: 2.25rem;
-    }}
-
-    /* ── New tool convention classes ─────────────── */
-    .tool-well .field {{
-      margin-bottom: 1.125rem;
-    }}
-
-    .tool-well .field:last-child {{
-      margin-bottom: 0;
-    }}
-
-    .tool-well label {{
-      display: block;
-      font-size: 0.875rem;
-      font-weight: 600;
-      color: var(--text);
-      margin-bottom: 0.375rem;
-    }}
-
-    .tool-well .field-hint {{
-      display: block;
-      font-size: 0.8rem;
-      color: var(--subtle);
-      margin-top: 0.25rem;
-    }}
-
-    .tool-well input[type="number"],
-    .tool-well input[type="text"],
-    .tool-well select {{
-      width: 100%;
-      height: 44px;
-      padding: 0 0.875rem;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      font-family: inherit;
-      font-size: 1rem;
-      color: var(--text);
-      background: var(--bg);
-      appearance: none;
-      -webkit-appearance: none;
-      -moz-appearance: textfield;
-      transition: border-color 0.13s ease, box-shadow 0.13s ease;
-    }}
-
-    .tool-well input[type="number"]::-webkit-outer-spin-button,
-    .tool-well input[type="number"]::-webkit-inner-spin-button {{
-      -webkit-appearance: none;
-    }}
-
-    .tool-well input:focus,
-    .tool-well select:focus {{
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
-    }}
-
-    .tool-well .input-affix {{
-      position: relative;
-      display: flex;
-      align-items: center;
-    }}
-
-    .tool-well .input-affix__prefix,
-    .tool-well .input-affix__suffix {{
-      position: absolute;
-      font-size: 0.9375rem;
-      color: var(--subtle);
-      pointer-events: none;
-      line-height: 1;
-    }}
-
-    .tool-well .input-affix__prefix {{ left: 0.75rem; }}
-    .tool-well .input-affix__suffix {{ right: 0.875rem; }}
-
-    .tool-well .input-affix input {{
-      padding-left: 1.75rem;
-    }}
-
-    .tool-well .input-affix--suffix input {{
-      padding-right: 2rem;
-    }}
-
-    .tool-well .tool-divider {{
-      height: 1px;
-      background: var(--border);
-      margin: 1.5rem 0;
-    }}
-
-    .tool-well .results {{
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.875rem;
-    }}
-
-    .tool-well .result-item {{
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 0.875rem 1rem;
-    }}
-
-    .tool-well .result-item--primary {{
-      background: var(--accent-light);
-      border-color: transparent;
-    }}
-
-    .tool-well .result-label {{
-      font-size: 0.75rem;
-      font-weight: 700;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: var(--subtle);
-      margin-bottom: 0.375rem;
-    }}
-
-    .tool-well .result-item--primary .result-label {{
-      color: var(--accent);
-    }}
-
-    .tool-well .result-value {{
-      font-size: 1.5rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      color: var(--text);
-      line-height: 1;
-    }}
-
-    /* Primary result: larger — the number that justifies this calculator */
-    .tool-well .result-item--primary .result-value {{
-      font-size: 1.875rem;
-      color: var(--accent);
-    }}
-
-    .tool-well .result-unit {{
-      font-size: 0.875rem;
-      font-weight: 400;
-      color: var(--muted);
-      margin-left: 0.25rem;
-    }}
-
-    .tool-well .tool-btn {{
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      height: 44px;
-      padding: 0 1.25rem;
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      font-family: inherit;
-      font-size: 0.9375rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background 0.13s ease;
-      margin-top: 1.125rem;
-    }}
-
-    .tool-well .tool-btn:hover {{
-      background: var(--accent-h);
-    }}
-
-    .tool-well .tool-note {{
-      font-size: 0.8125rem;
-      color: var(--muted);
-      line-height: 1.6;
-      margin-top: 1rem;
-      padding-top: 1rem;
-      border-top: 1px solid var(--border);
-    }}
-
-    /* ── Methodology explainer ────────────────────── */
-    .tool-explainer {{
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--r);
-      padding: 1.375rem 1.5rem;
-      margin-bottom: 2rem;
-      box-shadow: var(--shadow);
-    }}
-
-    .tool-explainer__title {{
-      font-size: 0.8125rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--subtle);
-      margin-bottom: 0.875rem;
-    }}
-
-    .tool-explainer p {{
-      font-size: 0.9375rem;
-      color: var(--muted);
-      line-height: 1.7;
-    }}
-
-    .tool-explainer p + p {{
-      margin-top: 0.75rem;
-    }}
-
-    .tool-explainer code {{
-      font-family: 'DM Mono', 'Fira Code', 'Courier New', monospace;
-      font-size: 0.875em;
-      background: var(--accent-light);
-      color: var(--accent);
-      padding: 0.15em 0.4em;
-      border-radius: 4px;
-    }}
-
-    /* ── Legacy tool classes ──────────────────────── */
-    /* Kept for backward compatibility with existing tool body_html. */
+    /* ── CARD ── */
     .card {{
       background: var(--surface);
       border: 1px solid var(--border);
@@ -1104,7 +693,6 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
       padding: 24px;
       margin-bottom: 14px;
     }}
-
     .card h2 {{
       font-size: .9rem;
       font-weight: 600;
@@ -1114,11 +702,17 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
       margin-bottom: 20px;
     }}
 
+    /* ── INPUTS ── */
     .input-group {{ margin-bottom: 18px; }}
     .input-group:last-child {{ margin-bottom: 0; }}
-
+    label {{
+      display: block;
+      font-size: .85rem;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 7px;
+    }}
     .input-wrapper {{ position: relative; }}
-
     .input-prefix {{
       position: absolute;
       left: 13px;
@@ -1129,9 +723,7 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
       pointer-events: none;
       font-weight: 500;
     }}
-
-    /* Legacy standalone inputs (outside .tool-well) */
-    .input-group input[type="number"] {{
+    input[type="number"] {{
       width: 100%;
       padding: 10px 14px 10px 30px;
       border: 1.5px solid var(--border);
@@ -1143,22 +735,14 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
       transition: border-color .15s, box-shadow .15s;
       -moz-appearance: textfield;
     }}
-
-    .input-group input[type="number"]::-webkit-outer-spin-button,
-    .input-group input[type="number"]::-webkit-inner-spin-button {{
-      -webkit-appearance: none;
-    }}
-
-    .input-group input[type="number"]:focus {{
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {{ -webkit-appearance: none; }}
+    input[type="number"]:focus {{
       outline: none;
       border-color: var(--accent);
       box-shadow: 0 0 0 3px rgba(79,70,229,.1);
     }}
-
-    .input-group input[type="number"].error-input {{
-      border-color: var(--danger);
-    }}
-
+    input[type="number"].error-input {{ border-color: var(--danger); }}
     .error-msg {{
       color: var(--danger);
       font-size: .75rem;
@@ -1166,6 +750,7 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
       display: none;
     }}
 
+    /* ── RESULT ── */
     .result-card {{
       background: var(--accent-light);
       border: 1.5px solid rgba(79,70,229,.2);
@@ -1173,8 +758,7 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
       padding: 28px 24px 24px;
       margin-bottom: 14px;
     }}
-
-    .result-card .result-label {{
+    .result-label {{
       font-size: .75rem;
       font-weight: 600;
       color: var(--accent);
@@ -1182,7 +766,6 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
       letter-spacing: .06em;
       margin-bottom: 6px;
     }}
-
     .result-number {{
       font-size: 3.5rem;
       font-weight: 700;
@@ -1191,14 +774,12 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
       letter-spacing: -.04em;
       margin-bottom: 2px;
     }}
-
-    .result-card .result-unit {{
+    .result-unit {{
       font-size: .875rem;
       color: var(--accent);
       opacity: .7;
       margin-bottom: 16px;
     }}
-
     .interpretation {{
       background: var(--surface);
       border-radius: 8px;
@@ -1208,28 +789,25 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
       line-height: 1.5;
       border-left: 3px solid var(--accent);
     }}
-
     .interpretation.danger {{
       border-color: var(--danger);
       background: var(--danger-bg);
     }}
-
     .interpretation.warning {{
       border-color: var(--warning);
       background: var(--warning-bg);
     }}
-
     .interpretation.healthy {{
       border-color: var(--success);
       background: var(--success-bg);
     }}
-
     .secondary-result {{
       margin-top: 12px;
       font-size: .8rem;
       color: var(--muted);
     }}
 
+    /* ── FORMULA BOX ── */
     .formula-box {{
       background: var(--surface);
       border: 1px solid var(--border);
@@ -1237,7 +815,6 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
       padding: 20px 24px;
       margin-bottom: 14px;
     }}
-
     .formula-box h3 {{
       font-size: .75rem;
       font-weight: 600;
@@ -1246,7 +823,6 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
       letter-spacing: .06em;
       margin-bottom: 10px;
     }}
-
     .formula-box p {{
       font-size: .875rem;
       color: var(--muted);
@@ -1254,6 +830,7 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
       font-family: 'SFMono-Regular', Consolas, monospace;
     }}
 
+    /* ── AFFILIATE BOX ── */
     .affiliate-box {{
       background: var(--success-bg);
       border: 1px solid rgba(16,185,129,.25);
@@ -1264,158 +841,34 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
       color: var(--text);
       line-height: 1.6;
     }}
-
     .affiliate-box a {{
       color: var(--success);
       font-weight: 500;
       text-decoration: underline;
       text-decoration-color: rgba(16,185,129,.4);
     }}
-
     .affiliate-box a:hover {{ color: #059669; }}
 
+    /* ── RELATED LINK ── */
     .related-link {{
       font-size: .85rem;
       color: var(--muted);
       padding: 12px 0;
     }}
-
     .related-link a {{
       color: var(--accent);
       text-decoration: underline;
       text-decoration-color: rgba(79,70,229,.3);
       font-weight: 500;
     }}
-
     .related-link a:hover {{ color: var(--accent-h); }}
-
-    .subtitle {{
-      color: var(--muted);
-      font-size: .95rem;
-      margin-bottom: 28px;
-      line-height: 1.5;
-    }}
-
-    /* ── Share Strip ──────────────────────────────── */
-    .share-section {{
-      border-top: 1px solid var(--border);
-      padding: 1.5rem 0;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-    }}
-
-    .share-section__label {{
-      font-size: 0.8125rem;
-      font-weight: 600;
-      color: var(--subtle);
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      margin-right: 0.25rem;
-    }}
-
-    .share-btn {{
-      background: none;
-      border: none;
-      padding: 0;
-      font-family: inherit;
-      font-size: 0.9rem;
-      color: var(--accent);
-      cursor: pointer;
-      text-decoration: underline;
-      text-underline-offset: 3px;
-      min-height: 44px;
-      display: inline-flex;
-      align-items: center;
-    }}
-
-    .share-btn:hover {{
-      color: var(--accent-h);
-    }}
-
-    .share-sep {{
-      color: var(--border);
-      font-size: 0.875rem;
-      user-select: none;
-    }}
-
-    /* ── Hosting Nudge ────────────────────────────── */
-    .hosting-nudge {{
-      margin: 0.75rem 0 2.5rem;
-      padding: 1.25rem 1.375rem;
-      background: var(--success-bg);
-      border: 1px solid #a7f3d0;
-      border-radius: var(--r);
-      display: flex;
-      align-items: flex-start;
-      gap: 0.875rem;
-    }}
-
-    .hosting-nudge__dot {{
-      width: 8px;
-      height: 8px;
-      background: var(--success);
-      border-radius: 50%;
-      flex-shrink: 0;
-      margin-top: 0.45rem;
-    }}
-
-    .hosting-nudge__body {{
-      flex: 1;
-    }}
-
-    .hosting-nudge__label {{
-      font-size: 0.75rem;
-      font-weight: 700;
-      letter-spacing: 0.07em;
-      text-transform: uppercase;
-      color: var(--success);
-      margin-bottom: 0.25rem;
-    }}
-
-    .hosting-nudge__text {{
-      font-size: 0.9rem;
-      color: var(--text);
-      line-height: 1.55;
-    }}
-
-    .hosting-nudge__text a {{
-      color: var(--accent);
-      font-weight: 500;
-      text-decoration: underline;
-      text-underline-offset: 3px;
-    }}
-
-    .hosting-nudge__text a:hover {{
-      color: var(--accent-h);
-    }}
 
 {_RELATED_CSS}
 {_FOOTER_CSS}
 
-    /* ── Responsive ───────────────────────────────── */
     @media (max-width: 600px) {{
-      .tool-header {{
-        padding: 2rem 0 1.5rem;
-      }}
-
-      .tool-well {{
-        padding: 1.25rem;
-      }}
-
-      .tool-well .results {{
-        grid-template-columns: 1fr;
-      }}
-
-      .result-number {{
-        font-size: 2.75rem;
-      }}
-
-      .hosting-nudge {{
-        flex-direction: column;
-        gap: 0.5rem;
-      }}
+      .container {{ padding: 28px 16px 60px; }}
+      .result-number {{ font-size: 2.75rem; }}
     }}
   </style>
 </head>
@@ -1423,7 +876,7 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
 
 <nav>
   <div class="nav-inner">
-    <a href="/tools/" class="nav-back">← Tools</a>
+    <a href="/tools/" class="nav-back">← All Tools</a>
     <div class="nav-links">
       <a href="/articles/">Articles</a>
       <a href="/tools/" class="active">Tools</a>
@@ -1431,62 +884,15 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
   </div>
 </nav>
 
-<main class="tool-wrap">
-
-  <header class="tool-header">
-    <div class="tool-header__eyebrow">Calculator</div>
-    <h1 class="tool-header__title">{title_clean}</h1>
-    <p class="tool-header__desc">{meta_desc}</p>
-  </header>
-
-  <div class="tool-well">
-    {body_html}
-  </div>
-
-  <div id="related-content" class="related-content"></div>
-
-  <div class="share-section">
-    <span class="share-section__label">Share</span>
-    <a class="share-btn"
-       href="https://twitter.com/intent/tweet?url={tool_url}&amp;text={title_encoded}"
-       target="_blank" rel="noopener noreferrer">Twitter / X</a>
-    <span class="share-sep">·</span>
-    <a class="share-btn"
-       href="https://www.linkedin.com/sharing/share-offsite/?url={tool_url}"
-       target="_blank" rel="noopener noreferrer">LinkedIn</a>
-    <span class="share-sep">·</span>
-    <button class="share-btn" id="copy-btn" onclick="copyLink()">Copy link</button>
-  </div>
-
-  <div class="hosting-nudge">
-    <div class="hosting-nudge__dot"></div>
-    <div class="hosting-nudge__body">
-      <div class="hosting-nudge__label">Hosting recommendation</div>
-      <p class="hosting-nudge__text">
-        This site runs on
-        <a href="https://www.cloudways.com" rel="noopener sponsored">Cloudways</a> —
-        managed cloud hosting with per-app scaling, no markup confusion,
-        and SSH access. Worth considering if you are outgrowing shared plans.
-      </p>
-    </div>
-  </div>
-
-</main>
+<div class="container">
+{body_html}
+<div id="related-content"></div>
+</div>
 
 {_FOOTER_HTML}
-
-<script>
-  function copyLink() {{
-    navigator.clipboard.writeText("{tool_url}").then(function() {{
-      var btn = document.getElementById("copy-btn");
-      var original = btn.textContent;
-      btn.textContent = "Copied!";
-      setTimeout(function() {{ btn.textContent = original; }}, 2000);
-    }});
-  }}
-</script>
 
 {_RELATED_JS}
 
 </body>
 </html>"""
+
