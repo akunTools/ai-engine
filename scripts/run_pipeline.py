@@ -158,11 +158,14 @@ def extract_cluster(body_html: str) -> str:
 
 
 def update_content_index(slug: str, title: str, cluster_id: str,
-                          content_type: str, date_str: str) -> None:
+                          content_type: str, date_str: str,
+                          excerpt: str = "") -> None:
     """
     Update content-index.json di branch output ENGINE_REPO.
     File ini dibaca oleh JavaScript di setiap halaman untuk
     menampilkan Related Articles dan Related Tools secara otomatis.
+    Field excerpt digunakan oleh sitemap_gen.py untuk menampilkan
+    deskripsi singkat di artikel list (homepage dan articles index).
     """
     path    = "content-index.json"
     api_url = f"https://api.github.com/repos/{ENGINE_REPO}/contents/{path}"
@@ -195,7 +198,8 @@ def update_content_index(slug: str, title: str, cluster_id: str,
             "slug":    slug,
             "title":   title,
             "cluster": cluster_id,
-            "date":    date_str
+            "date":    date_str,
+            "excerpt": excerpt
         })
 
     # Simpan kembali ke branch output
@@ -286,7 +290,16 @@ def run_pipeline(task_type: str) -> None:
                   if h1_match else slug.replace("-", " ").title())
     cluster_id = extract_cluster(body_html)
     date_str   = datetime.utcnow().strftime("%Y-%m-%d")
-    update_content_index(slug, page_title, cluster_id, task_type, date_str)
+
+    # Ekstrak excerpt dari meta description (diisi Claude saat authoring)
+    desc_match = re.search(
+        r'<meta\s+name=["\']description["\']\s+content=["\']([^"\']*)["\'][^>]*/?>',
+        body_html, re.IGNORECASE
+    )
+    excerpt = desc_match.group(1).strip() if desc_match else ""
+
+    update_content_index(slug, page_title, cluster_id, task_type, date_str,
+                         excerpt)
 
     print("Pipeline completed successfully.")
 
