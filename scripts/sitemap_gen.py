@@ -11,7 +11,7 @@ import urllib.request
 import urllib.error
 from datetime import datetime
 
-ENGINE_REPO   = os.environ.get("ENGINE_REPO", "YOUR_USERNAME/ai-engine")
+ENGINE_REPO   = os.environ.get("ENGINE_REPO", "akunTools/ai-engine")
 ENGINE_TOKEN  = os.environ.get("GITHUB_TOKEN")
 SITE_URL      = os.environ.get("SITE_BASE_URL", "https://saas.blogtrick.eu.org")
 OUTPUT_BRANCH = "output"
