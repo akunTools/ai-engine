@@ -57,52 +57,101 @@ _BASE_CSS = """
   a:hover { color: var(--accent-h); }
 """
 
+# ── Updated: 10.9 design session ──────────────────────────────────────────────
 _NAV_CSS = """
   nav {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 0 20px;
     position: sticky;
     top: 0;
     z-index: 100;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    box-shadow: var(--shadow);
   }
+
   .nav-inner {
-    max-width: 720px;
+    max-width: 1120px;
     margin: 0 auto;
+    padding: 0 24px;
     height: 56px;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 24px;
   }
+
   .nav-brand {
-    font-size: 1rem;
+    font-size: 1.125rem;
     font-weight: 700;
     color: var(--text);
     text-decoration: none;
-    letter-spacing: -.02em;
+    letter-spacing: -0.02em;
+    flex-shrink: 0;
+    line-height: 56px;
   }
-  .brand-accent { color: var(--accent); }
-  .nav-back {
-    font-size: .875rem;
-    font-weight: 500;
-    color: var(--muted);
-    text-decoration: none;
-    padding: 6px 0;
-    transition: color .15s;
+
+  .nav-brand:hover {
+    color: var(--text);
   }
-  .nav-back:hover { color: var(--accent); }
-  .nav-links { display: flex; gap: 2px; }
+
+  .brand-accent {
+    color: var(--accent);
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
   .nav-links a {
-    font-size: .875rem;
+    font-size: 0.9rem;
     font-weight: 500;
     color: var(--muted);
     text-decoration: none;
-    padding: 6px 14px;
-    border-radius: 8px;
-    transition: all .15s;
+    padding: 6px 12px;
+    border-radius: 6px;
+    transition: color 0.15s, background 0.15s;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
   }
-  .nav-links a:hover { color: var(--text); background: var(--bg); }
-  .nav-links a.active { color: var(--accent); background: var(--accent-light); }
+
+  .nav-links a:hover {
+    color: var(--text);
+    background: var(--bg);
+  }
+
+  .nav-links a.active {
+    color: var(--accent);
+    background: var(--accent-light);
+  }
+
+  .nav-back {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--muted);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 0;
+    min-height: 44px;
+    transition: color 0.15s;
+  }
+
+  .nav-back:hover {
+    color: var(--accent);
+  }
+
+  @media (max-width: 640px) {
+    .nav-inner {
+      padding: 0 16px;
+    }
+
+    .nav-links a {
+      padding: 6px 8px;
+    }
+  }
 """
 
 _FOOTER_HTML = """<footer>
@@ -120,126 +169,391 @@ _FOOTER_HTML = """<footer>
   </div>
 </footer>"""
 
+# ── Updated: 10.9 design session ──────────────────────────────────────────────
 _FOOTER_CSS = """
   footer {
-    border-top: 1px solid var(--border);
     background: var(--surface);
-    padding: 32px 20px;
-    margin-top: 64px;
+    border-top: 1px solid var(--border);
+    margin-top: 80px;
   }
+
   .footer-inner {
-    max-width: 720px;
+    max-width: 1120px;
     margin: 0 auto;
+    padding: 0 24px;
   }
+
   .footer-top {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 20px;
+    gap: 24px;
+    padding: 28px 0 20px;
   }
+
   .footer-brand {
-    font-size: .95rem;
+    font-size: 1rem;
     font-weight: 700;
     color: var(--text);
     text-decoration: none;
-    letter-spacing: -.02em;
+    letter-spacing: -0.02em;
   }
-  .footer-accent { color: var(--accent); }
-  .footer-nav { display: flex; gap: 24px; }
+
+  .footer-brand:hover {
+    color: var(--text);
+  }
+
+  .footer-accent {
+    color: var(--accent);
+  }
+
+  .footer-nav {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
   .footer-nav a {
-    font-size: .8rem;
+    font-size: 0.875rem;
+    font-weight: 500;
     color: var(--muted);
     text-decoration: none;
-    transition: color .15s;
+    padding: 6px 10px;
+    border-radius: 6px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    transition: color 0.15s;
   }
-  .footer-nav a:hover { color: var(--accent); }
+
+  .footer-nav a:hover {
+    color: var(--accent);
+  }
+
   .footer-bottom {
-    font-size: .75rem;
-    color: var(--subtle);
     border-top: 1px solid var(--border);
-    padding-top: 16px;
+    padding: 16px 0 24px;
+    font-size: 0.8125rem;
+    color: var(--subtle);
+    line-height: 1.5;
+  }
+
+  @media (max-width: 640px) {
+    .footer-inner {
+      padding: 0 16px;
+    }
+
+    .footer-top {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 24px 0 16px;
+    }
+
+    .footer-nav {
+      gap: 0;
+    }
+
+    .footer-nav a {
+      padding: 6px 8px;
+    }
+  }
+"""
+
+# ── New: 10.9 design session + validation fix 1 (h2 border-left) ──────────────
+_ARTICLE_CSS = """
+  /* ── Article page shell ────────────────────────── */
+  .article-wrap {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* ── Article header ────────────────────────────── */
+  .article-header {
+    padding: 56px 0 32px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 40px;
+  }
+
+  .article-header__title {
+    font-size: clamp(1.625rem, 3.5vw, 2.25rem);
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1.2;
+    letter-spacing: -0.025em;
+    margin: 0 0 16px;
+  }
+
+  .article-header__meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 0.8125rem;
+    color: var(--subtle);
+    line-height: 1;
+  }
+
+  .article-header__meta-sep {
+    color: var(--border);
+  }
+
+  .kw-badge {
+    display: inline-block;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+    background: var(--accent-light);
+    padding: 3px 8px;
+    border-radius: 4px;
+  }
+
+  /* ── Article body typography ───────────────────── */
+  .article-body {
+    font-size: 1rem;
+    line-height: 1.72;
+    color: var(--text);
+    max-width: 660px;
+  }
+
+  .article-body h2 {
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+    margin: 48px 0 16px;
+    border-left: 3px solid var(--accent);
+    padding-left: 12px;
+  }
+
+  .article-body h3 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.015em;
+    line-height: 1.3;
+    margin: 36px 0 12px;
+  }
+
+  .article-body p {
+    margin: 0 0 20px;
+  }
+
+  .article-body ul,
+  .article-body ol {
+    margin: 0 0 20px;
+    padding-left: 24px;
+  }
+
+  .article-body li {
+    margin-bottom: 8px;
+  }
+
+  .article-body li::marker {
+    color: var(--accent);
+  }
+
+  .article-body a {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+    transition: color 0.15s;
+  }
+
+  .article-body a:hover {
+    color: var(--accent-h);
+  }
+
+  .article-body blockquote {
+    margin: 28px 0;
+    padding: 16px 20px;
+    border-left: 3px solid var(--accent);
+    background: var(--accent-light);
+    border-radius: 0 var(--r) var(--r) 0;
+    color: var(--muted);
+    font-size: 0.9375rem;
+    line-height: 1.65;
+  }
+
+  .article-body blockquote p {
+    margin: 0;
+  }
+
+  .article-body code {
+    font-family: "JetBrains Mono", "Fira Mono", monospace;
+    font-size: 0.875em;
+    background: var(--accent-light);
+    color: var(--accent);
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  .article-body pre {
+    background: var(--text);
+    color: var(--border);
+    border-radius: var(--r);
+    padding: 20px 24px;
+    overflow-x: auto;
+    margin: 24px 0;
+    font-size: 0.875rem;
+    line-height: 1.65;
+  }
+
+  .article-body pre code {
+    background: transparent;
+    color: inherit;
+    padding: 0;
+    font-size: inherit;
+    border-radius: 0;
+  }
+
+  .article-body table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 24px 0;
+    font-size: 0.9rem;
+  }
+
+  .article-body th {
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.8125rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    border-bottom: 2px solid var(--border);
+    padding: 10px 12px;
+  }
+
+  .article-body td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    vertical-align: top;
+  }
+
+  .article-body tr:last-child td {
+    border-bottom: none;
+  }
+
+  .article-body hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 40px 0;
+  }
+
+  @media (max-width: 640px) {
+    .article-wrap {
+      padding: 0 16px;
+    }
+
+    .article-header {
+      padding: 40px 0 24px;
+    }
+
+    .article-body pre {
+      padding: 16px;
+      margin: 16px -16px;
+      border-radius: 0;
+    }
+
+    .article-body table {
+      font-size: 0.8125rem;
+    }
+
+    .article-body th,
+    .article-body td {
+      padding: 8px;
+    }
   }
 """
 
 _TOOL_CSS = ""  # CSS disediakan oleh wrap_tool_html — tidak dipakai standalone
 
+# ── Fixed: {{ }} → { } (plain string, bukan f-string) ─────────────────────────
 _RELATED_CSS = """
-    /* ── RELATED CONTENT ── */
-    .related-content { margin-bottom: 32px; }
-    .related-heading {
-      font-size: .75rem;
-      font-weight: 600;
-      color: var(--subtle);
-      text-transform: uppercase;
-      letter-spacing: .05em;
-      margin-bottom: 10px;
-      margin-top: 20px;
-    }}
-    .related-heading:first-child {{ margin-top: 0; }}
-    .related-list {{
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }}
-    .related-list li a {{
-      font-size: .875rem;
-      color: var(--accent);
-      text-decoration: none;
-      display: block;
-      padding: 8px 12px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 7px;
-      transition: border-color .15s;
-    }}
-    .related-list li a:hover {{
-      border-color: var(--accent);
-    }}
+  /* ── RELATED CONTENT ── */
+  .related-content { margin-bottom: 32px; }
+  .related-heading {
+    font-size: .75rem;
+    font-weight: 600;
+    color: var(--subtle);
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    margin-bottom: 10px;
+    margin-top: 20px;
+  }
+  .related-heading:first-child { margin-top: 0; }
+  .related-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .related-list li a {
+    font-size: .875rem;
+    color: var(--accent);
+    text-decoration: none;
+    display: block;
+    padding: 8px 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    transition: border-color .15s;
+  }
+  .related-list li a:hover {
+    border-color: var(--accent);
+  }
 """
 
+# ── Fixed: {{ }} → { } (plain string, bukan f-string) ─────────────────────────
 _RELATED_JS = """<script>
-(function() {{
+(function() {
   var meta    = document.querySelector('meta[name="cluster"]');
   var cluster = meta ? meta.getAttribute('content') : '';
   if (!cluster) return;
   var parts       = window.location.pathname.split('/').filter(Boolean);
   var currentSlug = (parts[parts.length - 1] || '').replace('.html', '');
   fetch('/content-index.json')
-    .then(function(r) {{ return r.json(); }})
-    .then(function(idx) {{
+    .then(function(r) { return r.json(); })
+    .then(function(idx) {
       var articles = (idx.articles || [])
-        .filter(function(a) {{ return a.cluster === cluster && a.slug !== currentSlug; }})
+        .filter(function(a) { return a.cluster === cluster && a.slug !== currentSlug; })
         .slice(0, 3);
       var tools = (idx.tools || [])
-        .filter(function(t) {{ return t.cluster === cluster && t.slug !== currentSlug; }})
+        .filter(function(t) { return t.cluster === cluster && t.slug !== currentSlug; })
         .slice(0, 2);
       var html = '';
-      if (articles.length) {{
+      if (articles.length) {
         html += '<h3 class="related-heading">Related Articles</h3>'
               + '<ul class="related-list">';
-        articles.forEach(function(a) {{
+        articles.forEach(function(a) {
           html += '<li><a href="/articles/' + a.slug + '">' + a.title + '</a></li>';
-        }});
+        });
         html += '</ul>';
-      }}
-      if (tools.length) {{
+      }
+      if (tools.length) {
         html += '<h3 class="related-heading">Related Tools</h3>'
               + '<ul class="related-list">';
-        tools.forEach(function(t) {{
+        tools.forEach(function(t) {
           html += '<li><a href="/tools/' + t.slug + '">' + t.title + '</a></li>';
-        }});
+        });
         html += '</ul>';
-      }}
-      if (html) {{
+      }
+      if (html) {
         var el = document.getElementById('related-content');
         if (el) el.innerHTML = html;
-      }}
-    }})
-    .catch(function() {{}});
-}})();
+      }
+    })
+    .catch(function() {});
+})();
 </script>"""
 
 
@@ -270,9 +584,11 @@ def _build_article_html(fm: dict, body_html: str,
     kw_meta      = f'<meta name="keywords" content="{keyword}">' if keyword else ""
     cluster_meta = f'<meta name="cluster" content="{cluster_id}">' if cluster_id else ""
     meta_desc    = fm.get("meta_desc", title)
+
+    # Updated to match _ARTICLE_CSS class names
     kw_badge = (
-        f'<span class="meta-divider">·</span>'
-        f'<span class="meta-tag">{keyword}</span>'
+        f'<span class="article-header__meta-sep">·</span>'
+        f'<span class="kw-badge">{keyword}</span>'
     ) if keyword else ""
 
     return f"""<!DOCTYPE html>
@@ -295,120 +611,12 @@ def _build_article_html(fm: dict, body_html: str,
   <style>
 {_BASE_CSS}
 {_NAV_CSS}
+{_ARTICLE_CSS}
 
-    /* ── LAYOUT ── */
-    .container {{
-      max-width: 720px;
-      margin: 0 auto;
-      padding: 48px 20px 80px;
-    }}
+    /* ── ARTICLE PAGE: vertical padding ── */
+    .article-wrap {{ padding-top: 48px; padding-bottom: 80px; }}
 
-    /* ── ARTICLE HEADER ── */
-    .article-header {{ margin-bottom: 40px; }}
-    .article-header h1 {{
-      font-size: clamp(1.5rem, 4vw, 2.1rem);
-      font-weight: 700;
-      line-height: 1.2;
-      letter-spacing: -.03em;
-      color: var(--text);
-      margin-bottom: 16px;
-    }}
-    .article-meta {{
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 10px;
-    }}
-    .meta-item {{
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      font-size: .8rem;
-      color: var(--muted);
-    }}
-    .meta-tag {{
-      display: inline-block;
-      background: var(--accent-light);
-      color: var(--accent);
-      font-size: .72rem;
-      font-weight: 600;
-      padding: 3px 10px;
-      border-radius: 20px;
-      letter-spacing: .02em;
-    }}
-    .meta-divider {{ color: var(--border); font-size: .7rem; }}
-
-    /* ── ARTICLE BODY ── */
-    .article-body {{
-      font-size: 1.025rem;
-      line-height: 1.75;
-      margin-bottom: 56px;
-    }}
-    .article-body h2 {{
-      font-size: 1.35rem;
-      font-weight: 700;
-      letter-spacing: -.02em;
-      color: var(--text);
-      margin: 44px 0 14px;
-      padding-top: 44px;
-      border-top: 1px solid var(--border);
-    }}
-    .article-body h2:first-child {{
-      margin-top: 0; padding-top: 0; border-top: none;
-    }}
-    .article-body h3 {{
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: var(--text);
-      margin: 28px 0 10px;
-    }}
-    .article-body h4 {{
-      font-size: .95rem;
-      font-weight: 600;
-      color: var(--text);
-      margin: 22px 0 8px;
-    }}
-    .article-body p {{ margin-bottom: 20px; }}
-    .article-body p:last-child {{ margin-bottom: 0; }}
-    .article-body ul, .article-body ol {{
-      margin: 0 0 20px 20px;
-    }}
-    .article-body li {{ margin-bottom: 6px; }}
-    .article-body blockquote {{
-      border-left: 3px solid var(--accent);
-      background: var(--accent-light);
-      padding: 14px 20px;
-      margin: 24px 0;
-      border-radius: 0 var(--r) var(--r) 0;
-      color: var(--text);
-      font-style: italic;
-    }}
-    .article-body code {{
-      background: #f4f4f5;
-      border: 1px solid var(--border);
-      padding: 2px 6px;
-      border-radius: 5px;
-      font-size: .87em;
-      font-family: 'SFMono-Regular', Consolas, monospace;
-      color: var(--accent);
-    }}
-    .article-body hr {{
-      border: none;
-      border-top: 1px solid var(--border);
-      margin: 36px 0;
-    }}
-    .article-body strong {{ font-weight: 600; color: var(--text); }}
-    .article-body a {{
-      color: var(--accent);
-      text-decoration: underline;
-      text-decoration-color: rgba(79,70,229,.3);
-    }}
-    .article-body a:hover {{
-      color: var(--accent-h);
-      text-decoration-color: var(--accent-h);
-    }}
-
-    /* ── SHARE ── */
+    /* ── SHARE BOX ── */
     .share-box {{
       background: var(--surface);
       border: 1px solid var(--border);
@@ -438,6 +646,7 @@ def _build_article_html(fm: dict, body_html: str,
       border: 1px solid transparent;
       transition: all .15s;
       font-family: inherit;
+      min-height: 44px;
     }}
     .share-btn.x-btn {{ background: #000; color: white; }}
     .share-btn.x-btn:hover {{ background: #111; color: white; }}
@@ -455,7 +664,7 @@ def _build_article_html(fm: dict, body_html: str,
       border-color: var(--success);
     }}
 
-    /* ── COMMENTS ── */
+    /* ── COMMENTS BOX ── */
     .comments-box {{ margin-bottom: 48px; }}
     .comments-box h2 {{
       font-size: 1.1rem;
@@ -469,9 +678,8 @@ def _build_article_html(fm: dict, body_html: str,
 {_RELATED_CSS}
 {_FOOTER_CSS}
 
-    @media (max-width: 600px) {{
-      .container {{ padding: 32px 16px 60px; }}
-      .article-header h1 {{ font-size: 1.4rem; }}
+    @media (max-width: 640px) {{
+      .article-wrap {{ padding-top: 32px; padding-bottom: 60px; }}
     }}
   </style>
 </head>
@@ -487,12 +695,12 @@ def _build_article_html(fm: dict, body_html: str,
   </div>
 </nav>
 
-<div class="container">
+<main class="article-wrap">
 
   <header class="article-header">
-    <h1>{title}</h1>
-    <div class="article-meta">
-      <span class="meta-item">
+    <h1 class="article-header__title">{title}</h1>
+    <div class="article-header__meta">
+      <span>
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
              stroke="currentColor" stroke-width="2"
              stroke-linecap="round" stroke-linejoin="round">
@@ -503,8 +711,8 @@ def _build_article_html(fm: dict, body_html: str,
         </svg>
         {display_date}
       </span>
-      <span class="meta-divider">·</span>
-      <span class="meta-item">
+      <span class="article-header__meta-sep">·</span>
+      <span>
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
              stroke="currentColor" stroke-width="2"
              stroke-linecap="round" stroke-linejoin="round">
@@ -521,7 +729,7 @@ def _build_article_html(fm: dict, body_html: str,
     {body_html}
   </article>
 
-  <div id="related-content"></div>
+  <div id="related-content" class="related-content"></div>
 
   <div class="share-box">
     <div class="share-label">Share this article</div>
@@ -566,7 +774,7 @@ def _build_article_html(fm: dict, body_html: str,
     </noscript>
   </div>
 
-</div>
+</main>
 
 {_FOOTER_HTML}
 
@@ -951,7 +1159,7 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
 
 <div class="container">
 {body_html}
-<div id="related-content"></div>
+<div id="related-content" class="related-content"></div>
 </div>
 
 {_FOOTER_HTML}
