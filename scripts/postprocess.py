@@ -163,11 +163,6 @@ _FOOTER_CSS = """
 
 _TOOL_CSS = ""  # CSS disediakan oleh wrap_tool_html — tidak dipakai standalone
 
-# ─────────────────────────────────────────────
-# RELATED CONTENT
-# Plain strings (NOT f-strings) — brace characters are single { }
-# ─────────────────────────────────────────────
-
 _RELATED_CSS = """
     /* ── RELATED CONTENT ── */
     .related-content { margin-bottom: 32px; }
@@ -179,17 +174,17 @@ _RELATED_CSS = """
       letter-spacing: .05em;
       margin-bottom: 10px;
       margin-top: 20px;
-    }
-    .related-heading:first-child { margin-top: 0; }
-    .related-list {
+    }}
+    .related-heading:first-child {{ margin-top: 0; }}
+    .related-list {{
       list-style: none;
       margin: 0;
       padding: 0;
       display: flex;
       flex-direction: column;
       gap: 6px;
-    }
-    .related-list li a {
+    }}
+    .related-list li a {{
       font-size: .875rem;
       color: var(--accent);
       text-decoration: none;
@@ -199,53 +194,52 @@ _RELATED_CSS = """
       border: 1px solid var(--border);
       border-radius: 7px;
       transition: border-color .15s;
-    }
-    .related-list li a:hover {
+    }}
+    .related-list li a:hover {{
       border-color: var(--accent);
-    }
+    }}
 """
 
-# Plain string — { } are literal JS braces, NOT f-string escapes.
 _RELATED_JS = """<script>
-(function() {
+(function() {{
   var meta    = document.querySelector('meta[name="cluster"]');
   var cluster = meta ? meta.getAttribute('content') : '';
   if (!cluster) return;
   var parts       = window.location.pathname.split('/').filter(Boolean);
   var currentSlug = (parts[parts.length - 1] || '').replace('.html', '');
   fetch('/content-index.json')
-    .then(function(r) { return r.json(); })
-    .then(function(idx) {
+    .then(function(r) {{ return r.json(); }})
+    .then(function(idx) {{
       var articles = (idx.articles || [])
-        .filter(function(a) { return a.cluster === cluster && a.slug !== currentSlug; })
+        .filter(function(a) {{ return a.cluster === cluster && a.slug !== currentSlug; }})
         .slice(0, 3);
       var tools = (idx.tools || [])
-        .filter(function(t) { return t.cluster === cluster && t.slug !== currentSlug; })
+        .filter(function(t) {{ return t.cluster === cluster && t.slug !== currentSlug; }})
         .slice(0, 2);
       var html = '';
-      if (articles.length) {
+      if (articles.length) {{
         html += '<h3 class="related-heading">Related Articles</h3>'
               + '<ul class="related-list">';
-        articles.forEach(function(a) {
+        articles.forEach(function(a) {{
           html += '<li><a href="/articles/' + a.slug + '">' + a.title + '</a></li>';
-        });
+        }});
         html += '</ul>';
-      }
-      if (tools.length) {
+      }}
+      if (tools.length) {{
         html += '<h3 class="related-heading">Related Tools</h3>'
               + '<ul class="related-list">';
-        tools.forEach(function(t) {
+        tools.forEach(function(t) {{
           html += '<li><a href="/tools/' + t.slug + '">' + t.title + '</a></li>';
-        });
+        }});
         html += '</ul>';
-      }
-      if (html) {
+      }}
+      if (html) {{
         var el = document.getElementById('related-content');
         if (el) el.innerHTML = html;
-      }
-    })
-    .catch(function() {});
-})();
+      }}
+    }})
+    .catch(function() {{}});
+}})();
 </script>"""
 
 
@@ -256,6 +250,11 @@ _RELATED_JS = """<script>
 def _build_article_html(fm: dict, body_html: str,
                         slug: str, date_str: str,
                         cluster_id: str = "") -> str:
+    """
+    Bungkus article body HTML ke dalam full HTML page.
+    Menyertakan: navigasi, metadata, share buttons, komentar Giscus,
+    dan related content (artikel + tools dalam cluster yang sama).
+    """
     site_url    = "https://saas.blogtrick.eu.org"
     title       = fm.get("title", slug.replace("-", " ").title())
     keyword     = fm.get("primary_keyword", "")
@@ -271,179 +270,208 @@ def _build_article_html(fm: dict, body_html: str,
     kw_meta      = f'<meta name="keywords" content="{keyword}">' if keyword else ""
     cluster_meta = f'<meta name="cluster" content="{cluster_id}">' if cluster_id else ""
     meta_desc    = fm.get("meta_desc", title)
-
     kw_badge = (
-        f'<span class="article-header__kw">'
-        f'<span class="kw-badge">{keyword}</span>'
-        f'</span>'
+        f'<span class="meta-divider">·</span>'
+        f'<span class="meta-tag">{keyword}</span>'
     ) if keyword else ""
-
-    title_encoded = title.replace(" ", "%20")
 
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{title} — SaaS Tools</title>
+  <title>{title} — SaaS Tools for Bootstrapped Founders</title>
   <meta name="description" content="{meta_desc}">
   {kw_meta}
   {cluster_meta}
   <meta property="og:title" content="{title}">
   <meta property="og:url" content="{article_url}">
   <meta property="og:type" content="article">
+  <meta property="og:site_name" content="SaaS Tools for Bootstrapped Founders">
   <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="{title}">
   <link rel="canonical" href="{article_url}">
   {_FONT}
   <style>
 {_BASE_CSS}
 {_NAV_CSS}
 
-    .article-wrap {{
-      max-width: 680px;
+    /* ── LAYOUT ── */
+    .container {{
+      max-width: 720px;
       margin: 0 auto;
-      padding: 0 1.25rem;
+      padding: 48px 20px 80px;
     }}
 
-    .article-header {{
-      padding: 3rem 0 2.25rem;
-      border-bottom: 1px solid var(--border);
-    }}
-
-    .article-header__title {{
-      font-size: clamp(1.625rem, 4.5vw, 2.25rem);
+    /* ── ARTICLE HEADER ── */
+    .article-header {{ margin-bottom: 40px; }}
+    .article-header h1 {{
+      font-size: clamp(1.5rem, 4vw, 2.1rem);
       font-weight: 700;
-      letter-spacing: -0.025em;
-      line-height: 1.18;
+      line-height: 1.2;
+      letter-spacing: -.03em;
       color: var(--text);
-      margin-bottom: 1rem;
+      margin-bottom: 16px;
     }}
-
-    .article-header__meta {{
+    .article-meta {{
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }}
+    .meta-item {{
       display: flex;
       align-items: center;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      font-size: 0.8125rem;
-      color: var(--subtle);
+      gap: 5px;
+      font-size: .8rem;
+      color: var(--muted);
     }}
-
-    .article-header__meta-sep {{ color: var(--border); user-select: none; }}
-
-    .kw-badge {{
+    .meta-tag {{
       display: inline-block;
-      font-size: 0.6875rem;
-      font-weight: 700;
-      letter-spacing: 0.07em;
-      text-transform: uppercase;
-      color: var(--accent);
       background: var(--accent-light);
-      padding: 0.2rem 0.5rem;
-      border-radius: 4px;
+      color: var(--accent);
+      font-size: .72rem;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 20px;
+      letter-spacing: .02em;
     }}
+    .meta-divider {{ color: var(--border); font-size: .7rem; }}
 
-    .article-body {{ padding: 2.25rem 0; }}
-    .article-body > * + * {{ margin-top: 1.375rem; }}
-    .article-body p {{ font-size: 1rem; line-height: 1.75; color: var(--text); }}
-
+    /* ── ARTICLE BODY ── */
+    .article-body {{
+      font-size: 1.025rem;
+      line-height: 1.75;
+      margin-bottom: 56px;
+    }}
     .article-body h2 {{
-      font-size: 1.1875rem;
+      font-size: 1.35rem;
       font-weight: 700;
-      letter-spacing: -0.015em;
+      letter-spacing: -.02em;
       color: var(--text);
-      padding-left: 0.875rem;
-      border-left: 3px solid var(--accent);
-      margin-top: 2.25rem;
-    }}
-
-    .article-body h3 {{ font-size: 1rem; font-weight: 600; color: var(--text); margin-top: 1.75rem; }}
-    .article-body h4 {{ font-size: .95rem; font-weight: 600; color: var(--text); margin-top: 1.375rem; }}
-    .article-body ul, .article-body ol {{ padding-left: 1.375rem; }}
-    .article-body li {{ font-size: 1rem; line-height: 1.7; color: var(--text); }}
-    .article-body li + li {{ margin-top: 0.375rem; }}
-
-    .article-body blockquote {{
-      border-left: 3px solid var(--border);
-      padding: 0.5rem 0 0.5rem 1.125rem;
-    }}
-    .article-body blockquote p {{ font-style: italic; color: var(--muted); }}
-
-    .article-body code {{
-      font-family: 'DM Mono', 'Fira Code', monospace;
-      font-size: 0.875em;
-      background: var(--accent-light);
-      color: var(--accent);
-      padding: 0.15em 0.4em;
-      border-radius: 4px;
-    }}
-
-    .article-body pre {{
-      background: #18181b;
-      border-radius: var(--r);
-      padding: 1.125rem 1.25rem;
-      overflow-x: auto;
-    }}
-    .article-body pre code {{
-      background: none; color: #e4e4e7; padding: 0;
-      font-size: 0.875rem; line-height: 1.65; border-radius: 0;
-    }}
-
-    .article-body hr {{ border: none; border-top: 1px solid var(--border); margin: 2rem 0; }}
-    .article-body strong {{ font-weight: 600; color: var(--text); }}
-    .article-body a {{ color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }}
-    .article-body a:hover {{ color: var(--accent-h); }}
-
-    .article-body table {{ width: 100%; border-collapse: collapse; font-size: 0.9rem; }}
-    .article-body th, .article-body td {{
-      padding: 0.625rem 0.75rem; border: 1px solid var(--border); text-align: left;
-    }}
-    .article-body th {{ background: var(--bg); font-weight: 600; font-size: 0.8125rem; }}
-
-    .share-section {{
+      margin: 44px 0 14px;
+      padding-top: 44px;
       border-top: 1px solid var(--border);
-      padding: 1.5rem 0;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      flex-wrap: wrap;
+    }}
+    .article-body h2:first-child {{
+      margin-top: 0; padding-top: 0; border-top: none;
+    }}
+    .article-body h3 {{
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text);
+      margin: 28px 0 10px;
+    }}
+    .article-body h4 {{
+      font-size: .95rem;
+      font-weight: 600;
+      color: var(--text);
+      margin: 22px 0 8px;
+    }}
+    .article-body p {{ margin-bottom: 20px; }}
+    .article-body p:last-child {{ margin-bottom: 0; }}
+    .article-body ul, .article-body ol {{
+      margin: 0 0 20px 20px;
+    }}
+    .article-body li {{ margin-bottom: 6px; }}
+    .article-body blockquote {{
+      border-left: 3px solid var(--accent);
+      background: var(--accent-light);
+      padding: 14px 20px;
+      margin: 24px 0;
+      border-radius: 0 var(--r) var(--r) 0;
+      color: var(--text);
+      font-style: italic;
+    }}
+    .article-body code {{
+      background: #f4f4f5;
+      border: 1px solid var(--border);
+      padding: 2px 6px;
+      border-radius: 5px;
+      font-size: .87em;
+      font-family: 'SFMono-Regular', Consolas, monospace;
+      color: var(--accent);
+    }}
+    .article-body hr {{
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 36px 0;
+    }}
+    .article-body strong {{ font-weight: 600; color: var(--text); }}
+    .article-body a {{
+      color: var(--accent);
+      text-decoration: underline;
+      text-decoration-color: rgba(79,70,229,.3);
+    }}
+    .article-body a:hover {{
+      color: var(--accent-h);
+      text-decoration-color: var(--accent-h);
     }}
 
-    .share-section__label {{
-      font-size: 0.8125rem;
+    /* ── SHARE ── */
+    .share-box {{
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 24px;
+      margin-bottom: 48px;
+    }}
+    .share-label {{
+      font-size: .75rem;
       font-weight: 600;
       color: var(--subtle);
-      letter-spacing: 0.05em;
       text-transform: uppercase;
-      margin-right: 0.25rem;
+      letter-spacing: .05em;
+      margin-bottom: 14px;
     }}
-
+    .share-buttons {{ display: flex; flex-wrap: wrap; gap: 8px; }}
     .share-btn {{
-      background: none; border: none; padding: 0;
-      font-family: inherit; font-size: 0.9rem;
-      color: var(--accent); cursor: pointer;
-      text-decoration: underline; text-underline-offset: 3px;
-      min-height: 44px; display: inline-flex; align-items: center;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: .82rem;
+      font-weight: 500;
+      text-decoration: none;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all .15s;
+      font-family: inherit;
     }}
-    .share-btn:hover {{ color: var(--accent-h); }}
-    .share-sep {{ color: var(--border); font-size: 0.875rem; user-select: none; }}
+    .share-btn.x-btn {{ background: #000; color: white; }}
+    .share-btn.x-btn:hover {{ background: #111; color: white; }}
+    .share-btn.li-btn {{ background: #0a66c2; color: white; }}
+    .share-btn.li-btn:hover {{ background: #004182; color: white; }}
+    .share-btn.copy-btn {{
+      background: var(--bg);
+      color: var(--text);
+      border-color: var(--border);
+    }}
+    .share-btn.copy-btn:hover {{ border-color: var(--accent); color: var(--accent); }}
+    .share-btn.copy-btn.copied {{
+      background: var(--success-bg);
+      color: var(--success);
+      border-color: var(--success);
+    }}
 
-    .comments-section {{
-      border-top: 1px solid var(--border);
-      padding: 2rem 0 3rem;
-    }}
-    .comments-section__label {{
-      font-size: 0.8125rem; font-weight: 700;
-      letter-spacing: 0.08em; text-transform: uppercase;
-      color: var(--subtle); margin-bottom: 1.375rem;
+    /* ── COMMENTS ── */
+    .comments-box {{ margin-bottom: 48px; }}
+    .comments-box h2 {{
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
     }}
 
 {_RELATED_CSS}
 {_FOOTER_CSS}
 
     @media (max-width: 600px) {{
-      .article-header {{ padding: 2rem 0 1.75rem; }}
-      .article-body h2 {{ font-size: 1.0625rem; }}
-      .article-body table {{ display: block; overflow-x: auto; }}
+      .container {{ padding: 32px 16px 60px; }}
+      .article-header h1 {{ font-size: 1.4rem; }}
     }}
   </style>
 </head>
@@ -459,14 +487,32 @@ def _build_article_html(fm: dict, body_html: str,
   </div>
 </nav>
 
-<main class="article-wrap">
+<div class="container">
 
   <header class="article-header">
-    <h1 class="article-header__title">{title}</h1>
-    <div class="article-header__meta">
-      <span>{display_date}</span>
-      <span class="article-header__meta-sep">·</span>
-      <span>{read_time} min read</span>
+    <h1>{title}</h1>
+    <div class="article-meta">
+      <span class="meta-item">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+        {display_date}
+      </span>
+      <span class="meta-divider">·</span>
+      <span class="meta-item">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+        {read_time} min read
+      </span>
       {kw_badge}
     </div>
   </header>
@@ -475,28 +521,34 @@ def _build_article_html(fm: dict, body_html: str,
     {body_html}
   </article>
 
-  <div id="related-content" class="related-content"></div>
+  <div id="related-content"></div>
 
-  <div class="share-section">
-    <span class="share-section__label">Share</span>
-    <a class="share-btn"
-       href="https://twitter.com/intent/tweet?url={article_url}&amp;text={title_encoded}"
-       target="_blank" rel="noopener noreferrer">Twitter / X</a>
-    <span class="share-sep">·</span>
-    <a class="share-btn"
-       href="https://www.linkedin.com/sharing/share-offsite/?url={article_url}"
-       target="_blank" rel="noopener noreferrer">LinkedIn</a>
-    <span class="share-sep">·</span>
-    <button class="share-btn" id="copy-btn" onclick="copyLink()">Copy link</button>
+  <div class="share-box">
+    <div class="share-label">Share this article</div>
+    <div class="share-buttons">
+      <a class="share-btn x-btn"
+         href="https://twitter.com/intent/tweet?text={title.replace(' ', '%20')}&url={article_url}"
+         target="_blank" rel="noopener">
+        𝕏 Post on X
+      </a>
+      <a class="share-btn li-btn"
+         href="https://www.linkedin.com/sharing/share-offsite/?url={article_url}"
+         target="_blank" rel="noopener">
+        in Share
+      </a>
+      <button class="share-btn copy-btn" id="copy-btn" onclick="copyLink()">
+        🔗 Copy link
+      </button>
+    </div>
   </div>
 
-  <section class="comments-section">
-    <div class="comments-section__label">Discussion</div>
+  <div class="comments-box">
+    <h2>Discussion</h2>
     <script src="https://giscus.app/client.js"
       data-repo="akunTools/ai-engine"
-      data-repo-id="GANTI_DENGAN_REPO_ID_ANDA"
+      data-repo-id="R_kgDORZ0kXg"
       data-category="General"
-      data-category-id="GANTI_DENGAN_CATEGORY_ID_ANDA"
+      data-category-id="DIC_kwDORZ0kXs4C3fKy"
       data-mapping="pathname"
       data-strict="0"
       data-reactions-enabled="1"
@@ -512,9 +564,9 @@ def _build_article_html(fm: dict, body_html: str,
         Enable JavaScript to load comments.
       </p>
     </noscript>
-  </section>
+  </div>
 
-</main>
+</div>
 
 {_FOOTER_HTML}
 
@@ -522,9 +574,12 @@ def _build_article_html(fm: dict, body_html: str,
   function copyLink() {{
     navigator.clipboard.writeText("{article_url}").then(function() {{
       var btn = document.getElementById("copy-btn");
-      var original = btn.textContent;
-      btn.textContent = "Copied!";
-      setTimeout(function() {{ btn.textContent = original; }}, 2000);
+      btn.textContent = "✓ Copied!";
+      btn.classList.add("copied");
+      setTimeout(function() {{
+        btn.textContent = "🔗 Copy link";
+        btn.classList.remove("copied");
+      }}, 2000);
     }});
   }}
 </script>
@@ -535,22 +590,30 @@ def _build_article_html(fm: dict, body_html: str,
 </html>"""
 
 
+
 # ─────────────────────────────────────────────
 # MANUAL CONTENT WRAPPING
+# Digunakan untuk konten yang ditulis manual
+# dan disimpan sebagai body HTML di staging.
 # ─────────────────────────────────────────────
 
 def wrap_article_html(body_html: str, slug: str) -> str:
     """
     Bungkus body artikel ke full HTML page.
-    Input : body HTML saja — boleh diawali <meta name="cluster">
-            dan/atau <meta name="description"> sebelum <h1>.
-            JANGAN sertakan <!DOCTYPE>, <html>, <head>, <nav>,
-            atau <footer> — pipeline akan menambahkannya.
-    Output: full HTML page siap publish.
+    Input : body HTML saja (mulai dari <h1>, boleh diawali
+            <meta name="cluster"> dan/atau <meta name="description">
+            sebelum <h1>)
+    Output: full HTML page siap publish
+
+    Judul diambil otomatis dari tag <h1> pertama.
+    Cluster diambil dari <meta name="cluster"> jika ada.
+    Meta description diambil dari <meta name="description"> jika ada,
+    fallback ke judul jika tidak ada.
+    Kedua meta tag dihapus dari body sebelum render.
     """
     # Ekstrak cluster_id
     cluster_match = re.search(
-        r'<meta\s+name=["\'\'\'cluster["\'\'\']\s+content=["\'\'\'([^"\'\'\']*)["\'\'\'"][^>]*/?>',.replace("\\'\\'\\'","'"),
+        r'<meta\s+name=["\']cluster["\']\s+content=["\']([^"\']*)["\'][^>]*/?>',
         body_html, re.IGNORECASE
     )
     cluster_id = cluster_match.group(1).strip() if cluster_match else ""
@@ -560,7 +623,7 @@ def wrap_article_html(body_html: str, slug: str) -> str:
 
     # Ekstrak meta description
     desc_match = re.search(
-        r'<meta\s+name=["\'\'\'description["\'\'\']\s+content=["\'\'\'([^"\'\'\']*)["\'\'\'"][^>]*/?>',.replace("\\'\\'\\'","'"),
+        r'<meta\s+name=["\']description["\']\s+content=["\']([^"\']*)["\'][^>]*/?>',
         body_html, re.IGNORECASE
     )
     meta_desc = desc_match.group(1).strip() if desc_match else ""
@@ -584,6 +647,7 @@ def wrap_article_html(body_html: str, slug: str) -> str:
     title_clean = re.sub(r'<[^>]+>', '', title).strip()
     word_count  = len(re.sub(r'<[^>]+>', '', body_html).split())
 
+    # Fallback: gunakan judul jika Claude tidak menulis meta description
     if not meta_desc:
         meta_desc = title_clean
 
@@ -598,6 +662,7 @@ def wrap_article_html(body_html: str, slug: str) -> str:
     }
 
     return _build_article_html(fm, body_html, slug, date_str, cluster_id)
+
 
 def wrap_tool_html(body_html: str, slug: str) -> str:
     """
@@ -895,4 +960,3 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
 
 </body>
 </html>"""
-
