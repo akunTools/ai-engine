@@ -675,6 +675,9 @@ def _build_article_html(fm: dict, body_html: str,
 {_RELATED_CSS}
 {_FOOTER_CSS}
 
+    /* ── FOOTER: override global margin-top for article page ── */
+    footer {{ margin-top: 0; }}
+
     @media (max-width: 640px) {{
       .article-wrap {{ padding-top: 32px; padding-bottom: 40px; }}
     }}
