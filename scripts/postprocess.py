@@ -566,8 +566,6 @@ def _build_article_html(fm: dict, body_html: str,
                         cluster_id: str = "") -> str:
     """
     Bungkus article body HTML ke dalam full HTML page.
-    Menyertakan: navigasi, metadata, share buttons, komentar Giscus,
-    dan related content (artikel + tools dalam cluster yang sama).
     """
     site_url    = "https://saas.blogtrick.eu.org"
     title       = fm.get("title", slug.replace("-", " ").title())
@@ -585,7 +583,6 @@ def _build_article_html(fm: dict, body_html: str,
     cluster_meta = f'<meta name="cluster" content="{cluster_id}">' if cluster_id else ""
     meta_desc    = fm.get("meta_desc", title)
 
-    # Updated to match _ARTICLE_CSS class names
     kw_badge = (
         f'<span class="article-header__meta-sep">·</span>'
         f'<span class="kw-badge">{keyword}</span>'
@@ -609,9 +606,9 @@ def _build_article_html(fm: dict, body_html: str,
   <link rel="canonical" href="{article_url}">
   {_FONT}
   <style>
-{_BASE_CSS}
-{_NAV_CSS}
-{_ARTICLE_CSS}
+{{_BASE_CSS}}
+{{_NAV_CSS}}
+{{_ARTICLE_CSS}}
 
     /* ── ARTICLE PAGE: vertical padding ── */
     .article-wrap {{ padding-top: 48px; padding-bottom: 80px; }}
@@ -675,8 +672,8 @@ def _build_article_html(fm: dict, body_html: str,
       border-bottom: 1px solid var(--border);
     }}
 
-{_RELATED_CSS}
-{_FOOTER_CSS}
+{{_RELATED_CSS}}
+{{_FOOTER_CSS}}
 
     @media (max-width: 640px) {{
       .article-wrap {{ padding-top: 32px; padding-bottom: 60px; }}
@@ -689,7 +686,6 @@ def _build_article_html(fm: dict, body_html: str,
   <div class="nav-inner">
     <a href="/articles/" class="nav-back">← Articles</a>
     <div class="nav-links">
-      <a href="/articles/" class="active">Articles</a>
       <a href="/tools/">Tools</a>
     </div>
   </div>
@@ -796,7 +792,6 @@ def _build_article_html(fm: dict, body_html: str,
 
 </body>
 </html>"""
-
 
 
 # ─────────────────────────────────────────────
@@ -937,8 +932,8 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
   <link rel="canonical" href="{tool_url}">
   {_FONT}
   <style>
-{_BASE_CSS}
-{_NAV_CSS}
+{{_BASE_CSS}}
+{{_NAV_CSS}}
 
     /* ── LAYOUT ── */
     .container {{ max-width: 680px; margin: 0 auto; padding: 40px 20px 80px; }}
@@ -1136,8 +1131,8 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
     }}
     .related-link a:hover {{ color: var(--accent-h); }}
 
-{_RELATED_CSS}
-{_FOOTER_CSS}
+{{_RELATED_CSS}}
+{{_FOOTER_CSS}}
 
     @media (max-width: 600px) {{
       .container {{ padding: 28px 16px 60px; }}
