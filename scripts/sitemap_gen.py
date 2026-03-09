@@ -646,6 +646,8 @@ def build_articles_index(files: list, content_index: dict) -> str:
     if not items_html:
         items_html = '\n    <div class="empty-note">No articles yet. Check back soon.</div>'
 
+    total = len(article_files)
+
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -747,7 +749,7 @@ def build_articles_index(files: list, content_index: dict) -> str:
   <div class="page-header-inner">
     <div class="page-eyebrow">Reading List</div>
     <h1>Articles</h1>
-    <p>No-fluff analysis for bootstrapped SaaS founders. Real numbers, real trade-offs.</p>
+    <p>{total} practical guides for bootstrapped SaaS founders — no fluff, no funding narratives.</p>
   </div>
 </div>
 
@@ -810,6 +812,8 @@ def build_tools_index(files: list) -> str:
 
     if not items_html:
         items_html = '\n    <div class="empty">No tools yet. Check back soon.</div>'
+
+    total = len(tool_files)
 
     return f"""<!DOCTYPE html>
 <html lang="en">
