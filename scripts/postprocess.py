@@ -59,7 +59,7 @@ _BASE_CSS = """
 
 # ── Updated: 10.9 design session ──────────────────────────────────────────────
 _NAV_CSS = """
-  nav {
+  nav.site-nav {
     position: sticky;
     top: 0;
     z-index: 100;
@@ -611,7 +611,7 @@ def _build_article_html(fm: dict, body_html: str,
 {_ARTICLE_CSS}
 
     /* ── ARTICLE PAGE: vertical padding ── */
-    .article-wrap {{ padding-top: 48px; padding-bottom: 80px; }}
+    .article-wrap {{ padding-top: 48px; padding-bottom: 48px; }}
 
     /* ── SHARE BOX ── */
     .share-box {{
@@ -662,7 +662,7 @@ def _build_article_html(fm: dict, body_html: str,
     }}
 
     /* ── COMMENTS BOX ── */
-    .comments-box {{ margin-bottom: 48px; }}
+    .comments-box {{ margin-bottom: 24px; }}
     .comments-box h2 {{
       font-size: 1.1rem;
       font-weight: 700;
@@ -676,13 +676,13 @@ def _build_article_html(fm: dict, body_html: str,
 {_FOOTER_CSS}
 
     @media (max-width: 640px) {{
-      .article-wrap {{ padding-top: 32px; padding-bottom: 60px; }}
+      .article-wrap {{ padding-top: 32px; padding-bottom: 40px; }}
     }}
   </style>
 </head>
 <body>
 
-<nav>
+<nav class="site-nav">
   <div class="nav-inner">
     <a href="/articles/" class="nav-back">← Articles</a>
     <div class="nav-links">
@@ -1142,7 +1142,7 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
 </head>
 <body>
 
-<nav>
+<nav class="site-nav">
   <div class="nav-inner">
     <a href="/tools/" class="nav-back">← All Tools</a>
     <div class="nav-links">
