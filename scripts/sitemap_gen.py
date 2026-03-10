@@ -511,7 +511,7 @@ _HOMEPAGE_CSS = """
   margin-top: 56px;
   padding: 24px;
   background: var(--accent-light);
-  border: 1px solid var(--accent);
+  border: 1px solid var(--border);
   border-radius: var(--r);
   display: flex;
   align-items: center;
