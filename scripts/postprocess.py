@@ -888,6 +888,7 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
     .affiliate-box, .affiliate-box a
     .related-link, .related-link a
     .subtitle
+    .faq, .faq h3, .faq details, .faq summary, .faq .faq-answer
     """
     # Ekstrak cluster_id dari meta tag
     cluster_match = re.search(
@@ -1133,6 +1134,56 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
       font-weight: 500;
     }}
     .related-link a:hover {{ color: var(--accent-h); }}
+
+    /* ── FAQ ── */
+    .faq {{ margin-top: 32px; }}
+    .faq h3 {{
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -.01em;
+      margin-bottom: 12px;
+    }}
+    .faq details {{
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 8px;
+      overflow: hidden;
+    }}
+    .faq summary {{
+      padding: 14px 16px;
+      font-size: .9rem;
+      font-weight: 500;
+      color: var(--text);
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--surface);
+    }}
+    .faq summary::-webkit-details-marker {{ display: none; }}
+    .faq summary::after {{
+      content: '+';
+      font-size: 1.1rem;
+      color: var(--muted);
+      font-weight: 300;
+      flex-shrink: 0;
+      margin-left: 12px;
+    }}
+    .faq details[open] > summary::after {{ content: '−'; }}
+    .faq details[open] > summary {{
+      background: var(--accent-light);
+      color: var(--accent);
+    }}
+    .faq .faq-answer {{
+      padding: 12px 16px 14px;
+      font-size: .875rem;
+      color: var(--muted);
+      line-height: 1.7;
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+    }}
 
 {_RELATED_CSS}
 {_FOOTER_CSS}
