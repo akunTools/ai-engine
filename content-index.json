@@ -1,19 +1,4 @@
 {
-  "articles": [
-    {
-      "slug": "test-pipeline",
-      "title": "Test Pipeline Article",
-      "cluster": "",
-      "date": "2026-03-09",
-      "excerpt": ""
-    },
-    {
-      "slug": "net-burn-rate",
-      "title": "Net Burn Rate: Why Bootstrappers Keep Measuring the Wrong Number",
-      "cluster": "saas-financial-planning",
-      "date": "2026-03-11",
-      "excerpt": "Gross burn and net burn rate aren"
-    }
-  ],
+  "articles": [],
   "tools": []
 }
