@@ -303,6 +303,18 @@ def run_pipeline(task_type: str) -> None:
 
     print("Pipeline completed successfully.")
 
+    # Regenerate sitemap dan index pages setelah publish
+    # Dipanggil langsung di sini karena GitHub Actions tidak men-trigger
+    # workflow lain saat push menggunakan GITHUB_TOKEN (by design).
+    print("Regenerating sitemap and index pages...")
+    import subprocess
+    result = subprocess.run(
+        ["python", "scripts/sitemap_gen.py"],
+        capture_output=True, text=True
+    )
+    print(result.stdout)
+    if result.returncode != 0:
+        print(f"Warning: sitemap_gen failed (non-fatal): {result.stderr}")
 
 if __name__ == "__main__":
     run_pipeline(TASK_TYPE)
