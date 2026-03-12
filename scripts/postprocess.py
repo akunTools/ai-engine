@@ -260,7 +260,7 @@ _FOOTER_CSS = """
   }
 """
 
-# ── New: 10.9 design session + validation fix 1 (h2 border-left) ──────────────
+# ── Updated: v4.7 — fix table overflow, overflow-wrap, img, font-weight ───────
 _ARTICLE_CSS = """
   /* ── Article page shell ────────────────────────── */
   .article-wrap {
@@ -278,7 +278,7 @@ _ARTICLE_CSS = """
 
   .article-header__title {
     font-size: clamp(1.625rem, 3.5vw, 2.25rem);
-    font-weight: 800;
+    font-weight: 700;
     color: var(--text);
     line-height: 1.2;
     letter-spacing: -0.025em;
@@ -317,6 +317,16 @@ _ARTICLE_CSS = """
     line-height: 1.72;
     color: var(--text);
     max-width: 660px;
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+
+  .article-body img {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--r);
+    display: block;
+    margin: 24px 0;
   }
 
   .article-body h2 {
@@ -412,8 +422,12 @@ _ARTICLE_CSS = """
     border-radius: 0;
   }
 
+  /* Fix: table overflow — geser ke kanan di mobile, tidak meluber */
   .article-body table {
-    width: 100%;
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    min-width: 100%;
     border-collapse: collapse;
     margin: 24px 0;
     font-size: 0.9rem;
@@ -464,6 +478,7 @@ _ARTICLE_CSS = """
 
     .article-body table {
       font-size: 0.8125rem;
+      /* display:block + overflow-x:auto sudah di-set di atas — tetap berlaku */
     }
 
     .article-body th,
@@ -849,6 +864,18 @@ def wrap_article_html(body_html: str, slug: str) -> str:
     if h1_match:
         body_html = (body_html[:h1_match.start()]
                      + body_html[h1_match.end():]).lstrip("\n")
+
+    # ── Postprocess: patch formula highlight div ─────────────────────────────
+    # Tambah overflow-x:auto pada inline-styled formula box yang dihasilkan Claude.
+    # Regex ini spesifik ke warna #0f172a agar tidak mengenai div lain.
+    body_html = re.sub(
+        r'(style="background:#0f172a;color:#e2e8f0;[^"]*)"',
+        lambda m: m.group(1) + (
+            ";overflow-x:auto;white-space:pre-wrap"
+            if "overflow-x" not in m.group(1) else ""
+        ) + '"',
+        body_html
+    )
 
     title_clean = re.sub(r'<[^>]+>', '', title).strip()
     word_count  = len(re.sub(r'<[^>]+>', '', body_html).split())
