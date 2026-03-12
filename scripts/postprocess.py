@@ -260,7 +260,7 @@ _FOOTER_CSS = """
   }
 """
 
-# ── Updated: v4.7 — fix table overflow, overflow-wrap, img, font-weight ───────
+# ── New: 10.9 design session + validation fix 1 (h2 border-left) ──────────────
 _ARTICLE_CSS = """
   /* ── Article page shell ────────────────────────── */
   .article-wrap {
@@ -422,7 +422,6 @@ _ARTICLE_CSS = """
     border-radius: 0;
   }
 
-  /* Fix: table overflow — geser ke kanan di mobile, tidak meluber */
   .article-body table {
     display: block;
     overflow-x: auto;
@@ -442,6 +441,7 @@ _ARTICLE_CSS = """
     color: var(--muted);
     border-bottom: 2px solid var(--border);
     padding: 10px 12px;
+    white-space: nowrap;
   }
 
   .article-body td {
@@ -449,6 +449,7 @@ _ARTICLE_CSS = """
     border-bottom: 1px solid var(--border);
     color: var(--text);
     vertical-align: top;
+    white-space: nowrap;
   }
 
   .article-body tr:last-child td {
