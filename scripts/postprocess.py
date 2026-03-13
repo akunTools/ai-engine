@@ -1286,3 +1286,4 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
 
 </body>
 </html>"""
+
