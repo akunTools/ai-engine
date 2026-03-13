@@ -9,6 +9,7 @@ import sys
 import json
 import base64
 import urllib.request
+import urllib.parse
 from datetime import datetime
 
 from loader    import fetch_file, fetch_json, update_file, list_folder, delete_file
@@ -156,6 +157,28 @@ def extract_cluster(body_html: str) -> str:
         body_html, re.IGNORECASE
     )
     return match.group(1).strip() if match else ""
+
+
+def warm_facebook_cache(url: str) -> None:
+    """
+    Paksa Facebook crawl ulang OG meta tag untuk URL yang baru dipublish.
+    Menggunakan Facebook Graph API publik — tidak butuh token atau akun developer.
+    Non-fatal: jika gagal, pipeline tetap lanjut.
+    Berlaku untuk semua platform yang pakai Facebook crawler (FB, Instagram link preview).
+    """
+    try:
+        encoded = urllib.parse.quote(url, safe="")
+        api_url = f"https://graph.facebook.com/?id={encoded}&scrape=true"
+        req = urllib.request.Request(
+            api_url,
+            data=b"",
+            method="POST",
+            headers={"User-Agent": "ai-engine"}
+        )
+        with urllib.request.urlopen(req, timeout=10) as r:
+            print(f"Facebook cache warmed: {url} (HTTP {r.status})")
+    except Exception as e:
+        print(f"Warning: Facebook cache warm failed (non-fatal): {e}")
 
 
 def update_content_index(slug: str, title: str, cluster_id: str,
@@ -312,6 +335,9 @@ def run_pipeline(task_type: str) -> None:
             og_ok = publish_binary("og", f"{slug}.png", og_data)
             if og_ok:
                 print(f"OG image published: og/{slug}.png")
+                warm_facebook_cache(
+                    f"https://saas.blogtrick.eu.org/articles/{slug}"
+                )
             else:
                 print(f"Warning: OG image publish failed (non-fatal)")
         except Exception as e:
