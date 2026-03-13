@@ -844,5 +844,21 @@ Months to Break-Even = (Gross Burn + New Expense − Current MRR) ÷ Avg Monthly
 })();
 </script>
 
+<script>
+(function () {
+  document.addEventListener('click', function (e) {
+    var el = e.target.closest('a[href]');
+    if (!el) return;
+    var href = el.getAttribute('href') || '';
+    if (href.indexOf('cloudways.com') === -1 || href.indexOf('id=') === -1) return;
+    if (typeof window.cfBeacon === 'undefined' || typeof window.cfBeacon.pushEvent !== 'function') return;
+    window.cfBeacon.pushEvent('affiliate_click', {
+      affiliate: 'cloudways',
+      page: window.location.pathname
+    });
+  }, true);
+})();
+</script>
+
 </body>
 </html>
