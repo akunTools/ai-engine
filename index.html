@@ -524,6 +524,7 @@ footer {
 }
 
   </style>
+  <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "5833f90d78f645e0819abedd665e5d93"}'></script><!-- End Cloudflare Web Analytics -->
 </head>
 <body>
   <nav>
@@ -584,7 +585,7 @@ footer {
         <strong>Still on shared hosting?</strong> Cloudways gives you managed cloud servers with one-click scaling and zero DevOps overhead — so you can stay focused on MRR, not sysadmin tickets.
       </p>
       <a
-        href="https://www.cloudways.com/?id=saastools"
+        href="https://www.cloudways.com/en/?id=2085949"
         class="hosting-nudge__link"
         rel="sponsored noopener"
         target="_blank"
@@ -607,5 +608,20 @@ footer {
     </div>
   </div>
 </footer>
+  <script>
+(function () {
+  document.addEventListener('click', function (e) {
+    var el = e.target.closest('a[href]');
+    if (!el) return;
+    var href = el.getAttribute('href') || '';
+    if (href.indexOf('cloudways.com') === -1 || href.indexOf('id=') === -1) return;
+    if (typeof window.cfBeacon === 'undefined' || typeof window.cfBeacon.pushEvent !== 'function') return;
+    window.cfBeacon.pushEvent('affiliate_click', {
+      affiliate: 'cloudways',
+      page: window.location.pathname
+    });
+  }, true);
+})();
+</script>
 </body>
 </html>
