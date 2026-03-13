@@ -1,7 +1,7 @@
 """
 sitemap_gen.py
 Generate sitemap.xml, homepage, articles index, dan tools index.
-Dipanggil setelah setiap konten baru dipublish dan oleh generate-sitemap workflow.
+Dipanggil setiap konten baru dipublish dan oleh generate-sitemap workflow.
 """
 import os
 import re
@@ -16,6 +16,9 @@ ENGINE_TOKEN  = os.environ.get("GITHUB_TOKEN")
 SITE_URL      = os.environ.get("SITE_BASE_URL", "https://saas.blogtrick.eu.org")
 OUTPUT_BRANCH = "output"
 API_BASE      = "https://api.github.com"
+
+# ── URL affiliate — gunakan konstanta ini di semua tempat ─────────────────────
+CLOUDWAYS_URL = "https://www.cloudways.com/en/?id=2085949"
 
 
 def _headers():
@@ -94,6 +97,32 @@ _FONT = (
     'wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400'
     '&display=swap" rel="stylesheet">'
 )
+
+# ── Analytics beacon — injected ke semua halaman ──────────────────────────────
+_ANALYTICS = (
+    "<!-- Cloudflare Web Analytics -->"
+    "<script defer src='https://static.cloudflareinsights.com/beacon.min.js'"
+    " data-cf-beacon='{\"token\": \"5833f90d78f645e0819abedd665e5d93\"}'>"
+    "</script>"
+    "<!-- End Cloudflare Web Analytics -->"
+)
+
+# ── Affiliate click tracker — injected ke semua halaman ──────────────────────
+_AFFILIATE_TRACKER_JS = """<script>
+(function () {
+  document.addEventListener('click', function (e) {
+    var el = e.target.closest('a[href]');
+    if (!el) return;
+    var href = el.getAttribute('href') || '';
+    if (href.indexOf('cloudways.com') === -1 || href.indexOf('id=') === -1) return;
+    if (typeof window.cfBeacon === 'undefined' || typeof window.cfBeacon.pushEvent !== 'function') return;
+    window.cfBeacon.pushEvent('affiliate_click', {
+      affiliate: 'cloudways',
+      page: window.location.pathname
+    });
+  }, true);
+})();
+</script>"""
 
 _BASE_CSS = """
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -833,6 +862,7 @@ def build_homepage(files: list, content_index: dict) -> str:
 {_FOOTER_CSS}
 {_HOMEPAGE_CSS}
   </style>
+  {_ANALYTICS}
 </head>
 <body>
   {_nav()}
@@ -876,7 +906,7 @@ def build_homepage(files: list, content_index: dict) -> str:
         <strong>Still on shared hosting?</strong> Cloudways gives you managed cloud servers with one-click scaling and zero DevOps overhead — so you can stay focused on MRR, not sysadmin tickets.
       </p>
       <a
-        href="https://www.cloudways.com/?id=saastools"
+        href="{CLOUDWAYS_URL}"
         class="hosting-nudge__link"
         rel="sponsored noopener"
         target="_blank"
@@ -886,6 +916,7 @@ def build_homepage(files: list, content_index: dict) -> str:
   </div>
 
   {_FOOTER}
+  {_AFFILIATE_TRACKER_JS}
 </body>
 </html>"""
 
@@ -952,6 +983,7 @@ def build_articles_index(files: list, content_index: dict) -> str:
 {_HOMEPAGE_CSS}
 {_INDEX_CSS}
   </style>
+  {_ANALYTICS}
 </head>
 <body>
   {_nav("articles")}
@@ -973,6 +1005,7 @@ def build_articles_index(files: list, content_index: dict) -> str:
   </div>
 
   {_FOOTER}
+  {_AFFILIATE_TRACKER_JS}
 </body>
 </html>"""
 
@@ -1040,6 +1073,7 @@ def build_tools_index(files: list) -> str:
 {_HOMEPAGE_CSS}
 {_INDEX_CSS}
   </style>
+  {_ANALYTICS}
 </head>
 <body>
   {_nav("tools")}
@@ -1061,6 +1095,7 @@ def build_tools_index(files: list) -> str:
   </div>
 
   {_FOOTER}
+  {_AFFILIATE_TRACKER_JS}
 </body>
 </html>"""
 
@@ -1194,3 +1229,4 @@ if __name__ == "__main__":
     prune_content_index(files)
 
     print("Done")
+
