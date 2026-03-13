@@ -24,6 +24,15 @@ _FONT = (
     '400&display=swap" rel="stylesheet">'
 )
 
+# ── Analytics beacon — injected ke semua halaman ──────────────────────────────
+_ANALYTICS = (
+    "<!-- Cloudflare Web Analytics -->"
+    "<script defer src='https://static.cloudflareinsights.com/beacon.min.js'"
+    " data-cf-beacon='{\"token\": \"5833f90d78f645e0819abedd665e5d93\"}'>"
+    "</script>"
+    "<!-- End Cloudflare Web Analytics -->"
+)
+
 _BASE_CSS = """
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
@@ -702,6 +711,7 @@ def _build_article_html(fm: dict, body_html: str,
       .article-wrap {{ padding-top: 32px; padding-bottom: 40px; }}
     }}
   </style>
+  {_ANALYTICS}
 </head>
 <body>
 
@@ -1225,6 +1235,7 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
       .result-number {{ font-size: 2.75rem; }}
     }}
   </style>
+  {_ANALYTICS}
 </head>
 <body>
 
