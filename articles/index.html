@@ -603,6 +603,7 @@ footer {
 }
 
   </style>
+  <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "5833f90d78f645e0819abedd665e5d93"}'></script><!-- End Cloudflare Web Analytics -->
 </head>
 <body>
   <nav>
@@ -654,5 +655,20 @@ footer {
     </div>
   </div>
 </footer>
+  <script>
+(function () {
+  document.addEventListener('click', function (e) {
+    var el = e.target.closest('a[href]');
+    if (!el) return;
+    var href = el.getAttribute('href') || '';
+    if (href.indexOf('cloudways.com') === -1 || href.indexOf('id=') === -1) return;
+    if (typeof window.cfBeacon === 'undefined' || typeof window.cfBeacon.pushEvent !== 'function') return;
+    window.cfBeacon.pushEvent('affiliate_click', {
+      affiliate: 'cloudways',
+      page: window.location.pathname
+    });
+  }, true);
+})();
+</script>
 </body>
 </html>
