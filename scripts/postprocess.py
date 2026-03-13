@@ -33,6 +33,28 @@ _ANALYTICS = (
     "<!-- End Cloudflare Web Analytics -->"
 )
 
+# ── Affiliate click tracker — injected ke semua halaman ──────────────────────
+# Mendeteksi klik pada link cloudways.com yang mengandung ?id= (affiliate link)
+# dan mengirim custom event ke Cloudflare Web Analytics.
+# Event name : "affiliate_click"
+# Properties : affiliate (string), page (path halaman saat klik terjadi)
+# Tidak memerlukan penandaan manual pada link — deteksi otomatis via selector.
+_AFFILIATE_TRACKER_JS = """<script>
+(function () {
+  document.addEventListener('click', function (e) {
+    var el = e.target.closest('a[href]');
+    if (!el) return;
+    var href = el.getAttribute('href') || '';
+    if (href.indexOf('cloudways.com') === -1 || href.indexOf('id=') === -1) return;
+    if (typeof window.cfBeacon === 'undefined' || typeof window.cfBeacon.pushEvent !== 'function') return;
+    window.cfBeacon.pushEvent('affiliate_click', {
+      affiliate: 'cloudways',
+      page: window.location.pathname
+    });
+  }, true);
+})();
+</script>"""
+
 _BASE_CSS = """
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
@@ -823,6 +845,8 @@ def _build_article_html(fm: dict, body_html: str,
 
 {_RELATED_JS}
 
+{_AFFILIATE_TRACKER_JS}
+
 </body>
 </html>"""
 
@@ -1257,6 +1281,8 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
 {_FOOTER_HTML}
 
 {_RELATED_JS}
+
+{_AFFILIATE_TRACKER_JS}
 
 </body>
 </html>"""
