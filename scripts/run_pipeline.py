@@ -13,7 +13,8 @@ from datetime import datetime
 
 from loader    import fetch_file, fetch_json, update_file, list_folder, delete_file
 from postprocess import wrap_article_html, wrap_tool_html
-from publisher  import publish_html
+from publisher  import publish_html, publish_binary
+from og_gen     import generate_og_image
 
 ENGINE_REPO   = os.environ.get("ENGINE_REPO", "")
 GITHUB_TOKEN  = os.environ.get("GITHUB_TOKEN", "")
@@ -301,20 +302,23 @@ def run_pipeline(task_type: str) -> None:
     update_content_index(slug, page_title, cluster_id, task_type, date_str,
                          excerpt)
 
+    # Generate dan publish OG image (hanya untuk artikel)
+    # Ditempatkan di sini karena page_title sudah tersedia
+    if is_article:
+        try:
+            og_path = generate_og_image(page_title, slug, "/tmp/og")
+            with open(og_path, "rb") as f:
+                og_data = f.read()
+            og_ok = publish_binary("og", f"{slug}.png", og_data)
+            if og_ok:
+                print(f"OG image published: og/{slug}.png")
+            else:
+                print(f"Warning: OG image publish failed (non-fatal)")
+        except Exception as e:
+            print(f"Warning: OG image generation failed (non-fatal): {e}")
+
     print("Pipeline completed successfully.")
 
-    # Regenerate sitemap dan index pages setelah publish
-    # Dipanggil langsung di sini karena GitHub Actions tidak men-trigger
-    # workflow lain saat push menggunakan GITHUB_TOKEN (by design).
-    print("Regenerating sitemap and index pages...")
-    import subprocess
-    result = subprocess.run(
-        ["python", "scripts/sitemap_gen.py"],
-        capture_output=True, text=True
-    )
-    print(result.stdout)
-    if result.returncode != 0:
-        print(f"Warning: sitemap_gen failed (non-fatal): {result.stderr}")
 
 if __name__ == "__main__":
     run_pipeline(TASK_TYPE)
