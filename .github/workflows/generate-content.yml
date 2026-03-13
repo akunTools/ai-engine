@@ -41,41 +41,59 @@ jobs:
 
       - name: Set task type artikel
         run: |
-          echo "TASK_TYPE=article" >> $GITHUB_ENV
+          echo "TASK_TYPE=article" >> \$GITHUB_ENV
+
+      - name: Install dependensi Python
+        run: pip install Pillow --break-system-packages
 
       - name: Jalankan Pipeline
+        id: pipeline
+        continue-on-error: true
         env:
-          BRAIN_PAT:    ${{ secrets.BRAIN_PAT }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ENGINE_REPO:  ${{ github.repository }}
-          BRAIN_REPO:   akunTools/ai-brain
+          BRAIN_PAT:    \${{ secrets.BRAIN_PAT }}
+          GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}
+          ENGINE_REPO:  \${{ github.repository }}
+          BRAIN_REPO:   YOUR_USERNAME/ai-brain
         run: python scripts/run_pipeline.py
 
       - name: Kirim email notifikasi sukses
-        if: success()
-        uses: dawidd6/action-send-mail@v3
+        if: steps.pipeline.outcome == 'success'
+        uses: dawidd6/action-send-mail@v4
         with:
           server_address: smtp-relay.brevo.com
           server_port:    587
-          username:       ${{ secrets.BREVO_USERNAME }}
-          password:       ${{ secrets.BREVO_PASSWORD }}
+          username:       \${{ secrets.BREVO_USERNAME }}
+          password:       \${{ secrets.BREVO_PASSWORD }}
           subject:        "[AI Engine] Published: Article"
-          to:             ${{ secrets.NOTIFY_EMAIL }}
-          from:           ${{ secrets.BREVO_FROM_EMAIL }}
+          to:             \${{ secrets.NOTIFY_EMAIL }}
+          from:           \${{ secrets.BREVO_FROM_EMAIL }}
           body:           "Article published successfully. Check the website."
 
       - name: Kirim email staging kosong
-        if: failure()
-        uses: dawidd6/action-send-mail@v3
+        if: steps.pipeline.outcome == 'failure' && hashFiles('/tmp/staging_empty') != ''
+        uses: dawidd6/action-send-mail@v4
         with:
           server_address: smtp-relay.brevo.com
           server_port:    587
-          username:       ${{ secrets.BREVO_USERNAME }}
-          password:       ${{ secrets.BREVO_PASSWORD }}
+          username:       \${{ secrets.BREVO_USERNAME }}
+          password:       \${{ secrets.BREVO_PASSWORD }}
           subject:        "[AI Engine] ⚠️ Staging Empty — No Article to Publish"
-          to:             ${{ secrets.NOTIFY_EMAIL }}
-          from:           ${{ secrets.BREVO_FROM_EMAIL }}
+          to:             \${{ secrets.NOTIFY_EMAIL }}
+          from:           \${{ secrets.BREVO_FROM_EMAIL }}
           body:           "Staging is empty. Add new articles to staging/articles/ready/ in ai-brain."
+
+      - name: Kirim email publish gagal
+        if: steps.pipeline.outcome == 'failure' && hashFiles('/tmp/staging_empty') == ''
+        uses: dawidd6/action-send-mail@v4
+        with:
+          server_address: smtp-relay.brevo.com
+          server_port:    587
+          username:       \${{ secrets.BREVO_USERNAME }}
+          password:       \${{ secrets.BREVO_PASSWORD }}
+          subject:        "[AI Engine] ❌ Publish Failed — Article"
+          to:             \${{ secrets.NOTIFY_EMAIL }}
+          from:           \${{ secrets.BREVO_FROM_EMAIL }}
+          body:           "Pipeline failed. Check the Actions tab for details."
 
   generate-tool:
     runs-on: ubuntu-latest
@@ -96,38 +114,56 @@ jobs:
 
       - name: Set task type tool
         run: |
-          echo "TASK_TYPE=tool" >> $GITHUB_ENV
+          echo "TASK_TYPE=tool" >> \$GITHUB_ENV
+
+      - name: Install dependensi Python
+        run: pip install Pillow --break-system-packages
 
       - name: Jalankan Pipeline
+        id: pipeline
+        continue-on-error: true
         env:
-          BRAIN_PAT:    ${{ secrets.BRAIN_PAT }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ENGINE_REPO:  ${{ github.repository }}
-          BRAIN_REPO:   akunTools/ai-brain
+          BRAIN_PAT:    \${{ secrets.BRAIN_PAT }}
+          GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}
+          ENGINE_REPO:  \${{ github.repository }}
+          BRAIN_REPO:   YOUR_USERNAME/ai-brain
         run: python scripts/run_pipeline.py
 
       - name: Kirim email notifikasi sukses
-        if: success()
-        uses: dawidd6/action-send-mail@v3
+        if: steps.pipeline.outcome == 'success'
+        uses: dawidd6/action-send-mail@v4
         with:
           server_address: smtp-relay.brevo.com
           server_port:    587
-          username:       ${{ secrets.BREVO_USERNAME }}
-          password:       ${{ secrets.BREVO_PASSWORD }}
+          username:       \${{ secrets.BREVO_USERNAME }}
+          password:       \${{ secrets.BREVO_PASSWORD }}
           subject:        "[AI Engine] Published: Tool"
-          to:             ${{ secrets.NOTIFY_EMAIL }}
-          from:           ${{ secrets.BREVO_FROM_EMAIL }}
+          to:             \${{ secrets.NOTIFY_EMAIL }}
+          from:           \${{ secrets.BREVO_FROM_EMAIL }}
           body:           "Tool published successfully. Check the website."
 
       - name: Kirim email staging kosong
-        if: failure()
-        uses: dawidd6/action-send-mail@v3
+        if: steps.pipeline.outcome == 'failure' && hashFiles('/tmp/staging_empty') != ''
+        uses: dawidd6/action-send-mail@v4
         with:
           server_address: smtp-relay.brevo.com
           server_port:    587
-          username:       ${{ secrets.BREVO_USERNAME }}
-          password:       ${{ secrets.BREVO_PASSWORD }}
+          username:       \${{ secrets.BREVO_USERNAME }}
+          password:       \${{ secrets.BREVO_PASSWORD }}
           subject:        "[AI Engine] ⚠️ Staging Empty — No Tool to Publish"
-          to:             ${{ secrets.NOTIFY_EMAIL }}
-          from:           ${{ secrets.BREVO_FROM_EMAIL }}
+          to:             \${{ secrets.NOTIFY_EMAIL }}
+          from:           \${{ secrets.BREVO_FROM_EMAIL }}
           body:           "Tool staging is empty. Add new tools to staging/tools/ready/ in ai-brain."
+
+      - name: Kirim email publish gagal
+        if: steps.pipeline.outcome == 'failure' && hashFiles('/tmp/staging_empty') == ''
+        uses: dawidd6/action-send-mail@v4
+        with:
+          server_address: smtp-relay.brevo.com
+          server_port:    587
+          username:       \${{ secrets.BREVO_USERNAME }}
+          password:       \${{ secrets.BREVO_PASSWORD }}
+          subject:        "[AI Engine] ❌ Publish Failed — Tool"
+          to:             \${{ secrets.NOTIFY_EMAIL }}
+          from:           \${{ secrets.BREVO_FROM_EMAIL }}
+          body:           "Pipeline failed. Check the Actions tab for details."
