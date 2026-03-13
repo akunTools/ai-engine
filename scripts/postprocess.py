@@ -616,9 +616,13 @@ def _build_article_html(fm: dict, body_html: str,
   <meta property="og:title" content="{title}">
   <meta property="og:url" content="{article_url}">
   <meta property="og:type" content="article">
+  <meta property="og:image" content="{site_url}/og/{slug}.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
   <meta property="og:site_name" content="SaaS Tools for Bootstrapped Founders">
-  <meta name="twitter:card" content="summary">
+  <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="{title}">
+  <meta name="twitter:image" content="{site_url}/og/{slug}.png">
   <link rel="canonical" href="{article_url}">
   {_FONT}
   <style>
