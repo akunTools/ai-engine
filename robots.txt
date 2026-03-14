@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+
+Disallow: /og/
+
+Sitemap: https://saas.blogtrick.eu.org/sitemap.xml
