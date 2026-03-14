@@ -992,6 +992,40 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
     if not meta_desc:
         meta_desc = f"{title_clean}. Free calculator for bootstrapped SaaS founders."
 
+    # ── FAQPage JSON-LD schema ────────────────────────────────────────────────
+    # Ekstrak pasangan <summary>/<div class="faq-answer"> dari body_html.
+    # Diinjeksikan ke <head> untuk rich snippet Google.
+    faq_schema = ""
+    faq_pairs = re.findall(
+        r'<summary[^>]*>(.*?)</summary>.*?<div[^>]*class=["\']faq-answer["\'][^>]*>(.*?)</div>',
+        body_html, re.IGNORECASE | re.DOTALL
+    )
+    if faq_pairs:
+        import json as _json
+        qa_list = []
+        for q, a in faq_pairs:
+            q_clean = re.sub(r'<[^>]+>', '', q).strip()
+            a_clean = re.sub(r'<[^>]+>', '', a).strip()
+            a_clean = re.sub(r'\s+', ' ', a_clean)
+            if q_clean and a_clean:
+                qa_list.append({
+                    "@type": "Question",
+                    "name": q_clean,
+                    "acceptedAnswer": {"@type": "Answer", "text": a_clean}
+                })
+        if qa_list:
+            schema_obj = {
+                "@context": "https://schema.org",
+                "@type": "FAQPage",
+                "mainEntity": qa_list
+            }
+            faq_schema = (
+                '\n  <script type="application/ld+json">\n  '
+                + _json.dumps(schema_obj, ensure_ascii=False, indent=2)
+                .replace('\n', '\n  ')
+                + '\n  </script>'
+            )
+
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1260,7 +1294,7 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
       .result-number {{ font-size: 2.75rem; }}
     }}
   </style>
-  {_ANALYTICS}
+  {_ANALYTICS}{faq_schema}
 </head>
 <body>
 
