@@ -747,6 +747,7 @@ _FOOTER = """<footer>
       <nav class="footer-nav">
         <a href="/articles/">Articles</a>
         <a href="/tools/">Tools</a>
+        <a href="/privacy">Privacy</a>
       </nav>
     </div>
     <div class="footer-bottom">
