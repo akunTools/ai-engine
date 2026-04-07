@@ -1,15 +1,34 @@
-name: Generate Sitemap
+name: Generate Content
 
 on:
-  push:
-    branches:
-      - output
   workflow_dispatch:
+    inputs:
+      task_type:
+        description: 'Jenis konten yang akan dipublish'
+        required: true
+        default: 'article'
+        type: choice
+        options:
+          - article
+          - tool
+
+  repository_dispatch:
+    types: [run-task]
+
+  schedule:
+    # Artikel: setiap 2 hari jam 02:00 UTC (09:00 WIB)
+    - cron: '0 2 */2 * *'
+    # Tools: tanggal 1 dan 15 setiap bulan jam 06:00 UTC
+    - cron: '0 6 1,15 * *'
 
 jobs:
-  sitemap:
+  generate-article:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
+    if: |
+      (github.event_name == 'schedule' && github.event.schedule == '0 2 */2 * *') ||
+      (github.event_name == 'repository_dispatch' && github.event.client_payload.task_type == 'article') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.task_type == 'article')
 
     steps:
       - name: Checkout ai-engine
@@ -20,9 +39,147 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Generate dan publish sitemap
+      - name: Set task type artikel
+        run: |
+          echo "TASK_TYPE=article" >> $GITHUB_ENV
+
+      - name: Install dependensi Python
+        run: pip install Pillow --break-system-packages
+
+      - name: Jalankan Pipeline
+        id: pipeline
+        continue-on-error: true
         env:
-          GITHUB_TOKEN:  ${{ secrets.GITHUB_TOKEN }}
-          ENGINE_REPO:   ${{ github.repository }}
-          SITE_BASE_URL: https://saas.blogtrick.eu.org
+          BRAIN_PAT:    ${{ secrets.BRAIN_PAT }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ENGINE_REPO:  ${{ github.repository }}
+          BRAIN_REPO:   akunTools/ai-brain
+        run: python scripts/run_pipeline.py
+
+      # [MODIFIKASI] GENERATE SITEMAP OTOMATIS DISINI
+      - name: Generate Sitemap & Index
+        if: steps.pipeline.outcome == 'success'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ENGINE_REPO:  ${{ github.repository }}
         run: python scripts/sitemap_gen.py
+
+      - name: Kirim email notifikasi sukses
+        if: steps.pipeline.outcome == 'success'
+        uses: dawidd6/action-send-mail@v4
+        with:
+          server_address: smtp-relay.brevo.com
+          server_port:    587
+          username:       ${{ secrets.BREVO_USERNAME }}
+          password:       ${{ secrets.BREVO_PASSWORD }}
+          subject:        "[AI Engine] Published: Article"
+          to:             ${{ secrets.NOTIFY_EMAIL }}
+          from:           ${{ secrets.BREVO_FROM_EMAIL }}
+          body:           "Article published successfully. Check the website."
+
+      - name: Kirim email staging kosong
+        if: steps.pipeline.outcome == 'failure' && hashFiles('/tmp/staging_empty') != ''
+        uses: dawidd6/action-send-mail@v4
+        with:
+          server_address: smtp-relay.brevo.com
+          server_port:    587
+          username:       ${{ secrets.BREVO_USERNAME }}
+          password:       ${{ secrets.BREVO_PASSWORD }}
+          subject:        "[AI Engine] ⚠️ Staging Empty — No Article to Publish"
+          to:             ${{ secrets.NOTIFY_EMAIL }}
+          from:           ${{ secrets.BREVO_FROM_EMAIL }}
+          body:           "Staging is empty. Add new articles to staging/articles/ready/ in ai-brain."
+
+      - name: Kirim email publish gagal
+        if: steps.pipeline.outcome == 'failure' && hashFiles('/tmp/staging_empty') == ''
+        uses: dawidd6/action-send-mail@v4
+        with:
+          server_address: smtp-relay.brevo.com
+          server_port:    587
+          username:       ${{ secrets.BREVO_USERNAME }}
+          password:       ${{ secrets.BREVO_PASSWORD }}
+          subject:        "[AI Engine] ❌ Publish Failed — Article"
+          to:             ${{ secrets.NOTIFY_EMAIL }}
+          from:           ${{ secrets.BREVO_FROM_EMAIL }}
+          body:           "Pipeline failed. Check the Actions tab for details."
+
+  generate-tool:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: |
+      (github.event_name == 'schedule' && github.event.schedule == '0 6 1,15 * *') ||
+      (github.event_name == 'repository_dispatch' && github.event.client_payload.task_type == 'tool') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.task_type == 'tool')
+
+    steps:
+      - name: Checkout ai-engine
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Set task type tool
+        run: |
+          echo "TASK_TYPE=tool" >> $GITHUB_ENV
+
+      - name: Install dependensi Python
+        run: pip install Pillow --break-system-packages
+
+      - name: Jalankan Pipeline
+        id: pipeline
+        continue-on-error: true
+        env:
+          BRAIN_PAT:    ${{ secrets.BRAIN_PAT }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ENGINE_REPO:  ${{ github.repository }}
+          BRAIN_REPO:   akunTools/ai-brain
+        run: python scripts/run_pipeline.py
+
+      # [MODIFIKASI] GENERATE SITEMAP OTOMATIS DISINI
+      - name: Generate Sitemap & Index
+        if: steps.pipeline.outcome == 'success'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ENGINE_REPO:  ${{ github.repository }}
+        run: python scripts/sitemap_gen.py
+
+      - name: Kirim email notifikasi sukses
+        if: steps.pipeline.outcome == 'success'
+        uses: dawidd6/action-send-mail@v4
+        with:
+          server_address: smtp-relay.brevo.com
+          server_port:    587
+          username:       ${{ secrets.BREVO_USERNAME }}
+          password:       ${{ secrets.BREVO_PASSWORD }}
+          subject:        "[AI Engine] Published: Tool"
+          to:             ${{ secrets.NOTIFY_EMAIL }}
+          from:           ${{ secrets.BREVO_FROM_EMAIL }}
+          body:           "Tool published successfully. Check the website."
+
+      - name: Kirim email staging kosong
+        if: steps.pipeline.outcome == 'failure' && hashFiles('/tmp/staging_empty') != ''
+        uses: dawidd6/action-send-mail@v4
+        with:
+          server_address: smtp-relay.brevo.com
+          server_port:    587
+          username:       ${{ secrets.BREVO_USERNAME }}
+          password:       ${{ secrets.BREVO_PASSWORD }}
+          subject:        "[AI Engine] ⚠️ Staging Empty — No Tool to Publish"
+          to:             ${{ secrets.NOTIFY_EMAIL }}
+          from:           ${{ secrets.BREVO_FROM_EMAIL }}
+          body:           "Tool staging is empty. Add new tools to staging/tools/ready/ in ai-brain."
+
+      - name: Kirim email publish gagal
+        if: steps.pipeline.outcome == 'failure' && hashFiles('/tmp/staging_empty') == ''
+        uses: dawidd6/action-send-mail@v4
+        with:
+          server_address: smtp-relay.brevo.com
+          server_port:    587
+          username:       ${{ secrets.BREVO_USERNAME }}
+          password:       ${{ secrets.BREVO_PASSWORD }}
+          subject:        "[AI Engine] ❌ Publish Failed — Tool"
+          to:             ${{ secrets.NOTIFY_EMAIL }}
+          from:           ${{ secrets.BREVO_FROM_EMAIL }}
+          body:           "Pipeline failed. Check the Actions tab for details."
