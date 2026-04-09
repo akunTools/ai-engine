@@ -53,24 +53,22 @@ _AFFILIATE_TRACKER_JS = """<script>
 _BASE_CSS = """
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
-    --bg:           #f7f6f3;
+    --bg:           #fafafa;
     --surface:      #ffffff;
     --text:         #18181b;
-    --muted:        #71717a;
+    --muted:        #52525b;
     --subtle:       #a1a1aa;
     --border:       #e4e4e7;
-    --accent:       #4f46e5;
-    --accent-h:     #4338ca;
-    --accent-light: #eef2ff;
-    --danger:       #ef4444;
+    --accent:       #2563eb;
+    --accent-h:     #1d4ed8;
+    --accent-light: #eff6ff;
+    --danger:       #dc2626;
     --danger-bg:    #fef2f2;
-    --warning:      #f59e0b;
+    --warning:      #d97706;
     --warning-bg:   #fffbeb;
-    --success:      #10b981;
+    --success:      #059669;
     --success-bg:   #f0fdf4;
-    --r:            10px;
-    --shadow:       0 1px 3px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.04);
-    --shadow-md:    0 4px 16px rgba(0,0,0,.08);
+    --r:            4px;
   }
   body {
     font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -81,6 +79,12 @@ _BASE_CSS = """
   }
   a { color: var(--accent); text-decoration: none; }
   a:hover { color: var(--accent-h); }
+  
+  /* Global Focus State for Accessibility */
+  *:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
 """
 
 _NAV_CSS = """
@@ -90,7 +94,6 @@ _NAV_CSS = """
     z-index: 100;
     background: var(--surface);
     border-bottom: 1px solid var(--border);
-    box-shadow: var(--shadow);
   }
   .nav-inner {
     max-width: 1120px;
@@ -117,7 +120,7 @@ _NAV_CSS = """
   .nav-links {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 4px;
   }
   .nav-links a {
     font-size: 0.875rem;
@@ -128,7 +131,7 @@ _NAV_CSS = """
     min-height: 44px;
     display: flex;
     align-items: center;
-    border-radius: 6px;
+    border-radius: var(--r);
     transition: color 0.15s ease, background 0.15s ease;
   }
   .nav-links a:hover {
@@ -138,6 +141,7 @@ _NAV_CSS = """
   .nav-links a.active {
     color: var(--accent);
     background: var(--accent-light);
+    border: 1px solid #bfdbfe;
   }
   .nav-back {
     font-size: 0.875rem;
@@ -149,7 +153,7 @@ _NAV_CSS = """
     gap: 6px;
     min-height: 44px;
     padding: 0 8px;
-    border-radius: 6px;
+    border-radius: var(--r);
     transition: color 0.15s ease;
   }
   .nav-back:hover {
@@ -157,12 +161,8 @@ _NAV_CSS = """
     background: var(--bg);
   }
   @media (max-width: 640px) {
-    .nav-inner {
-      padding: 0 16px;
-    }
-    .nav-links a {
-      padding: 0 8px;
-    }
+    .nav-inner { padding: 0 16px; }
+    .nav-links a { padding: 0 8px; }
   }
 """
 
@@ -177,14 +177,14 @@ _FOOTER_HTML = """<footer>
       </nav>
     </div>
     <div class="footer-bottom">
-      Free calculators and guides for bootstrapped founders.
+      Built for bootstrapped founders. No VC fluff.
     </div>
   </div>
 </footer>"""
 
 _FOOTER_CSS = """
   footer {
-    background: var(--surface);
+    background: var(--bg);
     border-top: 1px solid var(--border);
     margin-top: 80px;
   }
@@ -209,9 +209,7 @@ _FOOTER_CSS = """
     align-items: center;
     min-height: 44px;
   }
-  .footer-accent {
-    color: var(--accent);
-  }
+  .footer-accent { color: var(--accent); }
   .footer-nav {
     display: flex;
     align-items: center;
@@ -226,35 +224,28 @@ _FOOTER_CSS = """
     min-height: 44px;
     display: flex;
     align-items: center;
-    border-radius: 6px;
+    border-radius: var(--r);
     transition: color 0.15s ease;
   }
-  .footer-nav a:hover {
-    color: var(--text);
-  }
+  .footer-nav a:hover { color: var(--text); }
   .footer-bottom {
     margin-top: 32px;
     padding-top: 24px;
     border-top: 1px solid var(--border);
     font-size: 0.8125rem;
-    color: var(--subtle);
+    color: var(--muted);
     line-height: 1.6;
+    font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
   }
   @media (max-width: 640px) {
-    footer {
-      margin-top: 48px;
-    }
-    .footer-inner {
-      padding: 40px 16px;
-    }
+    footer { margin-top: 48px; }
+    .footer-inner { padding: 40px 16px; }
     .footer-top {
       flex-direction: column;
       align-items: flex-start;
       gap: 16px;
     }
-    .footer-nav {
-      margin-left: -12px;
-    }
+    .footer-nav { margin-left: -12px; }
   }
 """
 
@@ -282,7 +273,8 @@ _ARTICLE_CSS = """
     align-items: center;
     flex-wrap: wrap;
     gap: 12px;
-    font-size: 0.875rem;
+    font-size: 0.85rem;
+    font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
     color: var(--muted);
     line-height: 1;
   }
@@ -291,18 +283,16 @@ _ARTICLE_CSS = """
     align-items: center;
     gap: 6px;
   }
-  .article-header__meta-sep {
-    color: var(--border);
-  }
+  .article-header__meta-sep { color: var(--border); }
   .kw-badge {
     font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    color: var(--accent);
-    background: var(--accent-light);
+    color: var(--text);
+    background: var(--border);
     padding: 4px 8px;
-    border-radius: 6px;
+    border-radius: 4px;
   }
   .article-body {
     font-size: 1.0625rem;
@@ -318,8 +308,8 @@ _ARTICLE_CSS = """
     letter-spacing: -0.02em;
     line-height: 1.3;
     margin: 56px 0 24px;
-    border-left: 3px solid var(--accent);
-    padding-left: 16px;
+    border-bottom: 2px solid var(--text);
+    padding-bottom: 8px;
   }
   .article-body h3 {
     font-size: 1.25rem;
@@ -329,20 +319,13 @@ _ARTICLE_CSS = """
     line-height: 1.4;
     margin: 40px 0 16px;
   }
-  .article-body p {
-    margin: 0 0 24px;
-  }
-  .article-body ul,
-  .article-body ol {
+  .article-body p { margin: 0 0 24px; }
+  .article-body ul, .article-body ol {
     margin: 0 0 24px;
     padding-left: 24px;
   }
-  .article-body li {
-    margin-bottom: 8px;
-  }
-  .article-body li::marker {
-    color: var(--muted);
-  }
+  .article-body li { margin-bottom: 8px; }
+  .article-body li::marker { color: var(--muted); font-weight: bold; }
   .article-body a {
     color: var(--accent);
     text-decoration: underline;
@@ -351,42 +334,46 @@ _ARTICLE_CSS = """
     transition: color 0.15s ease, text-decoration-color 0.15s ease;
   }
   .article-body a:hover {
-    color: var(--accent-h);
-    text-decoration-color: var(--accent-h);
+    color: var(--text);
+    text-decoration-color: var(--text);
   }
+  
+  /* Utilitarian Blockquote */
   .article-body blockquote {
     margin: 32px 0;
-    padding: 24px;
-    background: var(--surface);
+    padding: 20px 24px;
+    background: var(--bg);
     border: 1px solid var(--border);
-    border-left: 3px solid var(--accent);
-    border-radius: 0 var(--r) var(--r) 0;
+    border-left: 4px solid var(--text);
     color: var(--text);
     font-size: 1.0625rem;
-    font-style: italic;
+    font-style: normal;
     line-height: 1.72;
   }
-  .article-body blockquote p:last-child {
-    margin-bottom: 0;
-  }
+  .article-body blockquote p:last-child { margin-bottom: 0; }
+  
+  /* Micro-details: Inline Code vs Preformatted Code */
   .article-body code {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: 0.875em;
-    background: var(--surface);
+    font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+    font-size: 0.85em;
+    background: #f4f4f5;
     border: 1px solid var(--border);
     color: var(--text);
-    padding: 2px 6px;
-    border-radius: 4px;
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
   }
   .article-body pre {
-    background: var(--text);
-    color: var(--border);
+    background: #18181b;
+    color: #e4e4e7;
     border-radius: var(--r);
-    padding: 24px;
-    overflow-x: auto;
+    padding: 20px 24px;
     margin: 32px 0;
-    font-size: 0.875rem;
+    font-size: 0.85rem;
     line-height: 1.6;
+    border: 1px solid #3f3f46;
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
   .article-body pre code {
     background: transparent;
@@ -395,6 +382,8 @@ _ARTICLE_CSS = """
     padding: 0;
     font-size: inherit;
   }
+  
+  /* Micro-details: Image & Table Responsiveness */
   .article-body img {
     max-width: 100%;
     height: auto;
@@ -405,30 +394,34 @@ _ARTICLE_CSS = """
   }
   .article-body table {
     width: 100%;
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
     border-collapse: collapse;
     margin: 32px 0;
-    font-size: 0.9375rem;
+    font-size: 0.9rem;
+    border: 1px solid var(--border);
+  }
+  .article-body th, .article-body td {
+    padding: 12px 16px;
+    border: 1px solid var(--border);
+    color: var(--text);
   }
   .article-body th {
-    text-align: left;
+    background: var(--bg);
     font-weight: 600;
-    color: var(--muted);
+    text-align: left;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     font-size: 0.8125rem;
-    border-bottom: 2px solid var(--border);
-    padding: 12px 16px;
-  }
-  .article-body td {
-    padding: 12px 16px;
-    border-bottom: 1px solid var(--border);
-    color: var(--text);
   }
   .article-body hr {
     border: none;
     border-top: 1px solid var(--border);
     margin: 56px 0;
   }
+  
   .share-box {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -444,56 +437,38 @@ _ARTICLE_CSS = """
     letter-spacing: 0.05em;
     margin-bottom: 16px;
   }
-  .share-buttons {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-  }
+  .share-buttons { display: flex; flex-wrap: wrap; gap: 12px; }
   .share-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 0 16px;
-    border-radius: 6px;
-    font-size: 0.875rem;
-    font-weight: 500;
-    text-decoration: none;
-    cursor: pointer;
-    border: 1px solid var(--border);
-    background: var(--surface);
-    color: var(--text);
-    min-height: 44px;
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 0 16px; border-radius: var(--r);
+    font-size: 0.875rem; font-weight: 500; text-decoration: none;
+    cursor: pointer; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text); min-height: 44px;
     transition: background 0.15s ease, border-color 0.15s ease;
   }
-  .share-btn:hover {
-    background: var(--bg);
-    border-color: var(--muted);
-  }
-  .comments-box {
-    margin-bottom: 48px;
-  }
+  .share-btn:hover { background: var(--bg); border-color: var(--muted); }
+  .comments-box { margin-bottom: 48px; }
   .comments-box h2 {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: var(--text);
-    margin-bottom: 24px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid var(--border);
+    font-size: 1.25rem; font-weight: 700; color: var(--text);
+    margin-bottom: 24px; padding-bottom: 16px; border-bottom: 2px solid var(--text);
   }
+  
   @media (max-width: 640px) {
-    .article-wrap {
-      padding: 0 16px;
-    }
-    .article-header {
-      padding: 40px 0 32px;
-    }
-    .article-body {
-      font-size: 1rem;
-    }
+    .article-wrap { padding: 0 16px; }
+    .article-header { padding: 40px 0 32px; }
+    .article-body { font-size: 1rem; }
     .article-body pre {
       margin: 32px -16px;
       border-radius: 0;
-      padding: 20px 16px;
+      border-left: none;
+      border-right: none;
+    }
+    .article-body table {
+      margin: 32px -16px;
+      width: calc(100% + 32px);
+      border-left: none;
+      border-right: none;
+      border-radius: 0;
     }
   }
 """
@@ -501,40 +476,24 @@ _ARTICLE_CSS = """
 _TOOL_CSS = ""  # CSS disediakan oleh wrap_tool_html — tidak dipakai standalone
 
 _RELATED_CSS = """
-  /* ── RELATED CONTENT ── */
   .related-content { margin-bottom: 32px; }
   .related-heading {
-    font-size: .75rem;
-    font-weight: 600;
-    color: var(--subtle);
-    text-transform: uppercase;
-    letter-spacing: .05em;
-    margin-bottom: 10px;
-    margin-top: 20px;
+    font-size: .75rem; font-weight: 600; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .05em;
+    margin-bottom: 12px; margin-top: 24px;
   }
   .related-heading:first-child { margin-top: 0; }
   .related-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+    list-style: none; margin: 0; padding: 0;
+    display: flex; flex-direction: column; gap: 8px;
   }
   .related-list li a {
-    font-size: .875rem;
-    color: var(--accent);
-    text-decoration: none;
-    display: block;
-    padding: 8px 12px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 7px;
-    transition: border-color .15s;
+    font-size: .9rem; color: var(--text); text-decoration: none;
+    display: block; padding: 12px 16px; background: var(--surface);
+    border: 1px solid var(--border); border-radius: var(--r);
+    transition: border-color .15s, background .15s;
   }
-  .related-list li a:hover {
-    border-color: var(--accent);
-  }
+  .related-list li a:hover { border-color: var(--text); background: var(--bg); }
 """
 
 _RELATED_JS = """<script>
@@ -773,12 +732,6 @@ def wrap_article_html(body_html: str, slug: str) -> str:
             <meta name="cluster"> dan/atau <meta name="description">
             sebelum <h1>)
     Output: full HTML page siap publish
-
-    Judul diambil otomatis dari tag <h1> pertama.
-    Cluster diambil dari <meta name="cluster"> jika ada.
-    Meta description diambil dari <meta name="description"> jika ada,
-    fallback ke judul jika tidak ada.
-    Kedua meta tag dihapus dari body sebelum render.
     """
     # Ekstrak cluster_id
     cluster_match = re.search(
@@ -813,18 +766,6 @@ def wrap_article_html(body_html: str, slug: str) -> str:
         body_html = (body_html[:h1_match.start()]
                      + body_html[h1_match.end():]).lstrip("\n")
 
-    # ── Postprocess: patch formula highlight div ─────────────────────────────
-    # Tambah overflow-x:auto pada inline-styled formula box yang dihasilkan Claude.
-    # Regex ini spesifik ke warna #0f172a agar tidak mengenai div lain.
-    body_html = re.sub(
-        r'(style="background:#0f172a;color:#e2e8f0;[^"]*)"',
-        lambda m: m.group(1) + (
-            ";overflow-x:auto;white-space:pre-wrap"
-            if "overflow-x" not in m.group(1) else ""
-        ) + '"',
-        body_html
-    )
-
     title_clean = re.sub(r'<[^>]+>', '', title).strip()
     word_count  = len(re.sub(r'<[^>]+>', '', body_html).split())
 
@@ -848,22 +789,6 @@ def wrap_article_html(body_html: str, slug: str) -> str:
 def wrap_tool_html(body_html: str, slug: str) -> str:
     """
     Bungkus body tool/kalkulator ke full HTML page.
-    Input : body HTML saja — boleh diawali <meta name="cluster">
-            sebelum <h1>. Tanpa <html>/<head>/<style>.
-            Gunakan CSS class yang tersedia di bawah.
-    Output: full HTML page siap publish
-
-    CSS classes yang tersedia:
-    .card, .card h2
-    .input-group, label, .input-wrapper, .input-prefix
-    input[type="number"]
-    .result-card, .result-label, .result-number, .result-unit
-    .interpretation, .secondary-result
-    .formula-box, .formula-box h3, .formula-box p
-    .affiliate-box, .affiliate-box a
-    .related-link, .related-link a
-    .subtitle
-    .faq, .faq h3, .faq details, .faq summary, .faq .faq-answer
     """
     # Ekstrak cluster_id dari meta tag
     cluster_match = re.search(
@@ -901,8 +826,6 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
         meta_desc = f"{title_clean}. Free calculator for bootstrapped SaaS founders."
 
     # ── FAQPage JSON-LD schema ────────────────────────────────────────────────
-    # Ekstrak pasangan <summary>/<div class="faq-answer"> dari body_html.
-    # Diinjeksikan ke <head> untuk rich snippet Google.
     faq_schema = ""
     faq_pairs = re.findall(
         r'<summary[^>]*>(.*?)</summary>.*?<div[^>]*class=["\']faq-answer["\'][^>]*>(.*?)</div>',
@@ -949,21 +872,21 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
 {_NAV_CSS}
 
     /* ── LAYOUT ── */
-    .container {{ max-width: 680px; margin: 0 auto; padding: 40px 20px 80px; }}
+    .container {{ max-width: 680px; margin: 0 auto; padding: 48px 24px 80px; }}
 
     /* ── TYPOGRAPHY ── */
     h1 {{
-      font-size: clamp(1.5rem, 4vw, 1.9rem);
+      font-size: clamp(1.75rem, 4vw, 2.25rem);
       font-weight: 700;
       letter-spacing: -.03em;
       color: var(--text);
-      margin-bottom: 6px;
+      margin-bottom: 8px;
     }}
     .subtitle {{
       color: var(--muted);
-      font-size: .95rem;
-      margin-bottom: 28px;
-      line-height: 1.5;
+      font-size: 1.0625rem;
+      margin-bottom: 40px;
+      line-height: 1.6;
     }}
 
     /* ── CARD ── */
@@ -971,235 +894,205 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--r);
-      padding: 24px;
-      margin-bottom: 14px;
+      padding: 32px;
+      margin-bottom: 24px;
     }}
     .card h2 {{
-      font-size: .9rem;
+      font-size: .875rem;
       font-weight: 600;
-      color: var(--muted);
+      color: var(--text);
       text-transform: uppercase;
       letter-spacing: .05em;
-      margin-bottom: 20px;
+      margin-bottom: 24px;
+      border-bottom: 2px solid var(--text);
+      padding-bottom: 8px;
     }}
 
-    /* ── INPUTS ── */
-    .input-group {{ margin-bottom: 18px; }}
+    /* ── INPUTS (UTILITARIAN BRUTALISM) ── */
+    .input-group {{ margin-bottom: 20px; }}
     .input-group:last-child {{ margin-bottom: 0; }}
     label {{
       display: block;
-      font-size: .85rem;
-      font-weight: 500;
+      font-size: .875rem;
+      font-weight: 600;
       color: var(--text);
-      margin-bottom: 7px;
+      margin-bottom: 8px;
     }}
     .input-wrapper {{ position: relative; }}
     .input-prefix {{
       position: absolute;
-      left: 13px;
+      left: 14px;
       top: 50%;
       transform: translateY(-50%);
       color: var(--muted);
-      font-size: .9rem;
+      font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+      font-size: 1rem;
       pointer-events: none;
       font-weight: 500;
     }}
     input[type="number"] {{
       width: 100%;
-      padding: 10px 14px 10px 30px;
-      border: 1.5px solid var(--border);
-      border-radius: 8px;
-      font-size: 1rem;
+      padding: 12px 14px 12px 32px;
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      font-size: 16px !important; /* CRITICAL: Mencegah iOS Auto-Zoom */
+      font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
       color: var(--text);
-      background: var(--surface);
-      font-family: inherit;
-      transition: border-color .15s, box-shadow .15s;
+      background: var(--bg);
+      transition: border-color .15s, outline .15s;
       -moz-appearance: textfield;
     }}
     input[type="number"]::-webkit-outer-spin-button,
     input[type="number"]::-webkit-inner-spin-button {{ -webkit-appearance: none; }}
     input[type="number"]:focus {{
-      outline: none;
+      outline: 2px solid var(--accent);
+      outline-offset: -1px;
       border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(79,70,229,.1);
+      background: var(--surface);
     }}
     input[type="number"].error-input {{ border-color: var(--danger); }}
     .error-msg {{
       color: var(--danger);
-      font-size: .75rem;
-      margin-top: 4px;
+      font-size: .8125rem;
+      margin-top: 6px;
       display: none;
     }}
 
-    /* ── RESULT ── */
+    /* ── RESULT (HIGH CONTRAST) ── */
     .result-card {{
-      background: var(--accent-light);
-      border: 1.5px solid rgba(79,70,229,.2);
+      background: var(--surface);
+      border: 2px solid var(--text);
       border-radius: var(--r);
-      padding: 28px 24px 24px;
-      margin-bottom: 14px;
+      padding: 32px;
+      margin-bottom: 24px;
     }}
     .result-label {{
-      font-size: .75rem;
+      font-size: .8125rem;
       font-weight: 600;
-      color: var(--accent);
+      color: var(--muted);
       text-transform: uppercase;
       letter-spacing: .06em;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
     }}
     .result-number {{
-      font-size: 3.5rem;
+      font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+      font-size: clamp(2.5rem, 6vw, 4rem);
       font-weight: 700;
-      color: var(--accent);
+      color: var(--text);
       line-height: 1;
-      letter-spacing: -.04em;
-      margin-bottom: 2px;
+      letter-spacing: -.05em;
+      margin-bottom: 8px;
     }}
     .result-unit {{
-      font-size: .875rem;
-      color: var(--accent);
-      opacity: .7;
-      margin-bottom: 16px;
+      font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+      font-size: 1rem;
+      color: var(--muted);
+      margin-bottom: 24px;
     }}
     .interpretation {{
-      background: var(--surface);
-      border-radius: 8px;
-      padding: 12px 16px;
-      font-size: .875rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--text);
+      border-radius: 0 var(--r) var(--r) 0;
+      padding: 16px 20px;
+      font-size: 0.9375rem;
       color: var(--text);
-      line-height: 1.5;
-      border-left: 3px solid var(--accent);
+      line-height: 1.6;
     }}
-    .interpretation.danger {{
-      border-color: var(--danger);
-      background: var(--danger-bg);
-    }}
-    .interpretation.warning {{
-      border-color: var(--warning);
-      background: var(--warning-bg);
-    }}
-    .interpretation.healthy {{
-      border-color: var(--success);
-      background: var(--success-bg);
-    }}
+    .interpretation.danger {{ border-color: var(--danger); background: var(--danger-bg); }}
+    .interpretation.warning {{ border-color: var(--warning); background: var(--warning-bg); }}
+    .interpretation.healthy {{ border-color: var(--success); background: var(--success-bg); }}
     .secondary-result {{
-      margin-top: 12px;
-      font-size: .8rem;
+      margin-top: 16px;
+      font-size: .875rem;
+      font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
       color: var(--muted);
     }}
 
     /* ── FORMULA BOX ── */
     .formula-box {{
-      background: var(--surface);
+      background: var(--bg);
       border: 1px solid var(--border);
       border-radius: var(--r);
-      padding: 20px 24px;
-      margin-bottom: 14px;
+      padding: 24px;
+      margin-bottom: 24px;
     }}
     .formula-box h3 {{
       font-size: .75rem;
       font-weight: 600;
-      color: var(--subtle);
+      color: var(--text);
       text-transform: uppercase;
       letter-spacing: .06em;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }}
     .formula-box p {{
-      font-size: .875rem;
-      color: var(--muted);
+      font-size: 0.875rem;
+      color: var(--text);
       line-height: 1.7;
-      font-family: 'SFMono-Regular', Consolas, monospace;
+      font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
     }}
 
     /* ── AFFILIATE BOX ── */
     .affiliate-box {{
-      background: var(--success-bg);
-      border: 1px solid rgba(16,185,129,.25);
-      border-radius: var(--r);
-      padding: 16px 20px;
-      margin-bottom: 14px;
-      font-size: .875rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--success);
+      border-radius: 0 var(--r) var(--r) 0;
+      padding: 20px 24px;
+      margin-bottom: 24px;
+      font-size: 0.9375rem;
       color: var(--text);
       line-height: 1.6;
     }}
     .affiliate-box a {{
       color: var(--success);
-      font-weight: 500;
+      font-weight: 600;
       text-decoration: underline;
       text-decoration-color: rgba(16,185,129,.4);
     }}
-    .affiliate-box a:hover {{ color: #059669; }}
+    .affiliate-box a:hover {{ color: #059669; text-decoration-color: #059669; }}
 
     /* ── RELATED LINK ── */
-    .related-link {{
-      font-size: .85rem;
-      color: var(--muted);
-      padding: 12px 0;
-    }}
-    .related-link a {{
-      color: var(--accent);
-      text-decoration: underline;
-      text-decoration-color: rgba(79,70,229,.3);
-      font-weight: 500;
-    }}
+    .related-link {{ font-size: .9375rem; color: var(--muted); padding: 16px 0; }}
+    .related-link a {{ color: var(--accent); text-decoration: underline; font-weight: 500; }}
     .related-link a:hover {{ color: var(--accent-h); }}
 
     /* ── FAQ ── */
-    .faq {{ margin-top: 32px; }}
+    .faq {{ margin-top: 48px; }}
     .faq h3 {{
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--text);
-      letter-spacing: -.01em;
-      margin-bottom: 12px;
+      font-size: 1.25rem; font-weight: 700; color: var(--text);
+      letter-spacing: -.02em; margin-bottom: 20px;
+      border-bottom: 2px solid var(--text); padding-bottom: 8px;
     }}
     .faq details {{
       border: 1px solid var(--border);
-      border-radius: 8px;
-      margin-bottom: 8px;
-      overflow: hidden;
+      border-radius: var(--r);
+      margin-bottom: 12px;
+      background: var(--surface);
     }}
     .faq summary {{
-      padding: 14px 16px;
-      font-size: .9rem;
-      font-weight: 500;
-      color: var(--text);
-      cursor: pointer;
-      list-style: none;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: var(--surface);
+      padding: 16px 20px; font-size: 1rem; font-weight: 600; color: var(--text);
+      cursor: pointer; list-style: none; display: flex;
+      justify-content: space-between; align-items: center;
     }}
     .faq summary::-webkit-details-marker {{ display: none; }}
     .faq summary::after {{
-      content: '+';
-      font-size: 1.1rem;
-      color: var(--muted);
-      font-weight: 300;
-      flex-shrink: 0;
-      margin-left: 12px;
+      content: '+'; font-size: 1.2rem; color: var(--muted);
+      font-weight: 300; flex-shrink: 0; margin-left: 16px; font-family: monospace;
     }}
     .faq details[open] > summary::after {{ content: '−'; }}
-    .faq details[open] > summary {{
-      background: var(--accent-light);
-      color: var(--accent);
-    }}
+    .faq details[open] > summary {{ border-bottom: 1px solid var(--border); background: var(--bg); }}
     .faq .faq-answer {{
-      padding: 12px 16px 14px;
-      font-size: .875rem;
-      color: var(--muted);
-      line-height: 1.7;
-      border-top: 1px solid var(--border);
-      background: var(--surface);
+      padding: 20px; font-size: 0.9375rem; color: var(--muted);
+      line-height: 1.7; background: var(--surface);
     }}
 
 {_RELATED_CSS}
 {_FOOTER_CSS}
 
-    @media (max-width: 600px) {{
-      .container {{ padding: 28px 16px 60px; }}
-      .result-number {{ font-size: 2.75rem; }}
+    @media (max-width: 640px) {{
+      .container {{ padding: 32px 16px 64px; }}
+      .card, .result-card, .formula-box, .affiliate-box {{ padding: 20px; }}
     }}
   </style>
   {_ANALYTICS}{faq_schema}
