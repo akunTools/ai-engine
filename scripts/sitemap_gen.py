@@ -1115,4 +1115,3 @@ if __name__ == "__main__":
     prune_content_index(files)
 
     print("Done")
-
