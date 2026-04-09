@@ -26,19 +26,14 @@ _FONT = (
 
 # ── Analytics beacon — injected ke semua halaman ──────────────────────────────
 _ANALYTICS = (
-    "<!-- Cloudflare Web Analytics -->"
+    ""
     "<script defer src='https://static.cloudflareinsights.com/beacon.min.js'"
     " data-cf-beacon='{\"token\": \"5833f90d78f645e0819abedd665e5d93\"}'>"
     "</script>"
-    "<!-- End Cloudflare Web Analytics -->"
+    ""
 )
 
 # ── Affiliate click tracker — injected ke semua halaman ──────────────────────
-# Mendeteksi klik pada link cloudways.com yang mengandung ?id= (affiliate link)
-# dan mengirim custom event ke Cloudflare Web Analytics.
-# Event name : "affiliate_click"
-# Properties : affiliate (string), page (path halaman saat klik terjadi)
-# Tidak memerlukan penandaan manual pada link — deteksi otomatis via selector.
 _AFFILIATE_TRACKER_JS = """<script>
 (function () {
   document.addEventListener('click', function (e) {
@@ -88,18 +83,16 @@ _BASE_CSS = """
   a:hover { color: var(--accent-h); }
 """
 
-# ── Updated: 10.9 design session ──────────────────────────────────────────────
 _NAV_CSS = """
-  nav.site-nav {
+  nav.site-nav, body > nav {{
     position: sticky;
     top: 0;
     z-index: 100;
     background: var(--surface);
     border-bottom: 1px solid var(--border);
     box-shadow: var(--shadow);
-  }
-
-  .nav-inner {
+  }}
+  .nav-inner {{
     max-width: 1120px;
     margin: 0 auto;
     padding: 0 24px;
@@ -107,82 +100,70 @@ _NAV_CSS = """
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 24px;
-  }
-
-  .nav-brand {
+  }}
+  .nav-brand {{
     font-size: 1.125rem;
     font-weight: 700;
     color: var(--text);
     text-decoration: none;
     letter-spacing: -0.02em;
-    flex-shrink: 0;
-    line-height: 56px;
-  }
-
-  .nav-brand:hover {
-    color: var(--text);
-  }
-
-  .brand-accent {
-    color: var(--accent);
-  }
-
-  .nav-links {
     display: flex;
     align-items: center;
-    gap: 4px;
-  }
-
-  .nav-links a {
-    font-size: 0.9rem;
+    min-height: 44px;
+  }}
+  .brand-accent {{
+    color: var(--accent);
+  }}
+  .nav-links {{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }}
+  .nav-links a {{
+    font-size: 0.875rem;
     font-weight: 500;
     color: var(--muted);
     text-decoration: none;
-    padding: 6px 12px;
-    border-radius: 6px;
-    transition: color 0.15s, background 0.15s;
+    padding: 0 12px;
     min-height: 44px;
     display: flex;
     align-items: center;
-  }
-
-  .nav-links a:hover {
+    border-radius: 6px;
+    transition: color 0.15s ease, background 0.15s ease;
+  }}
+  .nav-links a:hover {{
     color: var(--text);
     background: var(--bg);
-  }
-
-  .nav-links a.active {
+  }}
+  .nav-links a.active {{
     color: var(--accent);
     background: var(--accent-light);
-  }
-
-  .nav-back {
+  }}
+  .nav-back {{
     font-size: 0.875rem;
     font-weight: 500;
     color: var(--muted);
     text-decoration: none;
     display: flex;
     align-items: center;
-    gap: 4px;
-    padding: 6px 0;
+    gap: 6px;
     min-height: 44px;
-    transition: color 0.15s;
-  }
-
-  .nav-back:hover {
-    color: var(--accent);
-  }
-
-  @media (max-width: 640px) {
-    .nav-inner {
+    padding: 0 8px;
+    border-radius: 6px;
+    transition: color 0.15s ease;
+  }}
+  .nav-back:hover {{
+    color: var(--text);
+    background: var(--bg);
+  }}
+  @media (max-width: 640px) {{
+    .nav-inner {{
       padding: 0 16px;
-    }
-
-    .nav-links a {
-      padding: 6px 8px;
-    }
-  }
+    }}
+    .nav-links a {{
+      padding: 0 8px;
+    }}
+  }}
 """
 
 _FOOTER_HTML = """<footer>
@@ -201,329 +182,324 @@ _FOOTER_HTML = """<footer>
   </div>
 </footer>"""
 
-# ── Updated: 10.9 design session ──────────────────────────────────────────────
 _FOOTER_CSS = """
-  footer {
+  footer {{
     background: var(--surface);
     border-top: 1px solid var(--border);
     margin-top: 80px;
-  }
-
-  .footer-inner {
+  }}
+  .footer-inner {{
     max-width: 1120px;
     margin: 0 auto;
-    padding: 0 24px;
-  }
-
-  .footer-top {
+    padding: 48px 24px;
+  }}
+  .footer-top {{
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 24px;
-    padding: 28px 0 20px;
-  }
-
-  .footer-brand {
-    font-size: 1rem;
+  }}
+  .footer-brand {{
+    font-size: 1.0625rem;
     font-weight: 700;
     color: var(--text);
     text-decoration: none;
     letter-spacing: -0.02em;
-  }
-
-  .footer-brand:hover {
-    color: var(--text);
-  }
-
-  .footer-accent {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+  }}
+  .footer-accent {{
     color: var(--accent);
-  }
-
-  .footer-nav {
+  }}
+  .footer-nav {{
     display: flex;
     align-items: center;
     gap: 4px;
-  }
-
-  .footer-nav a {
+  }}
+  .footer-nav a {{
     font-size: 0.875rem;
     font-weight: 500;
     color: var(--muted);
     text-decoration: none;
-    padding: 6px 10px;
-    border-radius: 6px;
+    padding: 0 12px;
     min-height: 44px;
     display: flex;
     align-items: center;
-    transition: color 0.15s;
-  }
-
-  .footer-nav a:hover {
-    color: var(--accent);
-  }
-
-  .footer-bottom {
+    border-radius: 6px;
+    transition: color 0.15s ease;
+  }}
+  .footer-nav a:hover {{
+    color: var(--text);
+  }}
+  .footer-bottom {{
+    margin-top: 32px;
+    padding-top: 24px;
     border-top: 1px solid var(--border);
-    padding: 16px 0 24px;
     font-size: 0.8125rem;
     color: var(--subtle);
-    line-height: 1.5;
-  }
-
-  @media (max-width: 640px) {
-    .footer-inner {
-      padding: 0 16px;
-    }
-
-    .footer-top {
+    line-height: 1.6;
+  }}
+  @media (max-width: 640px) {{
+    footer {{
+      margin-top: 48px;
+    }}
+    .footer-inner {{
+      padding: 40px 16px;
+    }}
+    .footer-top {{
       flex-direction: column;
       align-items: flex-start;
-      gap: 12px;
-      padding: 24px 0 16px;
-    }
-
-    .footer-nav {
-      gap: 0;
-    }
-
-    .footer-nav a {
-      padding: 6px 8px;
-    }
-  }
+      gap: 16px;
+    }}
+    .footer-nav {{
+      margin-left: -12px;
+    }}
+  }}
 """
 
-# ── New: 10.9 design session + validation fix 1 (h2 border-left) ──────────────
 _ARTICLE_CSS = """
-  /* ── Article page shell ────────────────────────── */
-  .article-wrap {
-    max-width: 700px;
+  .article-wrap {{
+    max-width: 680px;
     margin: 0 auto;
     padding: 0 24px;
-  }
-
-  /* ── Article header ────────────────────────────── */
-  .article-header {
-    padding: 56px 0 32px;
+  }}
+  .article-header {{
+    padding: 64px 0 40px;
     border-bottom: 1px solid var(--border);
-    margin-bottom: 40px;
-  }
-
-  .article-header__title {
-    font-size: clamp(1.625rem, 3.5vw, 2.25rem);
+    margin-bottom: 48px;
+  }}
+  .article-header__title {{
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
     font-weight: 700;
     color: var(--text);
-    line-height: 1.2;
-    letter-spacing: -0.025em;
-    margin: 0 0 16px;
-  }
-
-  .article-header__meta {
+    line-height: 1.25;
+    letter-spacing: -0.03em;
+    margin: 0 0 24px;
+  }}
+  .article-header__meta {{
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: 8px;
-    font-size: 0.8125rem;
-    color: var(--subtle);
+    gap: 12px;
+    font-size: 0.875rem;
+    color: var(--muted);
     line-height: 1;
-  }
-
-  .article-header__meta-sep {
+  }}
+  .article-header__meta span {{
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }}
+  .article-header__meta-sep {{
     color: var(--border);
-  }
-
-  .kw-badge {
-    display: inline-block;
-    font-size: 0.6875rem;
+  }}
+  .kw-badge {{
+    font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.06em;
     color: var(--accent);
     background: var(--accent-light);
-    padding: 3px 8px;
-    border-radius: 4px;
-  }
-
-  /* ── Article body typography ───────────────────── */
-  .article-body {
-    font-size: 1rem;
+    padding: 4px 8px;
+    border-radius: 6px;
+  }}
+  .article-body {{
+    font-size: 1.0625rem;
     line-height: 1.72;
     color: var(--text);
-    max-width: 660px;
     overflow-wrap: break-word;
     word-break: break-word;
-  }
-
-  .article-body img {
-    max-width: 100%;
-    height: auto;
-    border-radius: var(--r);
-    display: block;
-    margin: 24px 0;
-  }
-
-  .article-body h2 {
-    font-size: 1.375rem;
+  }}
+  .article-body h2 {{
+    font-size: 1.5rem;
     font-weight: 700;
     color: var(--text);
     letter-spacing: -0.02em;
-    line-height: 1.25;
-    margin: 48px 0 16px;
-    border-left: 3px solid var(--accent);
-    padding-left: 12px;
-  }
-
-  .article-body h3 {
-    font-size: 1.125rem;
-    font-weight: 700;
-    color: var(--text);
-    letter-spacing: -0.015em;
     line-height: 1.3;
-    margin: 36px 0 12px;
-  }
-
-  .article-body p {
-    margin: 0 0 20px;
-  }
-
+    margin: 56px 0 24px;
+    border-left: 3px solid var(--accent);
+    padding-left: 16px;
+  }}
+  .article-body h3 {{
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.01em;
+    line-height: 1.4;
+    margin: 40px 0 16px;
+  }}
+  .article-body p {{
+    margin: 0 0 24px;
+  }}
   .article-body ul,
-  .article-body ol {
-    margin: 0 0 20px;
+  .article-body ol {{
+    margin: 0 0 24px;
     padding-left: 24px;
-  }
-
-  .article-body li {
+  }}
+  .article-body li {{
     margin-bottom: 8px;
-  }
-
-  .article-body li::marker {
-    color: var(--accent);
-  }
-
-  .article-body a {
+  }}
+  .article-body li::marker {{
+    color: var(--muted);
+  }}
+  .article-body a {{
     color: var(--accent);
     text-decoration: underline;
-    text-underline-offset: 3px;
+    text-underline-offset: 4px;
     text-decoration-thickness: 1px;
-    transition: color 0.15s;
-  }
-
-  .article-body a:hover {
+    transition: color 0.15s ease, text-decoration-color 0.15s ease;
+  }}
+  .article-body a:hover {{
     color: var(--accent-h);
-  }
-
-  .article-body blockquote {
-    margin: 28px 0;
-    padding: 16px 20px;
+    text-decoration-color: var(--accent-h);
+  }}
+  .article-body blockquote {{
+    margin: 32px 0;
+    padding: 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
     border-left: 3px solid var(--accent);
-    background: var(--accent-light);
     border-radius: 0 var(--r) var(--r) 0;
-    color: var(--muted);
-    font-size: 0.9375rem;
-    line-height: 1.65;
-  }
-
-  .article-body blockquote p {
-    margin: 0;
-  }
-
-  .article-body code {
-    font-family: "JetBrains Mono", "Fira Mono", monospace;
+    color: var(--text);
+    font-size: 1.0625rem;
+    font-style: italic;
+    line-height: 1.72;
+  }}
+  .article-body blockquote p:last-child {{
+    margin-bottom: 0;
+  }}
+  .article-body code {{
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-size: 0.875em;
-    background: var(--accent-light);
-    color: var(--accent);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
     padding: 2px 6px;
     border-radius: 4px;
-  }
-
-  .article-body pre {
+  }}
+  .article-body pre {{
     background: var(--text);
     color: var(--border);
     border-radius: var(--r);
-    padding: 20px 24px;
+    padding: 24px;
     overflow-x: auto;
-    margin: 24px 0;
+    margin: 32px 0;
     font-size: 0.875rem;
-    line-height: 1.65;
-  }
-
-  .article-body pre code {
+    line-height: 1.6;
+  }}
+  .article-body pre code {{
     background: transparent;
+    border: none;
     color: inherit;
     padding: 0;
     font-size: inherit;
-    border-radius: 0;
-  }
-
-  .article-body table {
+  }}
+  .article-body img {{
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--r);
+    border: 1px solid var(--border);
     display: block;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    min-width: 100%;
+    margin: 40px 0;
+  }}
+  .article-body table {{
+    width: 100%;
     border-collapse: collapse;
-    margin: 24px 0;
-    font-size: 0.9rem;
-  }
-
-  .article-body th {
+    margin: 32px 0;
+    font-size: 0.9375rem;
+  }}
+  .article-body th {{
     text-align: left;
     font-weight: 600;
-    font-size: 0.8125rem;
+    color: var(--muted);
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: var(--muted);
+    font-size: 0.8125rem;
     border-bottom: 2px solid var(--border);
-    padding: 10px 12px;
-    white-space: nowrap;
-  }
-
-  .article-body td {
-    padding: 10px 12px;
+    padding: 12px 16px;
+  }}
+  .article-body td {{
+    padding: 12px 16px;
     border-bottom: 1px solid var(--border);
     color: var(--text);
-    vertical-align: top;
-    white-space: nowrap;
-  }
-
-  .article-body tr:last-child td {
-    border-bottom: none;
-  }
-
-  .article-body hr {
+  }}
+  .article-body hr {{
     border: none;
     border-top: 1px solid var(--border);
-    margin: 40px 0;
-  }
-
-  @media (max-width: 640px) {
-    .article-wrap {
+    margin: 56px 0;
+  }}
+  .share-box {{
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 32px;
+    margin: 56px 0 48px;
+  }}
+  .share-label {{
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--text);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 16px;
+  }}
+  .share-buttons {{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }}
+  .share-btn {{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 16px;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    min-height: 44px;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }}
+  .share-btn:hover {{
+    background: var(--bg);
+    border-color: var(--muted);
+  }}
+  .comments-box {{
+    margin-bottom: 48px;
+  }}
+  .comments-box h2 {{
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }}
+  @media (max-width: 640px) {{
+    .article-wrap {{
       padding: 0 16px;
-    }
-
-    .article-header {
-      padding: 40px 0 24px;
-    }
-
-    .article-body pre {
-      padding: 16px;
-      margin: 16px -16px;
+    }}
+    .article-header {{
+      padding: 40px 0 32px;
+    }}
+    .article-body {{
+      font-size: 1rem;
+    }}
+    .article-body pre {{
+      margin: 32px -16px;
       border-radius: 0;
-    }
-
-    .article-body table {
-      font-size: 0.8125rem;
-      /* display:block + overflow-x:auto sudah di-set di atas — tetap berlaku */
-    }
-
-    .article-body th,
-    .article-body td {
-      padding: 8px;
-    }
-  }
+      padding: 20px 16px;
+    }}
+  }}
 """
 
 _TOOL_CSS = ""  # CSS disediakan oleh wrap_tool_html — tidak dipakai standalone
 
-# ── Fixed: {{ }} → { } (plain string, bukan f-string) ─────────────────────────
 _RELATED_CSS = """
   /* ── RELATED CONTENT ── */
   .related-content { margin-bottom: 32px; }
@@ -561,7 +537,6 @@ _RELATED_CSS = """
   }
 """
 
-# ── Fixed: {{ }} → { } (plain string, bukan f-string) ─────────────────────────
 _RELATED_JS = """<script>
 (function() {
   var meta    = document.querySelector('meta[name="cluster"]');
@@ -661,78 +636,11 @@ def _build_article_html(fm: dict, body_html: str,
 {_BASE_CSS}
 {_NAV_CSS}
 {_ARTICLE_CSS}
-
-    /* ── ARTICLE PAGE: vertical padding ── */
-    .article-wrap {{ padding-top: 48px; padding-bottom: 48px; }}
-
-    /* ── SHARE BOX ── */
-    .share-box {{
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--r);
-      padding: 24px;
-      margin-bottom: 48px;
-    }}
-    .share-label {{
-      font-size: .75rem;
-      font-weight: 600;
-      color: var(--subtle);
-      text-transform: uppercase;
-      letter-spacing: .05em;
-      margin-bottom: 14px;
-    }}
-    .share-buttons {{ display: flex; flex-wrap: wrap; gap: 8px; }}
-    .share-btn {{
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      padding: 8px 16px;
-      border-radius: 8px;
-      font-size: .82rem;
-      font-weight: 500;
-      text-decoration: none;
-      cursor: pointer;
-      border: 1px solid transparent;
-      transition: all .15s;
-      font-family: inherit;
-      min-height: 44px;
-    }}
-    .share-btn.x-btn {{ background: #000; color: white; }}
-    .share-btn.x-btn:hover {{ background: #111; color: white; }}
-    .share-btn.li-btn {{ background: #0a66c2; color: white; }}
-    .share-btn.li-btn:hover {{ background: #004182; color: white; }}
-    .share-btn.copy-btn {{
-      background: var(--bg);
-      color: var(--text);
-      border-color: var(--border);
-    }}
-    .share-btn.copy-btn:hover {{ border-color: var(--accent); color: var(--accent); }}
-    .share-btn.copy-btn.copied {{
-      background: var(--success-bg);
-      color: var(--success);
-      border-color: var(--success);
-    }}
-
-    /* ── COMMENTS BOX ── */
-    .comments-box {{ margin-bottom: 24px; }}
-    .comments-box h2 {{
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: 20px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid var(--border);
-    }}
-
 {_RELATED_CSS}
 {_FOOTER_CSS}
 
     /* ── FOOTER: override global margin-top for article page ── */
     footer {{ margin-top: 0; }}
-
-    @media (max-width: 640px) {{
-      .article-wrap {{ padding-top: 32px; padding-bottom: 40px; }}
-    }}
   </style>
   {_ANALYTICS}
 </head>
@@ -1321,4 +1229,3 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
 
 </body>
 </html>"""
-
