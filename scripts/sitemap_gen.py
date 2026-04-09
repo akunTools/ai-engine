@@ -127,24 +127,22 @@ _AFFILIATE_TRACKER_JS = """<script>
 _BASE_CSS = """
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
-    --bg:           #f7f6f3;
+    --bg:           #fafafa;
     --surface:      #ffffff;
     --text:         #18181b;
-    --muted:        #71717a;
+    --muted:        #52525b;
     --subtle:       #a1a1aa;
     --border:       #e4e4e7;
-    --accent:       #4f46e5;
-    --accent-h:     #4338ca;
-    --accent-light: #eef2ff;
-    --danger:       #ef4444;
+    --accent:       #2563eb;
+    --accent-h:     #1d4ed8;
+    --accent-light: #eff6ff;
+    --danger:       #dc2626;
     --danger-bg:    #fef2f2;
-    --warning:      #f59e0b;
+    --warning:      #d97706;
     --warning-bg:   #fffbeb;
-    --success:      #10b981;
+    --success:      #059669;
     --success-bg:   #f0fdf4;
-    --r:            10px;
-    --shadow:       0 1px 3px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.04);
-    --shadow-md:    0 4px 16px rgba(0,0,0,.08);
+    --r:            4px;
   }
   body {
     font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -155,6 +153,12 @@ _BASE_CSS = """
   }
   a { color: var(--accent); text-decoration: none; }
   a:hover { color: var(--accent-h); }
+  
+  /* Global Focus State for Accessibility */
+  *:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
 """
 
 _NAV_CSS = """
@@ -164,7 +168,6 @@ _NAV_CSS = """
     z-index: 100;
     background: var(--surface);
     border-bottom: 1px solid var(--border);
-    box-shadow: var(--shadow);
   }
   .nav-inner {
     max-width: 1120px;
@@ -191,7 +194,7 @@ _NAV_CSS = """
   .nav-links {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 4px;
   }
   .nav-links a {
     font-size: 0.875rem;
@@ -202,7 +205,7 @@ _NAV_CSS = """
     min-height: 44px;
     display: flex;
     align-items: center;
-    border-radius: 6px;
+    border-radius: var(--r);
     transition: color 0.15s ease, background 0.15s ease;
   }
   .nav-links a:hover {
@@ -212,6 +215,7 @@ _NAV_CSS = """
   .nav-links a.active {
     color: var(--accent);
     background: var(--accent-light);
+    border: 1px solid #bfdbfe;
   }
   .nav-back {
     font-size: 0.875rem;
@@ -223,7 +227,7 @@ _NAV_CSS = """
     gap: 6px;
     min-height: 44px;
     padding: 0 8px;
-    border-radius: 6px;
+    border-radius: var(--r);
     transition: color 0.15s ease;
   }
   .nav-back:hover {
@@ -231,18 +235,14 @@ _NAV_CSS = """
     background: var(--bg);
   }
   @media (max-width: 640px) {
-    .nav-inner {
-      padding: 0 16px;
-    }
-    .nav-links a {
-      padding: 0 8px;
-    }
+    .nav-inner { padding: 0 16px; }
+    .nav-links a { padding: 0 8px; }
   }
 """
 
 _FOOTER_CSS = """
   footer {
-    background: var(--surface);
+    background: var(--bg);
     border-top: 1px solid var(--border);
     margin-top: 80px;
   }
@@ -267,9 +267,7 @@ _FOOTER_CSS = """
     align-items: center;
     min-height: 44px;
   }
-  .footer-accent {
-    color: var(--accent);
-  }
+  .footer-accent { color: var(--accent); }
   .footer-nav {
     display: flex;
     align-items: center;
@@ -284,35 +282,28 @@ _FOOTER_CSS = """
     min-height: 44px;
     display: flex;
     align-items: center;
-    border-radius: 6px;
+    border-radius: var(--r);
     transition: color 0.15s ease;
   }
-  .footer-nav a:hover {
-    color: var(--text);
-  }
+  .footer-nav a:hover { color: var(--text); }
   .footer-bottom {
     margin-top: 32px;
     padding-top: 24px;
     border-top: 1px solid var(--border);
     font-size: 0.8125rem;
-    color: var(--subtle);
+    color: var(--muted);
     line-height: 1.6;
+    font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
   }
   @media (max-width: 640px) {
-    footer {
-      margin-top: 48px;
-    }
-    .footer-inner {
-      padding: 40px 16px;
-    }
+    footer { margin-top: 48px; }
+    .footer-inner { padding: 40px 16px; }
     .footer-top {
       flex-direction: column;
       align-items: flex-start;
       gap: 16px;
     }
-    .footer-nav {
-      margin-left: -12px;
-    }
+    .footer-nav { margin-left: -12px; }
   }
 """
 
@@ -329,10 +320,11 @@ _HOMEPAGE_CSS = """
   .hero__eyebrow {
     display: block;
     font-size: 0.75rem;
+    font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
     font-weight: 600;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
-    color: var(--accent);
+    color: var(--muted);
     margin-bottom: 16px;
   }
   .hero h1 {
@@ -359,18 +351,21 @@ _HOMEPAGE_CSS = """
     justify-content: space-between;
     gap: 16px;
     margin-bottom: 24px;
+    border-bottom: 2px solid var(--text);
+    padding-bottom: 12px;
   }
   .section-header__meta {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 4px;
   }
   .section-label {
     font-size: 0.75rem;
+    font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
     font-weight: 600;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
-    color: var(--accent);
+    color: var(--muted);
   }
   .section-title {
     font-size: 1.25rem;
@@ -387,20 +382,21 @@ _HOMEPAGE_CSS = """
     text-decoration: none;
     display: flex;
     align-items: center;
-    min-height: 44px;
+    min-height: 32px;
     padding: 0 8px;
     margin-right: -8px;
-    border-radius: 6px;
+    border-radius: var(--r);
     transition: color 0.15s ease, background 0.15s ease;
   }
   .section-see-all:hover {
     color: var(--accent-h);
     background: var(--accent-light);
   }
+  
+  /* Article List Styles */
   .article-list {
     display: flex;
     flex-direction: column;
-    border-top: 1px solid var(--border);
   }
   .article-item {
     display: flex;
@@ -415,6 +411,8 @@ _HOMEPAGE_CSS = """
   }
   .article-item:hover .article-item__title {
     color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 2px;
   }
   .article-item__left {
     display: flex;
@@ -425,7 +423,7 @@ _HOMEPAGE_CSS = """
   }
   .article-item__title {
     font-size: 1rem;
-    font-weight: 500;
+    font-weight: 600;
     color: var(--text);
     line-height: 1.4;
     transition: color 0.15s ease;
@@ -439,12 +437,15 @@ _HOMEPAGE_CSS = """
     text-overflow: ellipsis;
   }
   .article-item__date {
-    font-size: 0.875rem;
-    color: var(--subtle);
+    font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+    font-size: 0.8125rem;
+    color: var(--muted);
     white-space: nowrap;
     flex-shrink: 0;
-    padding-top: 2px;
+    padding-top: 4px;
   }
+  
+  /* Tools Grid Styles */
   .tools-grid {
     display: grid;
     gap: 20px;
@@ -460,13 +461,12 @@ _HOMEPAGE_CSS = """
     border-radius: var(--r);
     text-decoration: none;
     color: inherit;
-    box-shadow: var(--shadow);
-    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+    transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
   }
   .tool-card:hover {
+    border-color: var(--text);
     transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-    border-color: var(--accent);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.04);
   }
   .tool-card__icon {
     font-size: 1.5rem;
@@ -484,12 +484,15 @@ _HOMEPAGE_CSS = """
     color: var(--muted);
     line-height: 1.5;
   }
+  
+  /* Utilitarian Hosting Nudge */
   .hosting-nudge {
     margin-top: 64px;
     padding: 24px 32px;
-    background: var(--surface);
+    background: var(--bg);
     border: 1px solid var(--border);
-    border-radius: var(--r);
+    border-left: 4px solid var(--text);
+    border-radius: 0 var(--r) var(--r) 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -497,59 +500,58 @@ _HOMEPAGE_CSS = """
   }
   .hosting-nudge__text {
     font-size: 0.9375rem;
-    color: var(--muted);
+    color: var(--text);
     line-height: 1.6;
     margin: 0;
   }
   .hosting-nudge__text strong {
     color: var(--text);
-    font-weight: 600;
+    font-weight: 700;
   }
   .hosting-nudge__link {
     font-size: 0.875rem;
     font-weight: 600;
-    color: var(--accent);
-    background: var(--accent-light);
+    color: var(--surface);
+    background: var(--text);
     text-decoration: none;
     padding: 0 20px;
     min-height: 44px;
     display: flex;
     align-items: center;
-    border-radius: 6px;
+    border-radius: var(--r);
     white-space: nowrap;
     flex-shrink: 0;
-    transition: background 0.15s ease, color 0.15s ease;
+    transition: background 0.15s ease;
   }
   .hosting-nudge__link:hover {
-    background: var(--accent);
-    color: var(--surface);
+    background: var(--muted);
   }
+  
   @media (max-width: 899px) {
     .tools-grid {
       grid-template-columns: repeat(2, 1fr);
     }
   }
   @media (max-width: 640px) {
-    .home-wrap {
-      padding: 0 16px;
-    }
-    .hero {
-      padding: 48px 0 40px;
-    }
-    .tools-grid {
-      grid-template-columns: 1fr;
-    }
+    .home-wrap { padding: 0 16px; }
+    .hero { padding: 48px 0 40px; }
+    .tools-grid { grid-template-columns: 1fr; }
     .article-item {
       flex-direction: column;
       gap: 8px;
     }
     .article-item__date {
       padding-top: 0;
+      width: 100%;
     }
     .hosting-nudge {
       flex-direction: column;
       align-items: flex-start;
       padding: 24px;
+    }
+    .hosting-nudge__link {
+      width: 100%;
+      justify-content: center;
     }
   }
 """
@@ -562,15 +564,16 @@ _INDEX_CSS = """
   }
   .index-header {
     padding: 64px 0 48px;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 2px solid var(--text);
   }
   .index-label {
     display: block;
     font-size: 0.75rem;
+    font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
     font-weight: 600;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
-    color: var(--accent);
+    color: var(--muted);
     margin-bottom: 16px;
   }
   .index-title {
@@ -596,15 +599,9 @@ _INDEX_CSS = """
     margin-top: 0;
   }
   @media (max-width: 640px) {
-    .index-wrap {
-      padding: 0 16px;
-    }
-    .index-header {
-      padding: 40px 0 32px;
-    }
-    .index-content {
-      padding: 32px 0 0;
-    }
+    .index-wrap { padding: 0 16px; }
+    .index-header { padding: 40px 0 32px; }
+    .index-content { padding: 32px 0 0; }
   }
 """
 
@@ -636,7 +633,7 @@ _FOOTER = """<footer>
       </nav>
     </div>
     <div class="footer-bottom">
-      Free calculators and guides for bootstrapped founders.
+      Built for bootstrapped founders. No VC fluff.
     </div>
   </div>
 </footer>"""
