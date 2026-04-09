@@ -84,15 +84,15 @@ _BASE_CSS = """
 """
 
 _NAV_CSS = """
-  nav.site-nav, body > nav {{
+  nav.site-nav, body > nav {
     position: sticky;
     top: 0;
     z-index: 100;
     background: var(--surface);
     border-bottom: 1px solid var(--border);
     box-shadow: var(--shadow);
-  }}
-  .nav-inner {{
+  }
+  .nav-inner {
     max-width: 1120px;
     margin: 0 auto;
     padding: 0 24px;
@@ -100,8 +100,8 @@ _NAV_CSS = """
     display: flex;
     align-items: center;
     justify-content: space-between;
-  }}
-  .nav-brand {{
+  }
+  .nav-brand {
     font-size: 1.125rem;
     font-weight: 700;
     color: var(--text);
@@ -110,16 +110,16 @@ _NAV_CSS = """
     display: flex;
     align-items: center;
     min-height: 44px;
-  }}
-  .brand-accent {{
+  }
+  .brand-accent {
     color: var(--accent);
-  }}
-  .nav-links {{
+  }
+  .nav-links {
     display: flex;
     align-items: center;
     gap: 8px;
-  }}
-  .nav-links a {{
+  }
+  .nav-links a {
     font-size: 0.875rem;
     font-weight: 500;
     color: var(--muted);
@@ -130,16 +130,16 @@ _NAV_CSS = """
     align-items: center;
     border-radius: 6px;
     transition: color 0.15s ease, background 0.15s ease;
-  }}
-  .nav-links a:hover {{
+  }
+  .nav-links a:hover {
     color: var(--text);
     background: var(--bg);
-  }}
-  .nav-links a.active {{
+  }
+  .nav-links a.active {
     color: var(--accent);
     background: var(--accent-light);
-  }}
-  .nav-back {{
+  }
+  .nav-back {
     font-size: 0.875rem;
     font-weight: 500;
     color: var(--muted);
@@ -151,19 +151,19 @@ _NAV_CSS = """
     padding: 0 8px;
     border-radius: 6px;
     transition: color 0.15s ease;
-  }}
-  .nav-back:hover {{
+  }
+  .nav-back:hover {
     color: var(--text);
     background: var(--bg);
-  }}
-  @media (max-width: 640px) {{
-    .nav-inner {{
+  }
+  @media (max-width: 640px) {
+    .nav-inner {
       padding: 0 16px;
-    }}
-    .nav-links a {{
+    }
+    .nav-links a {
       padding: 0 8px;
-    }}
-  }}
+    }
+  }
 """
 
 _FOOTER_HTML = """<footer>
@@ -183,23 +183,23 @@ _FOOTER_HTML = """<footer>
 </footer>"""
 
 _FOOTER_CSS = """
-  footer {{
+  footer {
     background: var(--surface);
     border-top: 1px solid var(--border);
     margin-top: 80px;
-  }}
-  .footer-inner {{
+  }
+  .footer-inner {
     max-width: 1120px;
     margin: 0 auto;
     padding: 48px 24px;
-  }}
-  .footer-top {{
+  }
+  .footer-top {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 24px;
-  }}
-  .footer-brand {{
+  }
+  .footer-brand {
     font-size: 1.0625rem;
     font-weight: 700;
     color: var(--text);
@@ -208,16 +208,16 @@ _FOOTER_CSS = """
     display: flex;
     align-items: center;
     min-height: 44px;
-  }}
-  .footer-accent {{
+  }
+  .footer-accent {
     color: var(--accent);
-  }}
-  .footer-nav {{
+  }
+  .footer-nav {
     display: flex;
     align-items: center;
     gap: 4px;
-  }}
-  .footer-nav a {{
+  }
+  .footer-nav a {
     font-size: 0.875rem;
     font-weight: 500;
     color: var(--muted);
@@ -228,56 +228,56 @@ _FOOTER_CSS = """
     align-items: center;
     border-radius: 6px;
     transition: color 0.15s ease;
-  }}
-  .footer-nav a:hover {{
+  }
+  .footer-nav a:hover {
     color: var(--text);
-  }}
-  .footer-bottom {{
+  }
+  .footer-bottom {
     margin-top: 32px;
     padding-top: 24px;
     border-top: 1px solid var(--border);
     font-size: 0.8125rem;
     color: var(--subtle);
     line-height: 1.6;
-  }}
-  @media (max-width: 640px) {{
-    footer {{
+  }
+  @media (max-width: 640px) {
+    footer {
       margin-top: 48px;
-    }}
-    .footer-inner {{
+    }
+    .footer-inner {
       padding: 40px 16px;
-    }}
-    .footer-top {{
+    }
+    .footer-top {
       flex-direction: column;
       align-items: flex-start;
       gap: 16px;
-    }}
-    .footer-nav {{
+    }
+    .footer-nav {
       margin-left: -12px;
-    }}
-  }}
+    }
+  }
 """
 
 _ARTICLE_CSS = """
-  .article-wrap {{
+  .article-wrap {
     max-width: 680px;
     margin: 0 auto;
     padding: 0 24px;
-  }}
-  .article-header {{
+  }
+  .article-header {
     padding: 64px 0 40px;
     border-bottom: 1px solid var(--border);
     margin-bottom: 48px;
-  }}
-  .article-header__title {{
+  }
+  .article-header__title {
     font-size: clamp(1.75rem, 4vw, 2.5rem);
     font-weight: 700;
     color: var(--text);
     line-height: 1.25;
     letter-spacing: -0.03em;
     margin: 0 0 24px;
-  }}
-  .article-header__meta {{
+  }
+  .article-header__meta {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
@@ -285,16 +285,16 @@ _ARTICLE_CSS = """
     font-size: 0.875rem;
     color: var(--muted);
     line-height: 1;
-  }}
-  .article-header__meta span {{
+  }
+  .article-header__meta span {
     display: flex;
     align-items: center;
     gap: 6px;
-  }}
-  .article-header__meta-sep {{
+  }
+  .article-header__meta-sep {
     color: var(--border);
-  }}
-  .kw-badge {{
+  }
+  .kw-badge {
     font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
@@ -303,15 +303,15 @@ _ARTICLE_CSS = """
     background: var(--accent-light);
     padding: 4px 8px;
     border-radius: 6px;
-  }}
-  .article-body {{
+  }
+  .article-body {
     font-size: 1.0625rem;
     line-height: 1.72;
     color: var(--text);
     overflow-wrap: break-word;
     word-break: break-word;
-  }}
-  .article-body h2 {{
+  }
+  .article-body h2 {
     font-size: 1.5rem;
     font-weight: 700;
     color: var(--text);
@@ -320,41 +320,41 @@ _ARTICLE_CSS = """
     margin: 56px 0 24px;
     border-left: 3px solid var(--accent);
     padding-left: 16px;
-  }}
-  .article-body h3 {{
+  }
+  .article-body h3 {
     font-size: 1.25rem;
     font-weight: 600;
     color: var(--text);
     letter-spacing: -0.01em;
     line-height: 1.4;
     margin: 40px 0 16px;
-  }}
-  .article-body p {{
+  }
+  .article-body p {
     margin: 0 0 24px;
-  }}
+  }
   .article-body ul,
-  .article-body ol {{
+  .article-body ol {
     margin: 0 0 24px;
     padding-left: 24px;
-  }}
-  .article-body li {{
+  }
+  .article-body li {
     margin-bottom: 8px;
-  }}
-  .article-body li::marker {{
+  }
+  .article-body li::marker {
     color: var(--muted);
-  }}
-  .article-body a {{
+  }
+  .article-body a {
     color: var(--accent);
     text-decoration: underline;
     text-underline-offset: 4px;
     text-decoration-thickness: 1px;
     transition: color 0.15s ease, text-decoration-color 0.15s ease;
-  }}
-  .article-body a:hover {{
+  }
+  .article-body a:hover {
     color: var(--accent-h);
     text-decoration-color: var(--accent-h);
-  }}
-  .article-body blockquote {{
+  }
+  .article-body blockquote {
     margin: 32px 0;
     padding: 24px;
     background: var(--surface);
@@ -365,11 +365,11 @@ _ARTICLE_CSS = """
     font-size: 1.0625rem;
     font-style: italic;
     line-height: 1.72;
-  }}
-  .article-body blockquote p:last-child {{
+  }
+  .article-body blockquote p:last-child {
     margin-bottom: 0;
-  }}
-  .article-body code {{
+  }
+  .article-body code {
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-size: 0.875em;
     background: var(--surface);
@@ -377,8 +377,8 @@ _ARTICLE_CSS = """
     color: var(--text);
     padding: 2px 6px;
     border-radius: 4px;
-  }}
-  .article-body pre {{
+  }
+  .article-body pre {
     background: var(--text);
     color: var(--border);
     border-radius: var(--r);
@@ -387,29 +387,29 @@ _ARTICLE_CSS = """
     margin: 32px 0;
     font-size: 0.875rem;
     line-height: 1.6;
-  }}
-  .article-body pre code {{
+  }
+  .article-body pre code {
     background: transparent;
     border: none;
     color: inherit;
     padding: 0;
     font-size: inherit;
-  }}
-  .article-body img {{
+  }
+  .article-body img {
     max-width: 100%;
     height: auto;
     border-radius: var(--r);
     border: 1px solid var(--border);
     display: block;
     margin: 40px 0;
-  }}
-  .article-body table {{
+  }
+  .article-body table {
     width: 100%;
     border-collapse: collapse;
     margin: 32px 0;
     font-size: 0.9375rem;
-  }}
-  .article-body th {{
+  }
+  .article-body th {
     text-align: left;
     font-weight: 600;
     color: var(--muted);
@@ -418,38 +418,38 @@ _ARTICLE_CSS = """
     font-size: 0.8125rem;
     border-bottom: 2px solid var(--border);
     padding: 12px 16px;
-  }}
-  .article-body td {{
+  }
+  .article-body td {
     padding: 12px 16px;
     border-bottom: 1px solid var(--border);
     color: var(--text);
-  }}
-  .article-body hr {{
+  }
+  .article-body hr {
     border: none;
     border-top: 1px solid var(--border);
     margin: 56px 0;
-  }}
-  .share-box {{
+  }
+  .share-box {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--r);
     padding: 32px;
     margin: 56px 0 48px;
-  }}
-  .share-label {{
+  }
+  .share-label {
     font-size: 0.8125rem;
     font-weight: 600;
     color: var(--text);
     text-transform: uppercase;
     letter-spacing: 0.05em;
     margin-bottom: 16px;
-  }}
-  .share-buttons {{
+  }
+  .share-buttons {
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
-  }}
-  .share-btn {{
+  }
+  .share-btn {
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -464,38 +464,38 @@ _ARTICLE_CSS = """
     color: var(--text);
     min-height: 44px;
     transition: background 0.15s ease, border-color 0.15s ease;
-  }}
-  .share-btn:hover {{
+  }
+  .share-btn:hover {
     background: var(--bg);
     border-color: var(--muted);
-  }}
-  .comments-box {{
+  }
+  .comments-box {
     margin-bottom: 48px;
-  }}
-  .comments-box h2 {{
+  }
+  .comments-box h2 {
     font-size: 1.25rem;
     font-weight: 700;
     color: var(--text);
     margin-bottom: 24px;
     padding-bottom: 16px;
     border-bottom: 1px solid var(--border);
-  }}
-  @media (max-width: 640px) {{
-    .article-wrap {{
+  }
+  @media (max-width: 640px) {
+    .article-wrap {
       padding: 0 16px;
-    }}
-    .article-header {{
+    }
+    .article-header {
       padding: 40px 0 32px;
-    }}
-    .article-body {{
+    }
+    .article-body {
       font-size: 1rem;
-    }}
-    .article-body pre {{
+    }
+    .article-body pre {
       margin: 32px -16px;
       border-radius: 0;
       padding: 20px 16px;
-    }}
-  }}
+    }
+  }
 """
 
 _TOOL_CSS = ""  # CSS disediakan oleh wrap_tool_html — tidak dipakai standalone
