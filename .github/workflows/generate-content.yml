@@ -56,6 +56,13 @@ jobs:
           BRAIN_REPO:   akunTools/ai-brain
         run: python scripts/run_pipeline.py
 
+      - name: Rebuild Indexes & Sitemap
+        if: steps.pipeline.outcome == 'success'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ENGINE_REPO:  ${{ github.repository }}
+        run: python scripts/sitemap_gen.py
+
       - name: Kirim email notifikasi sukses
         if: steps.pipeline.outcome == 'success'
         uses: dawidd6/action-send-mail@v4
@@ -128,6 +135,13 @@ jobs:
           ENGINE_REPO:  ${{ github.repository }}
           BRAIN_REPO:   akunTools/ai-brain
         run: python scripts/run_pipeline.py
+
+      - name: Rebuild Indexes & Sitemap
+        if: steps.pipeline.outcome == 'success'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ENGINE_REPO:  ${{ github.repository }}
+        run: python scripts/sitemap_gen.py
 
       - name: Kirim email notifikasi sukses
         if: steps.pipeline.outcome == 'success'
