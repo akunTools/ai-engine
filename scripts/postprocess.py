@@ -173,6 +173,7 @@ _FOOTER_HTML = """<footer>
       <nav class="footer-nav">
         <a href="/articles/">Articles</a>
         <a href="/tools/">Tools</a>
+        <a href="/about.html">About</a>
         <a href="/privacy">Privacy</a>
       </nav>
     </div>
