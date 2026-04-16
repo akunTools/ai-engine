@@ -5,53 +5,67 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>404: Page Not Found — SaaS Tools</title>
   <meta name="robots" content="noindex, follow">
+  
   <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="shortcut icon" href="/favicon.ico" />
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
   <link rel="manifest" href="/site.webmanifest" />
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+  
   <style>
+    /* CSS Identik dengan sitemap_gen.py */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root { --bg: #fafafa; --surface: #ffffff; --text: #18181b; --muted: #52525b; --border: #e4e4e7; --accent: #2563eb; --accent-h: #1d4ed8; --r: 4px; }
-    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; display: flex; flex-direction: column; min-height: 100vh; }
+    :root {
+      --bg:           #fafafa;
+      --surface:      #ffffff;
+      --text:         #18181b;
+      --muted:        #52525b;
+      --subtle:       #a1a1aa;
+      --border:       #e4e4e7;
+      --accent:       #2563eb;
+      --accent-h:     #1d4ed8;
+      --accent-light: #eff6ff;
+      --r:            4px;
+    }
+    body { font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; -webkit-font-smoothing: antialiased; display: flex; flex-direction: column; min-height: 100vh; }
     a { color: var(--accent); text-decoration: none; }
     a:hover { color: var(--accent-h); }
-    nav.site-nav { position: sticky; top: 0; z-index: 100; background: var(--surface); border-bottom: 1px solid var(--border); }
+    *:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    nav.site-nav, body > nav { position: sticky; top: 0; z-index: 100; background: var(--surface); border-bottom: 1px solid var(--border); }
     .nav-inner { max-width: 1120px; margin: 0 auto; padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; }
-    .nav-brand { font-size: 1.125rem; font-weight: 700; color: var(--text); display: flex; align-items: center; }
+    .nav-brand { font-size: 1.125rem; font-weight: 700; color: var(--text); text-decoration: none; letter-spacing: -0.02em; display: flex; align-items: center; min-height: 44px; }
     .brand-accent { color: var(--accent); }
-    .nav-links { display: flex; gap: 4px; }
-    .nav-links a { font-size: 0.875rem; font-weight: 500; color: var(--muted); padding: 0 12px; min-height: 44px; display: flex; align-items: center; border-radius: var(--r); }
+    .nav-links { display: flex; align-items: center; gap: 4px; }
+    .nav-links a { font-size: 0.875rem; font-weight: 500; color: var(--muted); text-decoration: none; padding: 0 12px; min-height: 44px; display: flex; align-items: center; border-radius: var(--r); transition: color 0.15s ease, background 0.15s ease; }
     .nav-links a:hover { color: var(--text); background: var(--bg); }
-    
-    .error-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 80px 24px; }
-    .error-code { font-family: "SFMono-Regular", Consolas, monospace; font-size: 4rem; font-weight: 700; color: var(--text); line-height: 1; margin-bottom: 16px; letter-spacing: -0.05em; }
-    .error-title { font-size: 1.5rem; font-weight: 700; color: var(--text); margin-bottom: 16px; }
-    .error-desc { font-size: 1.0625rem; color: var(--muted); max-width: 400px; margin: 0 auto 32px; }
-    .back-btn { display: inline-flex; align-items: center; padding: 0 24px; min-height: 48px; background: var(--text); color: var(--surface); font-weight: 600; font-size: 0.9375rem; border-radius: var(--r); transition: background 0.15s; }
-    .back-btn:hover { background: var(--muted); color: var(--surface); }
+    @media (max-width: 640px) { .nav-inner { padding: 0 16px; } .nav-links a { padding: 0 8px; } }
 
     footer { background: var(--bg); border-top: 1px solid var(--border); margin-top: auto; }
     .footer-inner { max-width: 1120px; margin: 0 auto; padding: 48px 24px; }
     .footer-top { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
-    .footer-brand { font-size: 1.0625rem; font-weight: 700; color: var(--text); }
-    .footer-nav { display: flex; gap: 4px; }
-    .footer-nav a { font-size: 0.875rem; font-weight: 500; color: var(--muted); padding: 0 12px; min-height: 44px; display: flex; align-items: center; border-radius: var(--r); }
+    .footer-brand { font-size: 1.0625rem; font-weight: 700; color: var(--text); text-decoration: none; letter-spacing: -0.02em; display: flex; align-items: center; min-height: 44px; }
+    .footer-accent { color: var(--accent); }
+    .footer-nav { display: flex; align-items: center; gap: 4px; }
+    .footer-nav a { font-size: 0.875rem; font-weight: 500; color: var(--muted); text-decoration: none; padding: 0 12px; min-height: 44px; display: flex; align-items: center; border-radius: var(--r); transition: color 0.15s ease; }
     .footer-nav a:hover { color: var(--text); }
-    .footer-bottom { margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border); font-size: 0.8125rem; color: var(--muted); font-family: monospace; }
-    
-    @media (max-width: 640px) {
-      .footer-top { flex-direction: column; align-items: flex-start; gap: 16px; }
-      .footer-nav { margin-left: -12px; flex-wrap: wrap; }
-    }
+    .footer-bottom { margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border); font-size: 0.8125rem; color: var(--muted); line-height: 1.6; font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace; }
+    @media (max-width: 640px) { footer { margin-top: 48px; } .footer-inner { padding: 40px 16px; } .footer-top { flex-direction: column; align-items: flex-start; gap: 16px; } .footer-nav { margin-left: -12px; flex-wrap: wrap; } }
+
+    .error-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 80px 24px; }
+    .error-code { font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace; font-size: 4rem; font-weight: 700; color: var(--text); line-height: 1; margin-bottom: 16px; letter-spacing: -0.05em; }
+    .error-title { font-size: 1.5rem; font-weight: 700; color: var(--text); margin-bottom: 16px; }
+    .error-desc { font-size: 1.0625rem; color: var(--muted); max-width: 400px; margin: 0 auto 32px; }
+    .back-btn { display: inline-flex; align-items: center; padding: 0 24px; min-height: 48px; background: var(--text); color: var(--surface); font-weight: 600; font-size: 0.9375rem; border-radius: var(--r); transition: background 0.15s; }
+    .back-btn:hover { background: var(--muted); color: var(--surface); }
   </style>
 </head>
 <body>
-
-  <nav class="site-nav">
+  <nav>
     <div class="nav-inner">
       <a href="/" class="nav-brand">SaaS<span class="brand-accent">Tools</span></a>
       <div class="nav-links">
@@ -71,10 +85,11 @@
   <footer>
     <div class="footer-inner">
       <div class="footer-top">
-        <a href="/" class="footer-brand">SaaS<span class="brand-accent">Tools</span></a>
+        <a href="/" class="footer-brand">SaaS<span class="footer-accent">Tools</span></a>
         <nav class="footer-nav">
           <a href="/articles/">Articles</a>
           <a href="/tools/">Tools</a>
+          <a href="/about.html">About</a>
           <a href="/privacy">Privacy</a>
         </nav>
       </div>
@@ -83,6 +98,5 @@
       </div>
     </div>
   </footer>
-
 </body>
 </html>
