@@ -590,6 +590,11 @@ def _build_article_html(fm: dict, body_html: str,
   <meta name="twitter:title" content="{title}">
   <meta name="twitter:image" content="{site_url}/og/{slug}.png">
   <link rel="canonical" href="{article_url}">
+  <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="shortcut icon" href="/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
   {_FONT}
   <style>
 {_BASE_CSS}
@@ -866,6 +871,11 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
   <meta name="description" content="{meta_desc}">
   {cluster_meta}
   <link rel="canonical" href="{tool_url}">
+  <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="shortcut icon" href="/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
   {_FONT}
   <style>
 {_BASE_CSS}
