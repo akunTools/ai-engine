@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About Us — SaaS Tools</title>
+  <meta name="description" content="20 years of web development experience distilled into practical, bias-free financial calculators for bootstrapped SaaS founders.">
+  <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="shortcut icon" href="/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+  <link rel="canonical" href="https://saas.blogtrick.eu.org/about.html">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:           #f7f6f3;
+      --surface:      #ffffff;
+      --text:         #18181b;
+      --muted:        #71717a;
+      --subtle:       #a1a1aa;
+      --border:       #e4e4e7;
+      --accent:       #4f46e5;
+      --accent-h:     #4338ca;
+      --accent-light: #eef2ff;
+      --r:            10px;
+      --shadow:       0 1px 3px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.04);
+    }
+    body {
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      display: flex; flex-direction: column; min-height: 100vh;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { color: var(--accent-h); }
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+    .nav-inner {
+      max-width: 1120px; margin: 0 auto; padding: 0 24px;
+      height: 56px; display: flex; align-items: center;
+      justify-content: space-between;
+    }
+    .nav-brand {
+      font-size: 1.125rem; font-weight: 700; color: var(--text);
+      text-decoration: none; letter-spacing: -0.02em;
+    }
+    .brand-accent { color: var(--accent); }
+    .nav-links { display: flex; align-items: center; gap: 4px; }
+    .nav-links a {
+      font-size: 0.875rem; font-weight: 500; color: var(--muted);
+      padding: 6px 12px; border-radius: 6px; min-height: 44px;
+      display: inline-flex; align-items: center;
+      transition: color 0.15s, background 0.15s;
+    }
+    .nav-links a:hover { color: var(--text); background: var(--bg); }
+    
+    .page-wrap { max-width: 680px; margin: 0 auto; padding: 56px 24px 80px; flex: 1; }
+    .page-header {
+      padding-bottom: 32px; border-bottom: 1px solid var(--border);
+      margin-bottom: 40px;
+    }
+    .page-header h1 {
+      font-size: clamp(1.5rem, 3.5vw, 2rem); font-weight: 700;
+      letter-spacing: -0.025em; color: var(--text); margin-bottom: 8px;
+    }
+    .page-header p { font-size: 1.0625rem; color: var(--muted); }
+    
+    .prose h2 {
+      font-size: 1.125rem; font-weight: 700; color: var(--text);
+      letter-spacing: -0.02em; margin: 40px 0 12px;
+      padding-bottom: 8px; border-bottom: 1px solid var(--border);
+    }
+    .prose h2:first-child { margin-top: 0; }
+    .prose p { font-size: 0.9375rem; color: var(--text); line-height: 1.75; margin-bottom: 16px; }
+    .prose strong { color: var(--text); font-weight: 700; }
+    .prose a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+
+    footer { background: var(--surface); border-top: 1px solid var(--border); margin-top: auto; }
+    .footer-inner { max-width: 1120px; margin: 0 auto; padding: 40px 24px; }
+    .footer-top { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+    .footer-brand {
+      font-weight: 700; font-size: 1.0625rem; letter-spacing: -0.02em;
+      color: var(--text); text-decoration: none;
+    }
+    .footer-accent { color: var(--accent); }
+    .footer-nav { display: flex; align-items: center; gap: 2px; }
+    .footer-nav a {
+      font-size: 0.875rem; font-weight: 500; color: var(--muted);
+      padding: 0 10px; min-height: 44px; display: inline-flex;
+      align-items: center; border-radius: 6px; transition: color 0.15s;
+    }
+    .footer-nav a:hover { color: var(--text); }
+    .footer-bottom {
+      margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border);
+      font-size: 0.8125rem; color: var(--subtle); line-height: 1.55;
+    }
+    @media (max-width: 640px) {
+      .page-wrap { padding: 40px 16px 60px; }
+      .nav-inner { padding: 0 16px; }
+      .footer-inner { padding: 32px 16px; }
+      .footer-top { flex-direction: column; align-items: flex-start; gap: 8px; }
+    }
+  </style>
+  <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "5833f90d78f645e0819abedd665e5d93"}'></script>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-brand">SaaS<span class="brand-accent">Tools</span></a>
+    <div class="nav-links">
+      <a href="/articles/">Articles</a>
+      <a href="/tools/">Tools</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-wrap">
+  <header class="page-header">
+    <h1>The Engineering Behind the Metrics</h1>
+    <p>20 years of web development experience distilled into ruthless, mathematical truths.</p>
+  </header>
+
+  <div class="prose">
+    <h2>The Journey</h2>
+    <p>I wrote my first line of production code two decades ago. Since then, I've watched the web evolve from static HTML pages into massive, complex SaaS ecosystems. I've witnessed the dot-com aftermath, the Web 2.0 craze, and the endless "growth-at-all-costs" era heavily funded by Venture Capitalists.</p>
+    <p>Through it all, one truth remains: the most resilient businesses aren't the ones burning millions on vanity PR. They are the <strong>bootstrapped SaaS companies</strong>. They are built by founders and engineers who obsess over unit economics, server infrastructure, and actual profitability.</p>
+
+    <h2>Why I Built SaaS Tools</h2>
+    <p>Most SaaS advice online is written for venture-backed startups with infinite runways. When you are bootstrapping, that advice is dangerous. Every dollar, every unmanaged server crash, and every churned customer directly impacts your livelihood.</p>
+    <p>I built this platform to provide clear, utilitarian calculators and guides to help founders make financial decisions without the guesswork. The tools here are not generic marketing widgets—they are battle-tested engineering frameworks designed to give you the brutal, honest numbers about your break-even points, burn rate, and scaling costs.</p>
+
+    <h2>Our Alignment with You</h2>
+    <p>As detailed in our <a href="/privacy">Privacy Policy</a>, this site is built with a strict <strong>Privacy-First</strong> philosophy. Having been a developer for 20 years, I despise invasive surveillance tracking. That’s why SaaS Tools uses no tracking cookies, requires no logins, and doesn't sell your data.</p>
+    <p>To keep the platform free, independent, and ad-free, we partner exclusively with infrastructure providers we trust (like <strong>Cloudways</strong>). If you upgrade your servers through our links, it helps keep these calculators running—but it will never influence the hard math our tools output.</p>
+
+    <h2>Let's Talk Architecture</h2>
+    <p>Whether you're trying to figure out your CAC limits, optimizing server burn rates, or just want to talk shop about SaaS architecture, my inbox is open to fellow builders.</p>
+    <p>Reach out directly: <a href="mailto:doni11ping@gmail.com">doni11ping@gmail.com</a></p>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <a href="/" class="footer-brand">SaaS<span class="footer-accent">Tools</span></a>
+      <nav class="footer-nav">
+        <a href="/articles/">Articles</a>
+        <a href="/tools/">Tools</a>
+        <a href="/about.html">About</a>
+        <a href="/privacy">Privacy</a>
+      </nav>
+    </div>
+    <div class="footer-bottom">
+      Free calculators and guides for bootstrapped founders.
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
