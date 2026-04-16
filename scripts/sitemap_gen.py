@@ -739,11 +739,11 @@ def build_homepage(files: list, content_index: dict) -> str:
   <title>SaaSTools — Calculators &amp; Guides for Bootstrapped Founders</title>
   <meta name="description" content="Free financial calculators and practical guides for bootstrapped SaaS founders. No fluff, no VC narratives.">
   <link rel="canonical" href="{SITE_URL}/">
-  <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link rel="shortcut icon" href="/favicon.ico" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-  <link rel="manifest" href="/site.webmanifest" />
+  <link rel="icon" type="image/png" href="/favicon/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg" />
+  <link rel="shortcut icon" href="/favicon/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
+  <link rel="manifest" href="/favicon/site.webmanifest" />
   {_FONT}
   <style>
 {_BASE_CSS}
@@ -864,11 +864,11 @@ def build_articles_index(files: list, content_index: dict) -> str:
   <title>Articles — SaaSTools</title>
   <meta name="description" content="Practical guides and financial breakdowns for bootstrapped SaaS founders. Written for operators, not investors.">
   <link rel="canonical" href="{SITE_URL}/articles/">
-  <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link rel="shortcut icon" href="/favicon.ico" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-  <link rel="manifest" href="/site.webmanifest" />
+  <link rel="icon" type="image/png" href="/favicon/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg" />
+  <link rel="shortcut icon" href="/favicon/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
+  <link rel="manifest" href="/favicon/site.webmanifest" />
   {_FONT}
   <style>
 {_BASE_CSS}
@@ -959,11 +959,11 @@ def build_tools_index(files: list) -> str:
   <title>Calculators &amp; Tools — SaaSTools</title>
   <meta name="description" content="Free SaaS financial calculators: MRR, churn, runway, LTV/CAC, pricing and more. Built for bootstrapped founders.">
   <link rel="canonical" href="{SITE_URL}/tools/">
-  <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link rel="shortcut icon" href="/favicon.ico" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-  <link rel="manifest" href="/site.webmanifest" />
+  <link rel="icon" type="image/png" href="/favicon/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg" />
+  <link rel="shortcut icon" href="/favicon/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
+  <link rel="manifest" href="/favicon/site.webmanifest" />
   {_FONT}
   <style>
 {_BASE_CSS}
