@@ -2,8 +2,6 @@ name: Generate Sitemap
 
 on:
   push:
-    branches:
-      - output
   workflow_dispatch:
 
 jobs:
