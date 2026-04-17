@@ -273,9 +273,7 @@ def run_pipeline(task_type: str) -> None:
 
     # Update tracking files
     update_editorial_memory(slug, body_html, task_type)
-    if not is_article:
-        update_tool_registry(slug, body_html)
-
+    
     # Update content-index.json untuk related content otomatis
     h1_match   = re.search(r'<h1[^>]*>(.*?)</h1>', body_html,
                             re.IGNORECASE | re.DOTALL)
