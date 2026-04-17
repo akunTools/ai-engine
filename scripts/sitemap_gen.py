@@ -432,9 +432,10 @@ _HOMEPAGE_CSS = """
     font-size: 0.875rem;
     color: var(--muted);
     line-height: 1.5;
-    white-space: nowrap;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
     overflow: hidden;
-    text-overflow: ellipsis;
   }
   .article-item__date {
     font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
