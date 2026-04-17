@@ -8,5 +8,13 @@
       "excerpt": "Stop bleeding MRR. Discover a tactical churn prevention saas 1 year roadmap for bootstrapped founders to survive the 12-month cliff and lock in renewals."
     }
   ],
-  "tools": []
+  "tools": [
+    {
+      "slug": "saas-churn-calculator",
+      "title": "SaaS Churn Calculator: Stop the Bleeding & Calculate Your Real Retention",
+      "cluster": "saas-churn-retention",
+      "date": "2026-04-17",
+      "excerpt": "Calculate your SaaS customer and revenue churn rate instantly. Uncover your leaky bucket, understand the math, and extend your startup"
+    }
+  ]
 }
