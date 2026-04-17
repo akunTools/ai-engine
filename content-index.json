@@ -1,4 +1,12 @@
 {
-  "articles": [],
+  "articles": [
+    {
+      "slug": "churn-prevention-saas-1-year",
+      "title": "Surviving the 12-Month Cliff: Your Churn Prevention SaaS 1 Year Battle Plan",
+      "cluster": "saas-churn-retention",
+      "date": "2026-04-17",
+      "excerpt": "Stop bleeding MRR. Discover a tactical churn prevention saas 1 year roadmap for bootstrapped founders to survive the 12-month cliff and lock in renewals."
+    }
+  ],
   "tools": []
 }
