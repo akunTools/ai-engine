@@ -162,7 +162,7 @@ _BASE_CSS = """
 """
 
 _NAV_CSS = """
-  nav.site-nav, body > nav {
+  nav.site-nav, body > nav:not(.footer-nav) {
     position: sticky;
     top: 0;
     z-index: 100;
