@@ -423,6 +423,25 @@ _ARTICLE_CSS = """
     border-top: 1px solid var(--border);
     margin: 56px 0;
   }
+
+  /* Affiliate Box khusus untuk Artikel */
+  .affiliate-box {
+    background: var(--success-bg);
+    border: 1px solid rgba(16,185,129,.25);
+    border-radius: var(--r);
+    padding: 20px 24px;
+    margin: 32px 0;
+    font-size: 1.0625rem;
+    color: var(--text);
+    line-height: 1.6;
+  }
+  .affiliate-box a {
+    color: var(--success);
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-color: rgba(16,185,129,.4);
+  }
+  .affiliate-box a:hover { color: #059669; text-decoration-color: #059669; }
   
   .share-box {
     background: var(--surface);
@@ -598,11 +617,13 @@ def _build_article_html(fm: dict, body_html: str,
   <meta name="twitter:title" content="{title}">
   <meta name="twitter:image" content="{site_url}/og/{slug}.png">
   <link rel="canonical" href="{article_url}">
+  
   <link rel="icon" type="image/png" href="/favicon/favicon-96x96.png" sizes="96x96" />
   <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg" />
   <link rel="shortcut icon" href="/favicon/favicon.ico" />
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
   <link rel="manifest" href="/favicon/site.webmanifest" />
+
   {_FONT}
   <style>
 {_BASE_CSS}
@@ -741,30 +762,24 @@ def _build_article_html(fm: dict, body_html: str,
 def wrap_article_html(body_html: str, slug: str) -> str:
     """
     Bungkus body artikel ke full HTML page.
-    Input : body HTML saja (mulai dari <h1>, boleh diawali
-            <meta name="cluster"> dan/atau <meta name="description">
-            sebelum <h1>)
-    Output: full HTML page siap publish
     """
-    # Ekstrak cluster_id
+    # Ekstrak cluster_id (BULLETPROOF REGEX)
     cluster_match = re.search(
-        r'<meta\s+name=["\']cluster["\']\s+content=["\']([^"\']*)["\'][^>]*/?>',
-        body_html, re.IGNORECASE
+        r'<meta\s+name=["\']cluster["\']\s+content=(["\'])(.*?)\1',
+        body_html, re.IGNORECASE | re.DOTALL
     )
-    cluster_id = cluster_match.group(1).strip() if cluster_match else ""
-    if cluster_match:
-        body_html = body_html[:cluster_match.start()] + body_html[cluster_match.end():]
-        body_html = body_html.lstrip("\n")
+    cluster_id = cluster_match.group(2).strip() if cluster_match else ""
+    # Strip meta cluster dengan aman
+    body_html = re.sub(r'<meta[^>]*name=["\']cluster["\'][^>]*>\n?', '', body_html, flags=re.IGNORECASE)
 
-    # Ekstrak meta description
+    # Ekstrak meta description (BULLETPROOF REGEX)
     desc_match = re.search(
-        r'<meta\s+name=["\']description["\']\s+content=["\']([^"\']*)["\'][^>]*/?>',
-        body_html, re.IGNORECASE
+        r'<meta\s+name=["\']description["\']\s+content=(["\'])(.*?)\1',
+        body_html, re.IGNORECASE | re.DOTALL
     )
-    meta_desc = desc_match.group(1).strip() if desc_match else ""
-    if desc_match:
-        body_html = body_html[:desc_match.start()] + body_html[desc_match.end():]
-        body_html = body_html.lstrip("\n")
+    meta_desc = desc_match.group(2).strip() if desc_match else ""
+    # Strip meta description dengan aman
+    body_html = re.sub(r'<meta[^>]*name=["\']description["\'][^>]*>\n?', '', body_html, flags=re.IGNORECASE)
 
     date_str = datetime.utcnow().strftime("%Y-%m-%d")
 
@@ -778,6 +793,16 @@ def wrap_article_html(body_html: str, slug: str) -> str:
     if h1_match:
         body_html = (body_html[:h1_match.start()]
                      + body_html[h1_match.end():]).lstrip("\n")
+
+    # ── Postprocess: patch formula highlight div ─────────────────────────────
+    body_html = re.sub(
+        r'(style="background:#0f172a;color:#e2e8f0;[^"]*)"',
+        lambda m: m.group(1) + (
+            ";overflow-x:auto;white-space:pre-wrap"
+            if "overflow-x" not in m.group(1) else ""
+        ) + '"',
+        body_html
+    )
 
     title_clean = re.sub(r'<[^>]+>', '', title).strip()
     word_count  = len(re.sub(r'<[^>]+>', '', body_html).split())
@@ -803,25 +828,21 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
     """
     Bungkus body tool/kalkulator ke full HTML page.
     """
-    # Ekstrak cluster_id dari meta tag
+    # Ekstrak cluster_id (BULLETPROOF REGEX)
     cluster_match = re.search(
-        r'<meta\s+name=["\']cluster["\']\s+content=["\']([^"\']*)["\'][^>]*/?>',
-        body_html, re.IGNORECASE
+        r'<meta\s+name=["\']cluster["\']\s+content=(["\'])(.*?)\1',
+        body_html, re.IGNORECASE | re.DOTALL
     )
-    cluster_id = cluster_match.group(1).strip() if cluster_match else ""
-    if cluster_match:
-        body_html = body_html[:cluster_match.start()] + body_html[cluster_match.end():]
-        body_html = body_html.lstrip("\n")
+    cluster_id = cluster_match.group(2).strip() if cluster_match else ""
+    body_html = re.sub(r'<meta[^>]*name=["\']cluster["\'][^>]*>\n?', '', body_html, flags=re.IGNORECASE)
 
-    # Ekstrak meta description
+    # Ekstrak meta description (BULLETPROOF REGEX)
     desc_match = re.search(
-        r'<meta\s+name=["\']description["\']\s+content=["\']([^"\']*)["\'][^>]*/?>',
-        body_html, re.IGNORECASE
+        r'<meta\s+name=["\']description["\']\s+content=(["\'])(.*?)\1',
+        body_html, re.IGNORECASE | re.DOTALL
     )
-    meta_desc = desc_match.group(1).strip() if desc_match else ""
-    if desc_match:
-        body_html = body_html[:desc_match.start()] + body_html[desc_match.end():]
-        body_html = body_html.lstrip("\n")
+    meta_desc = desc_match.group(2).strip() if desc_match else ""
+    body_html = re.sub(r'<meta[^>]*name=["\']description["\'][^>]*>\n?', '', body_html, flags=re.IGNORECASE)
 
     site_url     = "https://saas.blogtrick.eu.org"
     tool_url     = f"{site_url}/tools/{slug}"
@@ -879,11 +900,13 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
   <meta name="description" content="{meta_desc}">
   {cluster_meta}
   <link rel="canonical" href="{tool_url}">
+  
   <link rel="icon" type="image/png" href="/favicon/favicon-96x96.png" sizes="96x96" />
   <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg" />
   <link rel="shortcut icon" href="/favicon/favicon.ico" />
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
   <link rel="manifest" href="/favicon/site.webmanifest" />
+
   {_FONT}
   <style>
 {_BASE_CSS}
@@ -994,7 +1017,7 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
     }}
     .result-number {{
       font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
-      font-size: clamp(1.75rem, 6vw, 4rem);
+      font-size: clamp(2.5rem, 6vw, 4rem);
       font-weight: 700;
       color: var(--text);
       line-height: 1;
