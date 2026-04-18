@@ -88,7 +88,8 @@ _BASE_CSS = """
 """
 
 _NAV_CSS = """
-  nav.site-nav, body > nav {
+  nav.site-nav,
+  body > nav:not(.footer-nav) {
     position: sticky;
     top: 0;
     z-index: 100;
@@ -397,7 +398,6 @@ _ARTICLE_CSS = """
     width: 100%;
     display: block;
     overflow-x: auto;
-    white-space: nowrap;
     -webkit-overflow-scrolling: touch;
     border-collapse: collapse;
     margin: 32px 0;
@@ -416,6 +416,7 @@ _ARTICLE_CSS = """
     text-transform: uppercase;
     letter-spacing: 0.05em;
     font-size: 0.8125rem;
+    white-space: nowrap;
   }
   .article-body hr {
     border: none;
@@ -429,6 +430,12 @@ _ARTICLE_CSS = """
     border-radius: var(--r);
     padding: 32px;
     margin: 56px 0 48px;
+  }
+  @media (max-width: 640px) {
+    .share-box {
+      padding: 20px;
+      margin: 40px 0 32px;
+    }
   }
   .share-label {
     font-size: 0.8125rem;
@@ -987,12 +994,14 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
     }}
     .result-number {{
       font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
-      font-size: clamp(2.5rem, 6vw, 4rem);
+      font-size: clamp(1.75rem, 6vw, 4rem);
       font-weight: 700;
       color: var(--text);
       line-height: 1;
       letter-spacing: -.05em;
       margin-bottom: 8px;
+      overflow-wrap: break-word;
+      word-break: break-all;
     }}
     .result-unit {{
       font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
@@ -1085,6 +1094,7 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
       padding: 16px 20px; font-size: 1rem; font-weight: 600; color: var(--text);
       cursor: pointer; list-style: none; display: flex;
       justify-content: space-between; align-items: center;
+      min-height: 44px;
     }}
     .faq summary::-webkit-details-marker {{ display: none; }}
     .faq summary::after {{
