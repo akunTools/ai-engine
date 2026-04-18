@@ -1017,7 +1017,7 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
     }}
     .result-number {{
       font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
-      font-size: clamp(2.5rem, 6vw, 4rem);
+      font-size: clamp(1.75rem, 6vw, 4rem);
       font-weight: 700;
       color: var(--text);
       line-height: 1;
@@ -1050,6 +1050,19 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
       font-size: .875rem;
       font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
       color: var(--muted);
+    }}
+
+
+    /* ── RESULT ROW (multi-result separator) ── */
+    .result-row {{
+      padding-bottom: 20px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }}
+    .result-row:last-child {{
+      padding-bottom: 0;
+      margin-bottom: 0;
+      border-bottom: none;
     }}
 
     /* ── FORMULA BOX ── */
