@@ -6,6 +6,13 @@
       "cluster": "saas-churn-retention",
       "date": "2026-04-17",
       "excerpt": "Stop bleeding MRR. Discover a tactical churn prevention saas 1 year roadmap for bootstrapped founders to survive the 12-month cliff and lock in renewals."
+    },
+    {
+      "slug": "saas-customer-retention-2-days",
+      "title": "The 48-Hour Churn Trap: Fixing SaaS Customer Retention 2 Days After Signup",
+      "cluster": "saas-churn-retention",
+      "date": "2026-04-19",
+      "excerpt": "Stop losing new users. Learn how to fix SaaS customer retention 2 days after signup by optimizing your 48-hour onboarding window and reducing early churn."
     }
   ],
   "tools": [
