@@ -10,15 +10,13 @@ on:
         type: choice
         options:
           - article
-          - tool
+          - calculator_tool
 
   repository_dispatch:
     types: [run-task]
 
   schedule:
-    # Artikel: setiap 2 hari jam 02:00 UTC (09:00 WIB)
     - cron: '0 2 */2 * *'
-    # Tools: tanggal 1 dan 15 setiap bulan jam 06:00 UTC
     - cron: '0 6 1,15 * *'
 
 jobs:
@@ -107,8 +105,8 @@ jobs:
     timeout-minutes: 10
     if: |
       (github.event_name == 'schedule' && github.event.schedule == '0 6 1,15 * *') ||
-      (github.event_name == 'repository_dispatch' && github.event.client_payload.task_type == 'tool') ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.task_type == 'tool')
+      (github.event_name == 'repository_dispatch' && github.event.client_payload.task_type == 'calculator_tool') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.task_type == 'calculator_tool')
 
     steps:
       - name: Checkout ai-engine
@@ -121,7 +119,7 @@ jobs:
 
       - name: Set task type tool
         run: |
-          echo "TASK_TYPE=tool" >> $GITHUB_ENV
+          echo "TASK_TYPE=calculator_tool" >> $GITHUB_ENV
 
       - name: Install dependensi Python
         run: pip install Pillow --break-system-packages
