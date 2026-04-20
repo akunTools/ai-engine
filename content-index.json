@@ -15,13 +15,5 @@
       "excerpt": "Stop losing new users. Learn how to fix SaaS customer retention 2 days after signup by optimizing your 48-hour onboarding window and reducing early churn."
     }
   ],
-  "tools": [
-    {
-      "slug": "saas-churn-calculator",
-      "title": "SaaS Churn Calculator: Stop the Bleeding & Calculate Your Real Retention",
-      "cluster": "saas-churn-retention",
-      "date": "2026-04-17",
-      "excerpt": "Calculate your SaaS customer and revenue churn rate instantly. Uncover your leaky bucket, understand the math, and extend your startup"
-    }
-  ]
+  "tools": []
 }
