@@ -13,6 +13,13 @@
       "cluster": "saas-churn-retention",
       "date": "2026-04-19",
       "excerpt": "Stop losing new users. Learn how to fix SaaS customer retention 2 days after signup by optimizing your 48-hour onboarding window and reducing early churn."
+    },
+    {
+      "slug": "saas-rates",
+      "title": "SaaS Rates: The Brutal Math Behind Pricing, Growth, and Survival",
+      "cluster": "saas-growth-metrics",
+      "date": "2026-04-21",
+      "excerpt": "Stop bleeding MRR. We break down the brutal math of SaaS rates, from churn benchmarks to unit economics, specifically for bootstrapped founders."
     }
   ],
   "tools": []
