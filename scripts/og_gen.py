@@ -15,9 +15,9 @@ from PIL import Image, ImageDraw, ImageFont
 OG_W, OG_H = 1200, 630
 
 # Design tokens — identik dengan CSS vars di _BASE_CSS
-BG      = (247, 246, 243)   # --bg      #f7f6f3
+BG     = (250, 250, 250)   # #fafafa — match --bg CSS
 SURFACE = (255, 255, 255)   # --surface #ffffff
-ACCENT  = ( 79,  70, 229)   # --accent  #4f46e5
+ACCENT = ( 37,  99, 235)   # #2563eb — match --accent CSS
 TEXT    = ( 24,  24,  27)   # --text    #18181b
 MUTED   = (113, 113, 122)   # --muted   #71717a
 SUBTLE  = (161, 161, 170)   # --subtle  #a1a1aa
