@@ -899,6 +899,14 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
   <title>{title_clean} — SaaS Tools for Bootstrapped Founders</title>
   <meta name="description" content="{meta_desc}">
   {cluster_meta}
+  <meta property="og:title" content="{title_clean}">
+  <meta property="og:url" content="{tool_url}">
+  <meta property="og:type" content="website">
+  <meta property="og:description" content="{meta_desc}">
+  <meta property="og:site_name" content="SaaS Tools for Bootstrapped Founders">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="{title_clean}">
+  <meta name="twitter:description" content="{meta_desc}">
   <link rel="canonical" href="{tool_url}">
   
   <link rel="icon" type="image/png" href="/favicon/favicon-96x96.png" sizes="96x96" />
@@ -911,6 +919,7 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
   <style>
 {_BASE_CSS}
 {_NAV_CSS}
+{_ARTICLE_CSS}
 
     /* ── LAYOUT ── */
     .container {{ max-width: 680px; margin: 0 auto; padding: 48px 24px 80px; }}
@@ -947,6 +956,13 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
       margin-bottom: 24px;
       border-bottom: 2px solid var(--text);
       padding-bottom: 8px;
+    }}
+
+    /* ── CARD HR separator ── */
+    .card hr {{
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 24px 0;
     }}
 
     /* ── INPUTS (UTILITARIAN BRUTALISM) ── */
@@ -1052,7 +1068,6 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
       color: var(--muted);
     }}
 
-
     /* ── RESULT ROW (multi-result separator) ── */
     .result-row {{
       padding-bottom: 20px;
@@ -1142,6 +1157,18 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
     .faq .faq-answer {{
       padding: 20px; font-size: 0.9375rem; color: var(--muted);
       line-height: 1.7; background: var(--surface);
+    }}
+
+    /* ── ARTICLE BODY di dalam tool: top spacing & separator ── */
+    .container > .article-body {{
+      margin-top: 48px;
+      padding-top: 48px;
+      border-top: 1px solid var(--border);
+    }}
+
+    /* ── Override article-body h2 untuk tool: lebih compact ── */
+    .container .article-body h2 {{
+      margin: 40px 0 20px;
     }}
 
 {_RELATED_CSS}
