@@ -52,6 +52,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ENGINE_REPO:  ${{ github.repository }}
           BRAIN_REPO:   akunTools/ai-brain
+          WORKER_URL:   ${{ secrets.WORKER_URL }}
+          BRIEF_TOKEN:  ${{ secrets.BRIEF_TOKEN }}
         run: python scripts/run_pipeline.py
 
       - name: Rebuild Indexes & Sitemap
@@ -132,6 +134,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ENGINE_REPO:  ${{ github.repository }}
           BRAIN_REPO:   akunTools/ai-brain
+          WORKER_URL:   ${{ secrets.WORKER_URL }}
+          BRIEF_TOKEN:  ${{ secrets.BRIEF_TOKEN }}
         run: python scripts/run_pipeline.py
 
       - name: Rebuild Indexes & Sitemap
