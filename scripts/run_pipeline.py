@@ -20,6 +20,33 @@ from og_gen     import generate_og_image
 ENGINE_REPO   = os.environ.get("ENGINE_REPO", "")
 GITHUB_TOKEN  = os.environ.get("GITHUB_TOKEN", "")
 TASK_TYPE     = os.environ.get("TASK_TYPE", "article")
+WORKER_URL    = os.environ.get("WORKER_URL", "").rstrip("/") + "/"
+BRIEF_TOKEN   = os.environ.get("BRIEF_TOKEN", "")
+
+
+def notify_keyword_done(slug: str) -> None:
+    """
+    Set status keyword ke DONE di keyword_stock.json via Worker.
+    Lookup dilakukan berdasarkan slug (bukan keyword text) untuk
+    menghindari mismatch jika user mengubah slug di BriefActivity.
+    Non-fatal: jika gagal, sync_check akan jadi fallback.
+    """
+    if not WORKER_URL or not BRIEF_TOKEN:
+        print("Warning: WORKER_URL atau BRIEF_TOKEN tidak di-set, skip update status keyword.")
+        return
+    try:
+        params = urllib.parse.urlencode({"slug": slug, "status": "DONE"})
+        url = f"{WORKER_URL}update_keyword?{params}"
+        req = urllib.request.Request(
+            url,
+            headers={"X-Brief-Token": BRIEF_TOKEN, "User-Agent": "ai-engine"},
+            method="GET"
+        )
+        with urllib.request.urlopen(req, timeout=15) as r:
+            resp = r.read().decode()
+            print(f"Keyword status → DONE: {slug} (HTTP {r.status}, response: {resp})")
+    except Exception as e:
+        print(f"Warning: Gagal update status keyword (non-fatal, sync_check sebagai fallback): {e}")
 
 
 def sync_manifest(staging_ready_path: str, manifest_path: str) -> tuple:
@@ -272,6 +299,7 @@ def run_pipeline(task_type: str) -> None:
     print(f"Removed from staging: {filename}")
 
     # Update tracking files
+    notify_keyword_done(slug)
     update_editorial_memory(slug, body_html, task_type)
     
     # Update content-index.json untuk related content otomatis
