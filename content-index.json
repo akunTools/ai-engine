@@ -22,5 +22,13 @@
       "excerpt": "Stop bleeding MRR. We break down the brutal math of SaaS rates, from churn benchmarks to unit economics, specifically for bootstrapped founders."
     }
   ],
-  "tools": []
+  "tools": [
+    {
+      "slug": "saas-churn-calculator",
+      "title": "The Bootstrapped SaaS Churn Calculator: Measure Your Leaky Bucket",
+      "cluster": "saas-churn-retention",
+      "date": "2026-04-24",
+      "excerpt": "Calculate your SaaS churn rate instantly. Learn how to identify revenue leakage, benchmark your retention, and extend your runway with our professional-grade tool."
+    }
+  ]
 }
