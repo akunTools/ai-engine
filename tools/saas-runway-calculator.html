@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Brutal SaaS Runway Calculator — SaaS Tools for Bootstrapped Founders</title>
+  <meta name="description" content="Calculate your exact SaaS runway in months. Stop guessing, know your true net burn, and see exactly when your startup runs out of cash before it's too late.">
+  <meta name="cluster" content="saas-financial-planning">
+  <meta property="og:title" content="The Brutal SaaS Runway Calculator">
+  <meta property="og:url" content="https://saas.blogtrick.eu.org/tools/saas-runway-calculator">
+  <meta property="og:type" content="website">
+  <meta property="og:description" content="Calculate your exact SaaS runway in months. Stop guessing, know your true net burn, and see exactly when your startup runs out of cash before it's too late.">
+  <meta property="og:site_name" content="SaaS Tools for Bootstrapped Founders">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="The Brutal SaaS Runway Calculator">
+  <meta name="twitter:description" content="Calculate your exact SaaS runway in months. Stop guessing, know your true net burn, and see exactly when your startup runs out of cash before it's too late.">
+  <link rel="canonical" href="https://saas.blogtrick.eu.org/tools/saas-runway-calculator">
+  
+  <link rel="icon" type="image/png" href="/favicon/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg" />
+  <link rel="shortcut icon" href="/favicon/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
+  <link rel="manifest" href="/favicon/site.webmanifest" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+  <style>
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg:           #fafafa;
+    --surface:      #ffffff;
+    --text:         #18181b;
+    --muted:        #52525b;
+    --subtle:       #a1a1aa;
+    --border:       #e4e4e7;
+    --accent:       #2563eb;
+    --accent-h:     #1d4ed8;
+    --accent-light: #eff6ff;
+    --danger:       #dc2626;
+    --danger-bg:    #fef2f2;
+    --warning:      #d97706;
+    --warning-bg:   #fffbeb;
+    --success:      #059669;
+    --success-bg:   #f0fdf4;
+    --r:            4px;
+  }
+  body {
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { color: var(--accent-h); }
+  
+  /* Global Focus State for Accessibility */
+  *:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+
+  nav.site-nav,
+  body > nav:not(.footer-nav) {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-inner {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0 24px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .nav-brand {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text);
+    text-decoration: none;
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+  }
+  .brand-accent {
+    color: var(--accent);
+  }
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .nav-links a {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 0 12px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    border-radius: var(--r);
+    transition: color 0.15s ease, background 0.15s ease;
+  }
+  .nav-links a:hover {
+    color: var(--text);
+    background: var(--bg);
+  }
+  .nav-links a.active {
+    color: var(--accent);
+    background: var(--accent-light);
+    border: 1px solid #bfdbfe;
+  }
+  .nav-back {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--muted);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 0 8px;
+    border-radius: var(--r);
+    transition: color 0.15s ease;
+  }
+  .nav-back:hover {
+    color: var(--text);
+    background: var(--bg);
+  }
+  @media (max-width: 640px) {
+    .nav-inner { padding: 0 16px; }
+    .nav-links a { padding: 0 8px; }
+  }
+
+
+  .article-wrap {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+  .article-header {
+    padding: 64px 0 40px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 48px;
+  }
+  .article-header__title {
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.25;
+    letter-spacing: -0.03em;
+    margin: 0 0 24px;
+  }
+  .article-header__meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-size: 0.85rem;
+    font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+    color: var(--muted);
+    line-height: 1;
+  }
+  .article-header__meta span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .article-header__meta-sep { color: var(--border); }
+  .kw-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text);
+    background: var(--border);
+    padding: 4px 8px;
+    border-radius: 4px;
+  }
+  .article-body {
+    font-size: 1.0625rem;
+    line-height: 1.72;
+    color: var(--text);
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+  .article-body h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.02em;
+    line-height: 1.3;
+    margin: 56px 0 24px;
+    border-bottom: 2px solid var(--text);
+    padding-bottom: 8px;
+  }
+  .article-body h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.01em;
+    line-height: 1.4;
+    margin: 40px 0 16px;
+  }
+  .article-body p { margin: 0 0 24px; }
+  .article-body ul, .article-body ol {
+    margin: 0 0 24px;
+    padding-left: 24px;
+  }
+  .article-body li { margin-bottom: 8px; }
+  .article-body li::marker { color: var(--muted); font-weight: bold; }
+  .article-body a {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    text-decoration-thickness: 1px;
+    transition: color 0.15s ease, text-decoration-color 0.15s ease;
+  }
+  .article-body a:hover {
+    color: var(--text);
+    text-decoration-color: var(--text);
+  }
+  
+  /* Utilitarian Blockquote */
+  .article-body blockquote {
+    margin: 32px 0;
+    padding: 20px 24px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--text);
+    color: var(--text);
+    font-size: 1.0625rem;
+    font-style: normal;
+    line-height: 1.72;
+  }
+  .article-body blockquote p:last-child { margin-bottom: 0; }
+  
+  /* Micro-details: Inline Code vs Preformatted Code */
+  .article-body code {
+    font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+    font-size: 0.85em;
+    background: #f4f4f5;
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+  }
+  .article-body pre {
+    background: #18181b;
+    color: #e4e4e7;
+    border-radius: var(--r);
+    padding: 20px 24px;
+    margin: 32px 0;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    border: 1px solid #3f3f46;
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .article-body pre code {
+    background: transparent;
+    border: none;
+    color: inherit;
+    padding: 0;
+    font-size: inherit;
+  }
+  
+  /* Micro-details: Image & Table Responsiveness */
+  .article-body img {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--r);
+    border: 1px solid var(--border);
+    display: block;
+    margin: 40px 0;
+  }
+  .article-body table {
+    width: 100%;
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-collapse: collapse;
+    margin: 32px 0;
+    font-size: 0.9rem;
+    border: 1px solid var(--border);
+  }
+  .article-body th, .article-body td {
+    padding: 12px 16px;
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+  .article-body th {
+    background: var(--bg);
+    font-weight: 600;
+    text-align: left;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.8125rem;
+    white-space: nowrap;
+  }
+  .article-body hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 56px 0;
+  }
+
+  /* Affiliate Box khusus untuk Artikel */
+  .affiliate-box {
+    background: var(--success-bg);
+    border: 1px solid rgba(16,185,129,.25);
+    border-radius: var(--r);
+    padding: 20px 24px;
+    margin: 32px 0;
+    font-size: 1.0625rem;
+    color: var(--text);
+    line-height: 1.6;
+  }
+  .affiliate-box a {
+    color: var(--success);
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-color: rgba(16,185,129,.4);
+  }
+  .affiliate-box a:hover { color: #059669; text-decoration-color: #059669; }
+  
+  .share-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 32px;
+    margin: 56px 0 48px;
+  }
+  @media (max-width: 640px) {
+    .share-box {
+      padding: 20px;
+      margin: 40px 0 32px;
+    }
+  }
+  .share-label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--text);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 16px;
+  }
+  .share-buttons { display: flex; flex-wrap: wrap; gap: 12px; }
+  .share-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 0 16px; border-radius: var(--r);
+    font-size: 0.875rem; font-weight: 500; text-decoration: none;
+    cursor: pointer; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text); min-height: 44px;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .share-btn:hover { background: var(--bg); border-color: var(--muted); }
+  .comments-box { margin-bottom: 48px; }
+  .comments-box h2 {
+    font-size: 1.25rem; font-weight: 700; color: var(--text);
+    margin-bottom: 24px; padding-bottom: 16px; border-bottom: 2px solid var(--text);
+  }
+  
+  @media (max-width: 640px) {
+    .article-wrap { padding: 0 16px; }
+    .article-header { padding: 40px 0 32px; }
+    .article-body { font-size: 1rem; }
+    .article-body pre {
+      margin: 32px -16px;
+      border-radius: 0;
+      border-left: none;
+      border-right: none;
+    }
+    .article-body table {
+      margin: 32px -16px;
+      width: calc(100% + 32px);
+      border-left: none;
+      border-right: none;
+      border-radius: 0;
+    }
+  }
+
+
+    /* ── LAYOUT ── */
+    .container { max-width: 680px; margin: 0 auto; padding: 48px 24px 80px; }
+
+    /* ── TYPOGRAPHY ── */
+    h1 {
+      font-size: clamp(1.75rem, 4vw, 2.25rem);
+      font-weight: 700;
+      letter-spacing: -.03em;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .subtitle {
+      color: var(--muted);
+      font-size: 1.0625rem;
+      margin-bottom: 40px;
+      line-height: 1.6;
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 32px;
+      margin-bottom: 24px;
+    }
+    .card h2 {
+      font-size: .875rem;
+      font-weight: 600;
+      color: var(--text);
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      margin-bottom: 24px;
+      border-bottom: 2px solid var(--text);
+      padding-bottom: 8px;
+    }
+
+    /* ── CARD HR separator ── */
+    .card hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 24px 0;
+    }
+
+    /* ── INPUTS (UTILITARIAN BRUTALISM) ── */
+    .input-group { margin-bottom: 20px; }
+    .input-group:last-child { margin-bottom: 0; }
+    label {
+      display: block;
+      font-size: .875rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .input-wrapper { position: relative; }
+    .input-prefix {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+      font-size: 1rem;
+      pointer-events: none;
+      font-weight: 500;
+    }
+    input[type="number"] {
+      width: 100%;
+      padding: 12px 14px 12px 32px;
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      font-size: 16px !important; /* CRITICAL: Mencegah iOS Auto-Zoom */
+      font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+      color: var(--text);
+      background: var(--bg);
+      transition: border-color .15s, outline .15s;
+      -moz-appearance: textfield;
+    }
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+    input[type="number"]:focus {
+      outline: 2px solid var(--accent);
+      outline-offset: -1px;
+      border-color: var(--accent);
+      background: var(--surface);
+    }
+    input[type="number"].error-input { border-color: var(--danger); }
+    .error-msg {
+      color: var(--danger);
+      font-size: .8125rem;
+      margin-top: 6px;
+      display: none;
+    }
+
+    /* ── RESULT (HIGH CONTRAST) ── */
+    .result-card {
+      background: var(--surface);
+      border: 2px solid var(--text);
+      border-radius: var(--r);
+      padding: 32px;
+      margin-bottom: 24px;
+    }
+    .result-label {
+      font-size: .8125rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 8px;
+    }
+    .result-number {
+      font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+      font-size: clamp(1.75rem, 6vw, 4rem);
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1;
+      letter-spacing: -.05em;
+      margin-bottom: 8px;
+      overflow-wrap: break-word;
+      word-break: break-all;
+    }
+    .result-unit {
+      font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+      font-size: 1rem;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+    .interpretation {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--text);
+      border-radius: 0 var(--r) var(--r) 0;
+      padding: 16px 20px;
+      font-size: 0.9375rem;
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .interpretation.danger { border-color: var(--danger); background: var(--danger-bg); }
+    .interpretation.warning { border-color: var(--warning); background: var(--warning-bg); }
+    .interpretation.healthy { border-color: var(--success); background: var(--success-bg); }
+    .secondary-result {
+      margin-top: 16px;
+      font-size: .875rem;
+      font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+      color: var(--muted);
+    }
+
+    /* ── RESULT ROW (multi-result separator) ── */
+    .result-row {
+      padding-bottom: 20px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .result-row:last-child {
+      padding-bottom: 0;
+      margin-bottom: 0;
+      border-bottom: none;
+    }
+
+    /* ── FORMULA BOX ── */
+    .formula-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .formula-box h3 {
+      font-size: .75rem;
+      font-weight: 600;
+      color: var(--text);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 12px;
+    }
+    .formula-box p {
+      font-size: 0.875rem;
+      color: var(--text);
+      line-height: 1.7;
+      font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+    }
+    .formula-box ul, .formula-box ol {
+      margin: 10px 0;
+      padding-left: 20px;
+    }
+    .formula-box li {
+      margin-bottom: 8px;
+      font-size: 0.875rem;
+      color: var(--text);
+      line-height: 1.6;
+      font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+    }
+    .formula-box li code {
+      background: #f4f4f5;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.15em 0.4em;
+      border-radius: 3px;
+      font-size: 0.85em;
+    }
+
+    /* ── AFFILIATE BOX ── */
+    .affiliate-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--success);
+      border-radius: 0 var(--r) var(--r) 0;
+      padding: 20px 24px;
+      margin-bottom: 24px;
+      font-size: 0.9375rem;
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .affiliate-box a {
+      color: var(--success);
+      font-weight: 600;
+      text-decoration: underline;
+      text-decoration-color: rgba(16,185,129,.4);
+    }
+    .affiliate-box a:hover { color: #059669; text-decoration-color: #059669; }
+
+    /* ── RELATED LINK ── */
+    .related-link { font-size: .9375rem; color: var(--muted); padding: 16px 0; }
+    .related-link a { color: var(--accent); text-decoration: underline; font-weight: 500; }
+    .related-link a:hover { color: var(--accent-h); }
+
+    /* ── FAQ ── */
+    .faq { margin-top: 48px; }
+    .faq h3 {
+      font-size: 1.25rem; font-weight: 700; color: var(--text);
+      letter-spacing: -.02em; margin-bottom: 20px;
+      border-bottom: 2px solid var(--text); padding-bottom: 8px;
+    }
+    .faq details {
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      margin-bottom: 12px;
+      background: var(--surface);
+    }
+    .faq summary {
+      padding: 16px 20px; font-size: 1rem; font-weight: 600; color: var(--text);
+      cursor: pointer; list-style: none; display: flex;
+      justify-content: space-between; align-items: center;
+      min-height: 44px;
+    }
+    .faq summary::-webkit-details-marker { display: none; }
+    .faq summary::after {
+      content: '+'; font-size: 1.2rem; color: var(--muted);
+      font-weight: 300; flex-shrink: 0; margin-left: 16px; font-family: monospace;
+    }
+    .faq details[open] > summary::after { content: '−'; }
+    .faq details[open] > summary { border-bottom: 1px solid var(--border); background: var(--bg); }
+    .faq .faq-answer {
+      padding: 20px; font-size: 0.9375rem; color: var(--muted);
+      line-height: 1.7; background: var(--surface);
+    }
+
+    /* ── ARTICLE BODY di dalam tool: top spacing & separator ── */
+    .container > .article-body {
+      margin-top: 48px;
+      padding-top: 48px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── Override article-body h2 untuk tool: lebih compact ── */
+    .container .article-body h2 {
+      margin: 40px 0 20px;
+    }
+
+
+  .related-content { margin-bottom: 32px; }
+  .related-heading {
+    font-size: .75rem; font-weight: 600; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .05em;
+    margin-bottom: 12px; margin-top: 24px;
+  }
+  .related-heading:first-child { margin-top: 0; }
+  .related-list {
+    list-style: none; margin: 0; padding: 0;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .related-list li a {
+    font-size: .9rem; color: var(--text); text-decoration: none;
+    display: block; padding: 12px 16px; background: var(--surface);
+    border: 1px solid var(--border); border-radius: var(--r);
+    transition: border-color .15s, background .15s;
+  }
+  .related-list li a:hover { border-color: var(--text); background: var(--bg); }
+
+
+  footer {
+    background: var(--bg);
+    border-top: 1px solid var(--border);
+    margin-top: 80px;
+  }
+  .footer-inner {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 48px 24px;
+  }
+  .footer-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+  }
+  .footer-brand {
+    font-size: 1.0625rem;
+    font-weight: 700;
+    color: var(--text);
+    text-decoration: none;
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+  }
+  .footer-accent { color: var(--accent); }
+  .footer-nav {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .footer-nav a {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 0 12px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    border-radius: var(--r);
+    transition: color 0.15s ease;
+  }
+  .footer-nav a:hover { color: var(--text); }
+  .footer-bottom {
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    font-size: 0.8125rem;
+    color: var(--muted);
+    line-height: 1.6;
+    font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+  }
+  @media (max-width: 640px) {
+    footer { margin-top: 48px; }
+    .footer-inner { padding: 40px 16px; }
+    .footer-top {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+    }
+    .footer-nav { margin-left: -12px; }
+  }
+
+
+    @media (max-width: 640px) {
+      .container { padding: 32px 16px 64px; }
+      .card, .result-card, .formula-box, .affiliate-box { padding: 20px; }
+    }
+  </style>
+  <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "5833f90d78f645e0819abedd665e5d93"}'></script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is Default Alive vs. Default Dead?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Coined by Y Combinator founder Paul Graham, \"Default Alive\" means that if your expenses remain constant and your revenue continues to grow at its current trajectory, you will reach profitability before your cash reserves hit zero. \"Default Dead\" means that on your current trajectory, your bank account will hit zero before you break even, meaning you must drastically change your trajectory, cut costs, or raise money to survive."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Should I include my personal living expenses in my SaaS burn rate?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "If you are a full-time bootstrapped founder living off your startup's cash reserves, absolutely yes. Your personal rent, utilities, and groceries are, functionally, the \"payroll\" keeping the lead developer and CEO (you) alive. If you cannot pay your rent, the startup dies. Therefore, your minimum living wage must be calculated as a recurring monthly business expense."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How often should I recalculate my runway?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "If you have less than 12 months of runway, you should be checking it weekly as part of your operational cadence. If you have over 12 months, a monthly check-in during your bookkeeping reconciliation is sufficient. Cash balances can shift rapidly due to annual true-ups, unexpected server overages, or a major client churning, so staying vigilant is mandatory."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does a Line of Credit count as Cash on Hand?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. Cash on Hand should only include liquid funds sitting in your checking or savings accounts. While a Line of Credit or business credit card provides emergency liquidity, relying on debt to extend a negative cash flow trajectory is highly dangerous for a bootstrapped company. Calculate your runway based on actual cash, and treat credit only as an absolute last-resort safety net."
+        }
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="nav-inner">
+    <a href="/tools/" class="nav-back">← All Tools</a>
+    <div class="nav-links">
+      <a href="/articles/">Articles</a>
+      <a href="/tools/" class="active">Tools</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+
+<h1>The Brutal SaaS Runway Calculator</h1>
+<p class="subtitle">Find out exactly how many months you have before the cash runs dry and the servers shut down.</p>
+
+<div class="card">
+    <h2>Financial Data</h2>
+    <div class="input-group">
+        <label for="cash_on_hand">Cash on Hand ($)</label>
+        <div class="input-wrapper">
+            <span class="input-prefix">$</span>
+            <input type="number" id="cash_on_hand" aria-label="Cash on Hand in Dollars" placeholder="40000" min="0" style="font-size:16px" oninput="calculate()">
+        </div>
+    </div>
+
+    <div class="input-group">
+        <label for="monthly_expenses">Total Monthly Expenses ($)</label>
+        <div class="input-wrapper">
+            <span class="input-prefix">$</span>
+            <input type="number" id="monthly_expenses" aria-label="Total Monthly Expenses in Dollars" placeholder="8000" min="0" style="font-size:16px" oninput="calculate()">
+        </div>
+    </div>
+
+    <div class="input-group">
+        <label for="current_mrr">Current MRR ($)</label>
+        <div class="input-wrapper">
+            <span class="input-prefix">$</span>
+            <input type="number" id="current_mrr" aria-label="Current Monthly Recurring Revenue in Dollars" placeholder="2000" min="0" style="font-size:16px" oninput="calculate()">
+        </div>
+    </div>
+</div>
+
+<div class="result-card" id="result-card" aria-live="polite">
+    <div class="result-row">
+        <span class="result-label">Your Estimated Runway</span>
+        <div class="result-number"><span id="result-primary">0.0</span> <span class="result-unit">months</span></div>
+    </div>
+    <div class="result-row">
+        <div id="interpretation" class="interpretation">Enter your numbers above to see your runway status.</div>
+    </div>
+    <div class="result-row">
+        <span class="secondary-result" id="net-burn-display"></span>
+    </div>
+</div>
+
+<div class="formula-box">
+    <strong>The Math Behind the Calculator:</strong><br>
+    Your SaaS runway is driven entirely by your Net Burn Rate.<br>
+    <code>Net Burn = Total Monthly Expenses - Current MRR</code><br>
+    <code>Runway (Months) = Cash on Hand / Net Burn</code><br>
+    If your MRR exceeds your expenses, your Net Burn is negative, making you profitable and your runway effectively infinite (Default Alive).
+</div>
+
+<div class="affiliate-box">
+    <strong>A Founder's Note on Infrastructure Costs:</strong><br>
+    Reducing monthly expenses directly extends your runway. Many technical founders bleed cash and time managing raw AWS or DigitalOcean droplets. Switching from an unmanaged VPS to managed hosting like Cloudways might look like a new line item, but it entirely eliminates the hidden DevOps time costs, allowing you to build product instead of fixing Linux permissions.
+</div>
+
+<article class="article-body">
+    <h2>The Default State is Death: Why Runway is Your Only Metric</h2>
+    <p>Imagine closing out the month at $40,000 MRR. You feel the dopamine hit. The Stripe notifications are rolling in. Your MRR chart on ProfitWell is up and to the right. But when you finally look at your business checking account, you realize $42,400 quietly walked out the back door in payroll, hidden AWS bandwidth costs, unused SaaS subscriptions, and a contractor invoice you forgot to log. You didn't grow. You bled.</p>
+    
+    <p>For bootstrapped SaaS founders, the default state of your company is death. Unless you actively intervene, gravity will pull your bank balance to zero. Your "runway" isn't just a financial metric; it is a literal countdown clock dictating how much time you have left to figure out product-market fit, stabilize churn, and reach the promised land of profitability.</p>
+
+    <p>When you are venture-backed, running out of money means you go pitch Sand Hill Road for another $2M bridge round. The VCs might take more equity, but the game continues. When you are bootstrapped, running out of money means you go back to a cubicle. You lay off your small team. You shut down the servers. The stakes are absolute.</p>
+
+    <p>This is why understanding your runway down to the decimal point is the most crucial operational discipline a founder can build. Ignorance is not bliss in SaaS; ignorance is a sudden, unrecoverable bankruptcy.</p>
+
+    <h2>How Do You Calculate SaaS Runway?</h2>
+    <p>Calculating your SaaS runway requires stripping away all the vanity metrics, the annual contract value (ACV) projections, and the pipeline dreams. You must focus entirely on cold, hard, liquid cash flow. You only need three numbers to find the truth:</p>
+    <ul>
+        <li><strong>Cash on Hand:</strong> The total liquid capital sitting in your bank account right now. Do not include uncollected accounts receivable. Do not include a line of credit you haven't drawn from. If you can't spend it today to pay a developer, it's not cash.</li>
+        <li><strong>Monthly Expenses (Gross Burn):</strong> Every single dollar that leaves your company in a 30-day period. Salaries, server costs, software tools, legal fees, taxes, advertising spend, and your own founder salary.</li>
+        <li><strong>Current MRR (Monthly Recurring Revenue):</strong> The reliable cash coming in the door every month. Exclude one-off consulting fees or non-recurring setup charges.</li>
+    </ul>
+
+    <p>Let's do the brutal math with two hypothetical bootstrapped founders.</p>
+    <p><strong>Founder A</strong> just checked her bank account and feels rich. She has <strong>$50,000</strong> in cash. Her startup spends $12,000 a month on a senior developer, ads, and heavy cloud infrastructure. Her current MRR is $2,000. Her net burn is $10,000 per month. <br><em>Runway: 5 months. She is staring down the barrel of a loaded gun, despite having fifty grand in the bank.</em></p>
+
+    <p><strong>Founder B</strong> is stressed because he only has <strong>$15,000</strong> in the bank. However, his expenses are extremely lean at $3,500 a month, and his MRR is already at $3,000. His net burn is only $500 per month. <br><em>Runway: 30 months. He has over two years to figure out his growth channels and optimize his funnel.</em></p>
+
+    <p>Founder A looks richer on a balance sheet, but Founder B is actually wealthier in the only currency that matters to an early-stage startup: time.</p>
+
+    <h2>What Is a Healthy Runway for a Bootstrapped SaaS?</h2>
+    <p>Runway isn't just about financial survival; it dictates your psychology and decision-making as a founder. When your runway is short, you make desperate, short-term decisions. You take on bad-fit customers who demand custom features, turning your product into an agency service. You offer massive lifetime deals (LTDs) that gut your future recurring revenue just to get a quick cash injection. You stop thinking about the next three years and start panicking about the next three weeks.</p>
+
+    <p>Here is the reality of runway thresholds for self-funded software companies:</p>
+    <ul>
+        <li><strong>Under 6 Months (The Danger Zone):</strong> You are in a state of emergency. You cannot afford to run long-term SEO experiments or build "nice-to-have" features. Your only priority is immediate cash flow. You need to slash personal and business expenses, do unscalable manual cold outreach, and close deals today. If a feature does not directly close a pending deal this week, do not build it.</li>
+        <li><strong>6 to 12 Months (The Tightrope):</strong> You have a bit of breathing room, but one bad month—a massive server bill, a tax surprise, or a major enterprise client churning—could push you over the edge into the Danger Zone. Your primary focus must be getting to "Default Alive." This is the state where your current growth rate will get you to profitability before the money runs out.</li>
+        <li><strong>12 to 18 Months (The Healthy Moat):</strong> This is the sweet spot for an early-stage bootstrapped company. You have enough time to test inbound marketing channels, weather the natural ups and downs of B2B sales cycles, and build strategic, complex features without panic dictating your roadmap.</li>
+        <li><strong>18+ Months (The Fortress):</strong> You have a massive moat of time. You can afford to make aggressive growth investments, hire a key senior developer or growth marketer, or simply ride out a macroeconomic winter in peace. You dictate the pace of your company.</li>
+    </ul>
+
+    <h2>Why Does Net Burn vs. Gross Burn Matter So Much?</h2>
+    <p>One of the most common ways technical founders lie to themselves is by confusing gross burn with net burn, or focusing entirely on revenue milestones while ignoring expense creep.</p>
+
+    <p><strong>Gross Burn</strong> is your absolute total monthly expenses. If you spend $8,000 a month on your team, servers, and tools, your gross burn is $8,000.</p>
+    <p><strong>Net Burn</strong> is the actual amount of cash you are losing each month after accounting for revenue. The formula is simply: <em>Gross Burn - MRR = Net Burn</em>.</p>
+
+    <p>Consider a scenario where you have fought tooth and nail to reach $12k MRR. You feel like you've made it. But along the way, you hired a part-time support rep, upgraded your database tier, and started running $3,000 a month in Google Ads. Your expenses are now bloated at $15k. Your gross burn is $15k, but your net burn is $3k. If you have $30k in the bank, your runway is exactly 10 months.</p>
+    
+    <p>You are not safe just because you crossed the magical five-figure MRR threshold. You are still bleeding cash. This is why <a href="/articles/saas-rates">SaaS rates</a> and pricing strategy are so critical. If you underprice your product at $9/month, your MRR will never scale fast enough to overtake your gross burn, trapping you in a perpetual state of "almost profitable" while your runway slowly evaporates.</p>
+
+    <h2>How Does Churn Accelerate Your Runway Depletion?</h2>
+    <p>It is mathematically impossible to grow your runway if your churn outpaces your new MRR. Many founders try to fix a short runway by pouring more money into top-of-funnel acquisition, buying Facebook ads, or sponsoring newsletters.</p>
+
+    <p>But if your product has a leaky bucket, buying more water is a fool's errand. If you acquire $2,000 in new MRR this month, but $2,500 in existing MRR cancels their subscriptions, your net MRR growth is negative $500. Your net burn just increased. Your runway just got shorter, even though you worked incredibly hard to close new deals.</p>
+
+    <p>Before you spend another dollar on marketing to extend your runway, you must fix retention. A customer saved is cash earned. Run your metrics through our <a href="/tools/saas-churn-calculator">SaaS Churn Calculator</a> to ensure you aren't bleeding out existing users while desperately trying to acquire new ones. If your churn is above 5% monthly, drop everything and fix the product experience.</p>
+
+    <h2>Tactics to Extend Your Runway Without Raising Capital</h2>
+    <p>If you don't like the number the calculator spit out above, you cannot just sit and hope things improve. You only have two levers to pull: increase cash coming in immediately, or drastically decrease cash going out.</p>
+
+    <h3>1. Sell Annual Contracts Upfront</h3>
+    <p>Monthly recurring revenue is great for long-term valuation, but upfront cash is what keeps the lights on today. Offer a 15-20% discount for customers willing to pay for the year upfront. If you close ten customers on a $1,200/year plan, you just injected $12,000 in raw cash into your bank account. That single move could buy you an extra two months of runway. For B2B SaaS, annual contracts also drastically reduce churn, aligning perfectly with your survival goals.</p>
+
+    <h3>2. Audit the Infrastructure and Subscription Sprawl</h3>
+    <p>Founders are notorious for signing up for $50/month SaaS tools, utilizing them for one project, and forgetting about them. Go through your company credit card statement line by line today. Cancel the secondary staging environments you don't use. Downgrade your analytics tier from Pro to Basic. Cancel the AI writing tools you barely open.</p>
+
+    <p>Furthermore, audit your own time. If you are spending 15 hours a month managing server infrastructure to save $40 on a VPS, you are valuing your time at pennies. Migrate to managed infrastructure and spend those 15 hours doing founder-led sales. Your time is the most expensive asset the company has.</p>
+
+    <h3>3. The Hiring Trap: Do Not Hire Until It Hurts</h3>
+    <p>The fastest way to decimate a healthy runway is premature hiring. Bringing on a full-time employee adds an immovable, recurring rock to your gross burn. If you hire a developer for $6,000 a month, your net burn just skyrocketed, and your runway just halved.</p>
+
+    <p>Do not hire a full-time employee until you are fundamentally drowning in work and the lack of a hire is actively causing churn. Until then, use automated tools, hire specialized freelancers for one-off projects, and do things that don't scale. Protect your cash reserves like your life depends on it, because your company's life does.</p>
+
+    <h3>4. Execute the "Do Things That Don't Scale" Hustle</h3>
+    <p>When your runway is under 6 months, automated inbound marketing is too slow. SEO takes 6 to 9 months to compound. You do not have 9 months. You need to be in the inboxes, making cold calls, and leveraging your personal network. Offer high-ticket consulting services attached to your SaaS to drive immediate cash flow while you build the software in the background. If you have to manually onboard your next 20 customers over Zoom to guarantee they convert to paid, do it.</p>
+
+    <blockquote>"Startups don't die when they run out of cash. They die when the founders run out of energy to fight."</blockquote>
+    <p>Protect your runway at all costs, because doing so protects your energy, your sanity, and your company's right to exist in the future. Calculate your numbers, face the brutal reality of your net burn, and get back to work.</p>
+</article>
+
+<div class="faq">
+    <h3>Frequently Asked Questions</h3>
+    <details>
+        <summary>What is Default Alive vs. Default Dead?</summary>
+        <div class="faq-answer">
+            <p>Coined by Y Combinator founder Paul Graham, "Default Alive" means that if your expenses remain constant and your revenue continues to grow at its current trajectory, you will reach profitability before your cash reserves hit zero. "Default Dead" means that on your current trajectory, your bank account will hit zero before you break even, meaning you must drastically change your trajectory, cut costs, or raise money to survive.</p>
+        </div>
+    </details>
+    <details>
+        <summary>Should I include my personal living expenses in my SaaS burn rate?</summary>
+        <div class="faq-answer">
+            <p>If you are a full-time bootstrapped founder living off your startup's cash reserves, absolutely yes. Your personal rent, utilities, and groceries are, functionally, the "payroll" keeping the lead developer and CEO (you) alive. If you cannot pay your rent, the startup dies. Therefore, your minimum living wage must be calculated as a recurring monthly business expense.</p>
+        </div>
+    </details>
+    <details>
+        <summary>How often should I recalculate my runway?</summary>
+        <div class="faq-answer">
+            <p>If you have less than 12 months of runway, you should be checking it weekly as part of your operational cadence. If you have over 12 months, a monthly check-in during your bookkeeping reconciliation is sufficient. Cash balances can shift rapidly due to annual true-ups, unexpected server overages, or a major client churning, so staying vigilant is mandatory.</p>
+        </div>
+    </details>
+    <details>
+        <summary>Does a Line of Credit count as Cash on Hand?</summary>
+        <div class="faq-answer">
+            <p>No. Cash on Hand should only include liquid funds sitting in your checking or savings accounts. While a Line of Credit or business credit card provides emergency liquidity, relying on debt to extend a negative cash flow trajectory is highly dangerous for a bootstrapped company. Calculate your runway based on actual cash, and treat credit only as an absolute last-resort safety net.</p>
+        </div>
+    </details>
+</div>
+
+<script>
+function calculate() {
+    const cashStr = document.getElementById('cash_on_hand').value;
+    const expensesStr = document.getElementById('monthly_expenses').value;
+    const mrrStr = document.getElementById('current_mrr').value;
+
+    const cash = parseFloat(cashStr) || 0;
+    const expenses = parseFloat(expensesStr) || 0;
+    const mrr = parseFloat(mrrStr) || 0;
+
+    const primaryResult = document.getElementById('result-primary');
+    const interpretationText = document.getElementById('interpretation');
+    const netBurnDisplay = document.getElementById('net-burn-display');
+
+    const netBurn = expenses - mrr;
+    
+    const formatCurrency = (val) => {
+        return '$' + val.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    };
+
+    if (cashStr === "" && expensesStr === "" && mrrStr === "") {
+        primaryResult.innerText = "0.0";
+        interpretationText.innerText = "Enter your numbers above to see your runway status.";
+        interpretationText.className = "interpretation";
+        netBurnDisplay.innerText = "";
+        return;
+    }
+
+    if (cash === 0 && netBurn > 0) {
+        primaryResult.innerText = "0.0";
+        interpretationText.innerText = "CRITICAL WARNING: You have zero cash reserves and a negative cash flow. You are effectively out of money and need to take emergency steps immediately.";
+        interpretationText.className = "interpretation danger";
+        netBurnDisplay.innerText = `Net Burn: ${formatCurrency(netBurn)} / month`;
+        return;
+    }
+
+    if (netBurn <= 0) {
+        primaryResult.innerText = "∞";
+        interpretationText.innerText = "You are profitable! Your MRR exceeds your expenses. Your runway is effectively infinite. Welcome to Default Alive.";
+        interpretationText.className = "interpretation healthy";
+        netBurnDisplay.innerText = `Net Profit: ${formatCurrency(Math.abs(netBurn))} / month`;
+        return;
+    }
+
+    const runway = cash / netBurn;
+    primaryResult.innerText = runway.toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+    netBurnDisplay.innerText = `Net Burn: ${formatCurrency(netBurn)} / month`;
+
+    if (runway < 6) {
+        interpretationText.innerText = "DANGER ZONE: Under 6 months of runway. You are staring down the barrel. Prioritize profitability and aggressive burn reduction immediately.";
+        interpretationText.className = "interpretation danger";
+    } else if (runway < 12) {
+        interpretationText.innerText = "WARNING: 6 to 12 months is tight. One bad month or unexpected expense could end you. Focus on reducing burn and increasing MRR.";
+        interpretationText.className = "interpretation warning";
+    } else if (runway < 18) {
+        interpretationText.innerText = "HEALTHY: 12 to 18 months gives you breathing room to weather storms and make strategic, measured growth bets.";
+        interpretationText.className = "interpretation healthy";
+    } else {
+        interpretationText.innerText = "STRONG: Over 18 months of runway. You have a massive moat of time. You can afford to make aggressive growth investments or ride out a long winter.";
+        interpretationText.className = "interpretation healthy";
+    }
+}
+
+document.addEventListener("DOMContentLoaded", calculate);
+</script>
+<div id="related-content" class="related-content"></div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <a href="/" class="footer-brand">SaaS<span class="footer-accent">Tools</span></a>
+      <nav class="footer-nav">
+        <a href="/articles/">Articles</a>
+        <a href="/tools/">Tools</a>
+        <a href="/about.html">About</a>
+        <a href="/privacy">Privacy</a>
+      </nav>
+    </div>
+    <div class="footer-bottom">
+      Built for bootstrapped founders. No VC fluff.
+    </div>
+  </div>
+</footer>
+
+<script>
+(function() {
+  var meta    = document.querySelector('meta[name="cluster"]');
+  var cluster = meta ? meta.getAttribute('content') : '';
+  if (!cluster) return;
+  var parts       = window.location.pathname.split('/').filter(Boolean);
+  var currentSlug = (parts[parts.length - 1] || '').replace('.html', '');
+  fetch('/content-index.json')
+    .then(function(r) { return r.json(); })
+    .then(function(idx) {
+      var articles = (idx.articles || [])
+        .filter(function(a) { return a.cluster === cluster && a.slug !== currentSlug; })
+        .slice(0, 3);
+      var tools = (idx.tools || [])
+        .filter(function(t) { return t.cluster === cluster && t.slug !== currentSlug; })
+        .slice(0, 2);
+      var html = '';
+      if (articles.length) {
+        html += '<h3 class="related-heading">Related Articles</h3>'
+              + '<ul class="related-list">';
+        articles.forEach(function(a) {
+          html += '<li><a href="/articles/' + a.slug + '">' + a.title + '</a></li>';
+        });
+        html += '</ul>';
+      }
+      if (tools.length) {
+        html += '<h3 class="related-heading">Related Tools</h3>'
+              + '<ul class="related-list">';
+        tools.forEach(function(t) {
+          html += '<li><a href="/tools/' + t.slug + '">' + t.title + '</a></li>';
+        });
+        html += '</ul>';
+      }
+      if (html) {
+        var el = document.getElementById('related-content');
+        if (el) el.innerHTML = html;
+      }
+    })
+    .catch(function() {});
+})();
+</script>
+
+<script>
+(function () {
+  document.addEventListener('click', function (e) {
+    var el = e.target.closest('a[href]');
+    if (!el) return;
+    var href = el.getAttribute('href') || '';
+    if (href.indexOf('cloudways.com') === -1 || href.indexOf('id=') === -1) return;
+    if (typeof window.cfBeacon === 'undefined' || typeof window.cfBeacon.pushEvent !== 'function') return;
+    window.cfBeacon.pushEvent('affiliate_click', {
+      affiliate: 'cloudways',
+      page: window.location.pathname
+    });
+  }, true);
+})();
+</script>
+
+</body>
+</html>
