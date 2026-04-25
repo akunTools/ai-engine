@@ -22,5 +22,13 @@
       "excerpt": "Stop bleeding MRR. We break down the brutal math of SaaS rates, from churn benchmarks to unit economics, specifically for bootstrapped founders."
     }
   ],
-  "tools": []
+  "tools": [
+    {
+      "slug": "saas-churn-calculator",
+      "title": "The Brutal SaaS Churn Calculator",
+      "cluster": "saas-churn-retention",
+      "date": "2026-04-25",
+      "excerpt": "Stop guessing your SaaS churn. Use this interactive calculator to instantly find your customer and revenue churn rates. Face the brutal math and fix it."
+    }
+  ]
 }
