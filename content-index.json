@@ -36,6 +36,13 @@
       "cluster": "saas-financial-planning",
       "date": "2026-04-25",
       "excerpt": "Calculate your exact SaaS runway in months. Stop guessing, know your true net burn, and see exactly when your startup runs out of cash before it"
+    },
+    {
+      "slug": "saas-metrics-calculator",
+      "title": "The Brutal SaaS Metrics Calculator",
+      "cluster": "saas-unit-economics",
+      "date": "2026-04-25",
+      "excerpt": "Stop guessing your SaaS health. Calculate LTV, CAC, ARPU, and Churn instantly with this free SaaS metrics calculator. Built for bootstrapped founders."
     }
   ]
 }
