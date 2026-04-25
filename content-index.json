@@ -29,6 +29,13 @@
       "cluster": "saas-churn-retention",
       "date": "2026-04-25",
       "excerpt": "Stop guessing your SaaS churn. Use this interactive calculator to instantly find your customer and revenue churn rates. Face the brutal math and fix it."
+    },
+    {
+      "slug": "saas-runway-calculator",
+      "title": "The Brutal SaaS Runway Calculator",
+      "cluster": "saas-financial-planning",
+      "date": "2026-04-25",
+      "excerpt": "Calculate your exact SaaS runway in months. Stop guessing, know your true net burn, and see exactly when your startup runs out of cash before it"
     }
   ]
 }
