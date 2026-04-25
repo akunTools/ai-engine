@@ -1102,6 +1102,25 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
       line-height: 1.7;
       font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
     }}
+    .formula-box ul, .formula-box ol {{
+      margin: 10px 0;
+      padding-left: 20px;
+    }}
+    .formula-box li {{
+      margin-bottom: 8px;
+      font-size: 0.875rem;
+      color: var(--text);
+      line-height: 1.6;
+      font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+    }}
+    .formula-box li code {{
+      background: #f4f4f5;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.15em 0.4em;
+      border-radius: 3px;
+      font-size: 0.85em;
+    }}
 
     /* ── AFFILIATE BOX ── */
     .affiliate-box {{
