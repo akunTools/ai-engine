@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Brutal SaaS Churn Calculator — SaaS Tools for Bootstrapped Founders</title>
+  <meta name="description" content="Stop guessing your SaaS churn. Use this interactive calculator to instantly find your customer and revenue churn rates. Face the brutal math and fix it.">
+  <meta name="cluster" content="saas-churn-retention">
+  <meta property="og:title" content="The Brutal SaaS Churn Calculator">
+  <meta property="og:url" content="https://saas.blogtrick.eu.org/tools/saas-churn-calculator">
+  <meta property="og:type" content="website">
+  <meta property="og:description" content="Stop guessing your SaaS churn. Use this interactive calculator to instantly find your customer and revenue churn rates. Face the brutal math and fix it.">
+  <meta property="og:site_name" content="SaaS Tools for Bootstrapped Founders">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="The Brutal SaaS Churn Calculator">
+  <meta name="twitter:description" content="Stop guessing your SaaS churn. Use this interactive calculator to instantly find your customer and revenue churn rates. Face the brutal math and fix it.">
+  <link rel="canonical" href="https://saas.blogtrick.eu.org/tools/saas-churn-calculator">
+  
+  <link rel="icon" type="image/png" href="/favicon/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg" />
+  <link rel="shortcut icon" href="/favicon/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
+  <link rel="manifest" href="/favicon/site.webmanifest" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+  <style>
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg:           #fafafa;
+    --surface:      #ffffff;
+    --text:         #18181b;
+    --muted:        #52525b;
+    --subtle:       #a1a1aa;
+    --border:       #e4e4e7;
+    --accent:       #2563eb;
+    --accent-h:     #1d4ed8;
+    --accent-light: #eff6ff;
+    --danger:       #dc2626;
+    --danger-bg:    #fef2f2;
+    --warning:      #d97706;
+    --warning-bg:   #fffbeb;
+    --success:      #059669;
+    --success-bg:   #f0fdf4;
+    --r:            4px;
+  }
+  body {
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { color: var(--accent-h); }
+  
+  /* Global Focus State for Accessibility */
+  *:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+
+  nav.site-nav,
+  body > nav:not(.footer-nav) {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-inner {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0 24px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .nav-brand {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text);
+    text-decoration: none;
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+  }
+  .brand-accent {
+    color: var(--accent);
+  }
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .nav-links a {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 0 12px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    border-radius: var(--r);
+    transition: color 0.15s ease, background 0.15s ease;
+  }
+  .nav-links a:hover {
+    color: var(--text);
+    background: var(--bg);
+  }
+  .nav-links a.active {
+    color: var(--accent);
+    background: var(--accent-light);
+    border: 1px solid #bfdbfe;
+  }
+  .nav-back {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--muted);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 0 8px;
+    border-radius: var(--r);
+    transition: color 0.15s ease;
+  }
+  .nav-back:hover {
+    color: var(--text);
+    background: var(--bg);
+  }
+  @media (max-width: 640px) {
+    .nav-inner { padding: 0 16px; }
+    .nav-links a { padding: 0 8px; }
+  }
+
+
+  .article-wrap {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+  .article-header {
+    padding: 64px 0 40px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 48px;
+  }
+  .article-header__title {
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.25;
+    letter-spacing: -0.03em;
+    margin: 0 0 24px;
+  }
+  .article-header__meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-size: 0.85rem;
+    font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+    color: var(--muted);
+    line-height: 1;
+  }
+  .article-header__meta span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .article-header__meta-sep { color: var(--border); }
+  .kw-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text);
+    background: var(--border);
+    padding: 4px 8px;
+    border-radius: 4px;
+  }
+  .article-body {
+    font-size: 1.0625rem;
+    line-height: 1.72;
+    color: var(--text);
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+  .article-body h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.02em;
+    line-height: 1.3;
+    margin: 56px 0 24px;
+    border-bottom: 2px solid var(--text);
+    padding-bottom: 8px;
+  }
+  .article-body h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.01em;
+    line-height: 1.4;
+    margin: 40px 0 16px;
+  }
+  .article-body p { margin: 0 0 24px; }
+  .article-body ul, .article-body ol {
+    margin: 0 0 24px;
+    padding-left: 24px;
+  }
+  .article-body li { margin-bottom: 8px; }
+  .article-body li::marker { color: var(--muted); font-weight: bold; }
+  .article-body a {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    text-decoration-thickness: 1px;
+    transition: color 0.15s ease, text-decoration-color 0.15s ease;
+  }
+  .article-body a:hover {
+    color: var(--text);
+    text-decoration-color: var(--text);
+  }
+  
+  /* Utilitarian Blockquote */
+  .article-body blockquote {
+    margin: 32px 0;
+    padding: 20px 24px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--text);
+    color: var(--text);
+    font-size: 1.0625rem;
+    font-style: normal;
+    line-height: 1.72;
+  }
+  .article-body blockquote p:last-child { margin-bottom: 0; }
+  
+  /* Micro-details: Inline Code vs Preformatted Code */
+  .article-body code {
+    font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+    font-size: 0.85em;
+    background: #f4f4f5;
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+  }
+  .article-body pre {
+    background: #18181b;
+    color: #e4e4e7;
+    border-radius: var(--r);
+    padding: 20px 24px;
+    margin: 32px 0;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    border: 1px solid #3f3f46;
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .article-body pre code {
+    background: transparent;
+    border: none;
+    color: inherit;
+    padding: 0;
+    font-size: inherit;
+  }
+  
+  /* Micro-details: Image & Table Responsiveness */
+  .article-body img {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--r);
+    border: 1px solid var(--border);
+    display: block;
+    margin: 40px 0;
+  }
+  .article-body table {
+    width: 100%;
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-collapse: collapse;
+    margin: 32px 0;
+    font-size: 0.9rem;
+    border: 1px solid var(--border);
+  }
+  .article-body th, .article-body td {
+    padding: 12px 16px;
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+  .article-body th {
+    background: var(--bg);
+    font-weight: 600;
+    text-align: left;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.8125rem;
+    white-space: nowrap;
+  }
+  .article-body hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 56px 0;
+  }
+
+  /* Affiliate Box khusus untuk Artikel */
+  .affiliate-box {
+    background: var(--success-bg);
+    border: 1px solid rgba(16,185,129,.25);
+    border-radius: var(--r);
+    padding: 20px 24px;
+    margin: 32px 0;
+    font-size: 1.0625rem;
+    color: var(--text);
+    line-height: 1.6;
+  }
+  .affiliate-box a {
+    color: var(--success);
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-color: rgba(16,185,129,.4);
+  }
+  .affiliate-box a:hover { color: #059669; text-decoration-color: #059669; }
+  
+  .share-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 32px;
+    margin: 56px 0 48px;
+  }
+  @media (max-width: 640px) {
+    .share-box {
+      padding: 20px;
+      margin: 40px 0 32px;
+    }
+  }
+  .share-label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--text);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 16px;
+  }
+  .share-buttons { display: flex; flex-wrap: wrap; gap: 12px; }
+  .share-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 0 16px; border-radius: var(--r);
+    font-size: 0.875rem; font-weight: 500; text-decoration: none;
+    cursor: pointer; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text); min-height: 44px;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .share-btn:hover { background: var(--bg); border-color: var(--muted); }
+  .comments-box { margin-bottom: 48px; }
+  .comments-box h2 {
+    font-size: 1.25rem; font-weight: 700; color: var(--text);
+    margin-bottom: 24px; padding-bottom: 16px; border-bottom: 2px solid var(--text);
+  }
+  
+  @media (max-width: 640px) {
+    .article-wrap { padding: 0 16px; }
+    .article-header { padding: 40px 0 32px; }
+    .article-body { font-size: 1rem; }
+    .article-body pre {
+      margin: 32px -16px;
+      border-radius: 0;
+      border-left: none;
+      border-right: none;
+    }
+    .article-body table {
+      margin: 32px -16px;
+      width: calc(100% + 32px);
+      border-left: none;
+      border-right: none;
+      border-radius: 0;
+    }
+  }
+
+
+    /* ── LAYOUT ── */
+    .container { max-width: 680px; margin: 0 auto; padding: 48px 24px 80px; }
+
+    /* ── TYPOGRAPHY ── */
+    h1 {
+      font-size: clamp(1.75rem, 4vw, 2.25rem);
+      font-weight: 700;
+      letter-spacing: -.03em;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .subtitle {
+      color: var(--muted);
+      font-size: 1.0625rem;
+      margin-bottom: 40px;
+      line-height: 1.6;
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 32px;
+      margin-bottom: 24px;
+    }
+    .card h2 {
+      font-size: .875rem;
+      font-weight: 600;
+      color: var(--text);
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      margin-bottom: 24px;
+      border-bottom: 2px solid var(--text);
+      padding-bottom: 8px;
+    }
+
+    /* ── CARD HR separator ── */
+    .card hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 24px 0;
+    }
+
+    /* ── INPUTS (UTILITARIAN BRUTALISM) ── */
+    .input-group { margin-bottom: 20px; }
+    .input-group:last-child { margin-bottom: 0; }
+    label {
+      display: block;
+      font-size: .875rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .input-wrapper { position: relative; }
+    .input-prefix {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+      font-size: 1rem;
+      pointer-events: none;
+      font-weight: 500;
+    }
+    input[type="number"] {
+      width: 100%;
+      padding: 12px 14px 12px 32px;
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      font-size: 16px !important; /* CRITICAL: Mencegah iOS Auto-Zoom */
+      font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+      color: var(--text);
+      background: var(--bg);
+      transition: border-color .15s, outline .15s;
+      -moz-appearance: textfield;
+    }
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+    input[type="number"]:focus {
+      outline: 2px solid var(--accent);
+      outline-offset: -1px;
+      border-color: var(--accent);
+      background: var(--surface);
+    }
+    input[type="number"].error-input { border-color: var(--danger); }
+    .error-msg {
+      color: var(--danger);
+      font-size: .8125rem;
+      margin-top: 6px;
+      display: none;
+    }
+
+    /* ── RESULT (HIGH CONTRAST) ── */
+    .result-card {
+      background: var(--surface);
+      border: 2px solid var(--text);
+      border-radius: var(--r);
+      padding: 32px;
+      margin-bottom: 24px;
+    }
+    .result-label {
+      font-size: .8125rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 8px;
+    }
+    .result-number {
+      font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+      font-size: clamp(1.75rem, 6vw, 4rem);
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1;
+      letter-spacing: -.05em;
+      margin-bottom: 8px;
+      overflow-wrap: break-word;
+      word-break: break-all;
+    }
+    .result-unit {
+      font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+      font-size: 1rem;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+    .interpretation {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--text);
+      border-radius: 0 var(--r) var(--r) 0;
+      padding: 16px 20px;
+      font-size: 0.9375rem;
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .interpretation.danger { border-color: var(--danger); background: var(--danger-bg); }
+    .interpretation.warning { border-color: var(--warning); background: var(--warning-bg); }
+    .interpretation.healthy { border-color: var(--success); background: var(--success-bg); }
+    .secondary-result {
+      margin-top: 16px;
+      font-size: .875rem;
+      font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+      color: var(--muted);
+    }
+
+    /* ── RESULT ROW (multi-result separator) ── */
+    .result-row {
+      padding-bottom: 20px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .result-row:last-child {
+      padding-bottom: 0;
+      margin-bottom: 0;
+      border-bottom: none;
+    }
+
+    /* ── FORMULA BOX ── */
+    .formula-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .formula-box h3 {
+      font-size: .75rem;
+      font-weight: 600;
+      color: var(--text);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 12px;
+    }
+    .formula-box p {
+      font-size: 0.875rem;
+      color: var(--text);
+      line-height: 1.7;
+      font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+    }
+    .formula-box ul, .formula-box ol {
+      margin: 10px 0;
+      padding-left: 20px;
+    }
+    .formula-box li {
+      margin-bottom: 8px;
+      font-size: 0.875rem;
+      color: var(--text);
+      line-height: 1.6;
+      font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+    }
+    .formula-box li code {
+      background: #f4f4f5;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.15em 0.4em;
+      border-radius: 3px;
+      font-size: 0.85em;
+    }
+
+    /* ── AFFILIATE BOX ── */
+    .affiliate-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--success);
+      border-radius: 0 var(--r) var(--r) 0;
+      padding: 20px 24px;
+      margin-bottom: 24px;
+      font-size: 0.9375rem;
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .affiliate-box a {
+      color: var(--success);
+      font-weight: 600;
+      text-decoration: underline;
+      text-decoration-color: rgba(16,185,129,.4);
+    }
+    .affiliate-box a:hover { color: #059669; text-decoration-color: #059669; }
+
+    /* ── RELATED LINK ── */
+    .related-link { font-size: .9375rem; color: var(--muted); padding: 16px 0; }
+    .related-link a { color: var(--accent); text-decoration: underline; font-weight: 500; }
+    .related-link a:hover { color: var(--accent-h); }
+
+    /* ── FAQ ── */
+    .faq { margin-top: 48px; }
+    .faq h3 {
+      font-size: 1.25rem; font-weight: 700; color: var(--text);
+      letter-spacing: -.02em; margin-bottom: 20px;
+      border-bottom: 2px solid var(--text); padding-bottom: 8px;
+    }
+    .faq details {
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      margin-bottom: 12px;
+      background: var(--surface);
+    }
+    .faq summary {
+      padding: 16px 20px; font-size: 1rem; font-weight: 600; color: var(--text);
+      cursor: pointer; list-style: none; display: flex;
+      justify-content: space-between; align-items: center;
+      min-height: 44px;
+    }
+    .faq summary::-webkit-details-marker { display: none; }
+    .faq summary::after {
+      content: '+'; font-size: 1.2rem; color: var(--muted);
+      font-weight: 300; flex-shrink: 0; margin-left: 16px; font-family: monospace;
+    }
+    .faq details[open] > summary::after { content: '−'; }
+    .faq details[open] > summary { border-bottom: 1px solid var(--border); background: var(--bg); }
+    .faq .faq-answer {
+      padding: 20px; font-size: 0.9375rem; color: var(--muted);
+      line-height: 1.7; background: var(--surface);
+    }
+
+    /* ── ARTICLE BODY di dalam tool: top spacing & separator ── */
+    .container > .article-body {
+      margin-top: 48px;
+      padding-top: 48px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── Override article-body h2 untuk tool: lebih compact ── */
+    .container .article-body h2 {
+      margin: 40px 0 20px;
+    }
+
+
+  .related-content { margin-bottom: 32px; }
+  .related-heading {
+    font-size: .75rem; font-weight: 600; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .05em;
+    margin-bottom: 12px; margin-top: 24px;
+  }
+  .related-heading:first-child { margin-top: 0; }
+  .related-list {
+    list-style: none; margin: 0; padding: 0;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .related-list li a {
+    font-size: .9rem; color: var(--text); text-decoration: none;
+    display: block; padding: 12px 16px; background: var(--surface);
+    border: 1px solid var(--border); border-radius: var(--r);
+    transition: border-color .15s, background .15s;
+  }
+  .related-list li a:hover { border-color: var(--text); background: var(--bg); }
+
+
+  footer {
+    background: var(--bg);
+    border-top: 1px solid var(--border);
+    margin-top: 80px;
+  }
+  .footer-inner {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 48px 24px;
+  }
+  .footer-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+  }
+  .footer-brand {
+    font-size: 1.0625rem;
+    font-weight: 700;
+    color: var(--text);
+    text-decoration: none;
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+  }
+  .footer-accent { color: var(--accent); }
+  .footer-nav {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .footer-nav a {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 0 12px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    border-radius: var(--r);
+    transition: color 0.15s ease;
+  }
+  .footer-nav a:hover { color: var(--text); }
+  .footer-bottom {
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    font-size: 0.8125rem;
+    color: var(--muted);
+    line-height: 1.6;
+    font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+  }
+  @media (max-width: 640px) {
+    footer { margin-top: 48px; }
+    .footer-inner { padding: 40px 16px; }
+    .footer-top {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+    }
+    .footer-nav { margin-left: -12px; }
+  }
+
+
+    @media (max-width: 640px) {
+      .container { padding: 32px 16px 64px; }
+      .card, .result-card, .formula-box, .affiliate-box { padding: 20px; }
+    }
+  </style>
+  <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "5833f90d78f645e0819abedd665e5d93"}'></script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Should I calculate churn daily, monthly, or annually?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "For operational velocity in a bootstrapped SaaS, track it monthly. Daily churn is incredibly noisy and will cause emotional whiplash every time a single customer cancels. Annual churn is a lagging indicator—by the time you calculate it at the end of the year, your business might already be dead. Use monthly cohorts for the most actionable, clear-headed data."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does a failed credit card payment count as churn?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. Involuntary churn (failed payments, expired cards, insufficient funds) is still churn because the MRR is gone. However, it should be tracked separately from voluntary churn (the user actively deciding to hit the cancel button). Fix involuntary churn with automated dunning management to retry cards on smart schedules."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How is B2B churn different from B2C churn?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "B2C churn is highly emotional, fickle, and sensitive to personal budget cuts or shiny new objects. B2B churn is logical; if your tool demonstrably saves a business $500 a month in labor, they will not cancel a $50 subscription. B2B software naturally has much lower churn rates, but it requires significantly longer sales cycles, heavier compliance, and higher ongoing customer support loads."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Should I include promotional discounts when calculating starting MRR?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Always use the actual revenue you expect to collect. If a customer is on a 50% off discount paying $50/mo instead of $100/mo, their MRR is $50. When their discount expires and they start paying $100/mo, that $50 increase counts exactly as Expansion MRR, which will directly improve your Net MRR Churn rate."
+        }
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="nav-inner">
+    <a href="/tools/" class="nav-back">← All Tools</a>
+    <div class="nav-links">
+      <a href="/articles/">Articles</a>
+      <a href="/tools/" class="active">Tools</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+
+<h1>The Brutal SaaS Churn Calculator</h1>
+<p class="subtitle">Calculate your Customer, Gross Revenue, and Net Revenue Churn rates to see exactly how fast your bucket is leaking.</p>
+
+<div class="card">
+  <h2>Customer Metrics (Monthly)</h2>
+  
+  <div class="input-group">
+    <label for="customersStart">Customers at Start of Month</label>
+    <div class="input-wrapper">
+      <input type="number" id="customersStart" min="1" step="1" placeholder="e.g. 500" aria-label="Customers at start of month" style="font-size:16px" oninput="calculate()">
+    </div>
+  </div>
+
+  <div class="input-group">
+    <label for="customersChurned">Customers Churned During Month</label>
+    <div class="input-wrapper">
+      <input type="number" id="customersChurned" min="0" step="1" placeholder="e.g. 25" aria-label="Customers churned during month" style="font-size:16px" oninput="calculate()">
+    </div>
+    <div class="error-msg" id="error-customers" hidden>Churned customers cannot exceed starting customers.</div>
+  </div>
+
+  <hr>
+
+  <h2>Revenue Metrics (Monthly)</h2>
+
+  <div class="input-group">
+    <label for="mrrStart">MRR at Start of Month</label>
+    <div class="input-wrapper">
+      <span class="input-prefix">$</span>
+      <input type="number" id="mrrStart" min="1" step="100" placeholder="e.g. 25000" aria-label="MRR at start of month" style="font-size:16px" oninput="calculate()">
+    </div>
+  </div>
+
+  <div class="input-group">
+    <label for="mrrLost">MRR Lost to Churn & Downgrades</label>
+    <div class="input-wrapper">
+      <span class="input-prefix">$</span>
+      <input type="number" id="mrrLost" min="0" step="100" placeholder="e.g. 1500" aria-label="MRR lost during month" style="font-size:16px" oninput="calculate()">
+    </div>
+    <div class="error-msg" id="error-mrr" hidden>Lost MRR cannot exceed starting MRR.</div>
+  </div>
+
+  <div class="input-group">
+    <label for="mrrExpansion">Expansion MRR (Upgrades/Cross-sells)</label>
+    <div class="input-wrapper">
+      <span class="input-prefix">$</span>
+      <input type="number" id="mrrExpansion" min="0" step="100" placeholder="e.g. 2000" aria-label="Expansion MRR during month" style="font-size:16px" oninput="calculate()">
+    </div>
+  </div>
+</div>
+
+<div class="result-card" id="result-card" aria-live="polite">
+  <div class="result-row">
+    <div class="result-label">Customer Churn Rate</div>
+    <div>
+      <span class="result-number" id="resCustomerChurn">0.00</span>
+      <span class="result-unit">%</span>
+    </div>
+  </div>
+
+  <hr>
+
+  <div class="result-row">
+    <div class="result-label">Gross MRR Churn Rate</div>
+    <div>
+      <span class="result-number" id="resGrossChurn">0.00</span>
+      <span class="result-unit">%</span>
+    </div>
+  </div>
+  
+  <hr>
+
+  <div class="result-row">
+    <div class="result-label">Net MRR Churn Rate</div>
+    <div>
+      <span class="result-number" id="resNetChurn">0.00</span>
+      <span class="result-unit">%</span>
+    </div>
+  </div>
+  
+  <div class="interpretation" id="churnInterpretation" hidden>
+    </div>
+</div>
+
+<div class="formula-box">
+  <strong>The Math Behind the Metrics:</strong><br>
+  • <em>Customer Churn</em> = (Customers Churned ÷ Customers at Start) × 100<br>
+  • <em>Gross MRR Churn</em> = (MRR Lost ÷ MRR at Start) × 100<br>
+  • <em>Net MRR Churn</em> = ((MRR Lost - Expansion MRR) ÷ MRR at Start) × 100<br><br>
+  <em>Note: Do not include new MRR from brand new customers acquired this month in your expansion MRR. Expansion applies exclusively to your existing customer base.</em>
+</div>
+
+<article class="article-body">
+  <h2>The Silent Killer: Why Churn Destroys Bootstrapped SaaS</h2>
+  
+  <p>Imagine closing the month at $40,000 MRR. You hustled, ran a killer cold email campaign, closed a few decent-sized accounts, and brought in $4,000 in brand new MRR. You crack open a beer. You should be celebrating. But when you log into Stripe the next morning, your total MRR only grew by $1,600. Why? Because while you were busy celebrating at the front door, $2,400 quietly walked out the back.</p>
+  
+  <p>That is a 6% gross MRR churn rate. It feels like a minor annoyance right now, but for a bootstrapped founder, it is a terminal disease. This is what veteran founders call the <strong>SaaS Treadmill Effect</strong>.</p>
+  
+  <p>When you have 50 customers, losing 3 a month is easy to outpace with founder-led sales. You can hustle your way out of it. But what happens when you finally scale to 1,000 customers? At a 6% monthly churn rate, you are losing 60 customers every single month. You have to acquire 60 new users just to <em>stay exactly where you are</em>. The treadmill speeds up, your marketing acquisition costs soar, but your legs can only move so fast. Eventually, you burn out, your team burns out, and your growth flatlines permanently.</p>
+  
+  <p>Understanding and ruthlessly optimizing your <a href="/articles/saas-rates">SaaS rates</a>—specifically your churn metrics—is the only way to build actual enterprise value instead of just building a high-stress, low-margin job for yourself.</p>
+
+  <h2>How Do You Calculate SaaS Churn Rate?</h2>
+  
+  <p>Most technical founders overcomplicate this or rely on a dashboard metric they don't fully understand. In reality, you need to track three distinct metrics, and you need to calculate them religiously every 30 days. Our SaaS churn calculator above does the heavy lifting, but you must understand the underlying mechanics to know which levers to pull.</p>
+
+  <h3>1. Customer Churn (Logo Churn)</h3>
+  <p>This is the raw count of human beings (or companies) that hit the cancel button or fail to renew.</p>
+  <blockquote><strong>Formula:</strong> (Canceled Customers in Month ÷ Total Customers at Start of Month) × 100</blockquote>
+  <p>If you start January with 500 customers and 25 of them cancel by January 31st, your customer churn is 5%. Logo churn tells you a brutal truth: whether your product is delivering its promised core value. If this number is stubbornly high, your product is either broken, priced wrong, or your onboarding is terrible. In fact, a massive chunk of logo churn happens incredibly early in the user journey, which is why nailing your <a href="/articles/saas-customer-retention-2-days">SaaS customer retention 2 days after signup</a> is an absolute mandate for survival.</p>
+
+  <h3>2. Gross MRR Churn</h3>
+  <p>Logo churn doesn't tell the whole financial story, which can be deceiving. Let's look at an example: If you lose 10 basic-tier customers paying $10/mo, that is $100 lost. If you lose 1 Enterprise customer paying $1,000/mo, your logo churn looks amazing (only 1 loss!), but your bank account is heavily bleeding.</p>
+  <blockquote><strong>Formula:</strong> (MRR Lost to Cancellations & Downgrades ÷ Starting MRR) × 100</blockquote>
+  <p>Gross MRR churn measures the pure revenue bleed from your existing customer base. It completely isolates the bleeding from any positive upgrades or new sales, giving you a stark look at how much money you are losing from the people who already trusted you.</p>
+
+  <h3>3. Net MRR Churn (The Holy Grail)</h3>
+  <p>This is where bootstrapped SaaS fortunes are made or lost. Net MRR churn accounts for the revenue you lost, <em>minus</em> the expansion revenue (upgrades, cross-sells, added seats) generated from your remaining customers.</p>
+  <blockquote><strong>Formula:</strong> ((Lost MRR - Expansion MRR) ÷ Starting MRR) × 100</blockquote>
+  <p>If your expansion MRR is higher than your lost MRR, you achieve <strong>Net Negative Churn</strong>. This means your company's revenue actually grows every month even if you add zero new customers. It is the ultimate compound interest engine in the software world. Companies with net negative churn scale effortlessly; companies with high positive net churn die a slow, painful death.</p>
+
+  <h2>What Is a Healthy Churn Rate for SaaS?</h2>
+  
+  <p>Let’s cut the fluff. If you search Google for "healthy churn rates," you will find VC-backed blogs telling you that 1-2% monthly churn is acceptable across the board. That is a dangerous lie. Your acceptable churn depends entirely on your target market and your Average Revenue Per User (ARPU).</p>
+
+  <ul>
+    <li><strong>B2C or Prosumer SaaS ($5 - $29/mo):</strong> You will inherently see higher churn. 5% to 7% monthly logo churn is common, though painful. Consumers are fickle, credit cards expire constantly, and their switching costs are virtually zero.</li>
+    <li><strong>SMB B2B SaaS ($49 - $249/mo):</strong> You should aim for 2% to 4% monthly customer churn. Anything higher means your product is a "nice-to-have," not a core operational tool that the business relies on to function.</li>
+    <li><strong>Mid-Market & Enterprise SaaS ($1k+/mo):</strong> Less than 1% monthly logo churn is mandatory. The sales cycle is long, but once integrated, the software should be incredibly sticky. If an enterprise rips out your software, something went catastrophically wrong with your product or support.</li>
+  </ul>
+
+  <p>However, regardless of your logo churn, your <strong>Net MRR Churn should always be trending toward 0% or negative</strong>. Let's look at another scenario: You are a bootstrapped founder at $12,000 MRR, but your monthly burn rate (AWS, OpenAI APIs, email tools, and your meager founder salary) is $8,000. If you have a 4% net MRR churn, you are automatically losing $480/month. That means you have to hustle up $480 in new sales just to cover next month's server bills and keep your salary. You are surviving, not scaling.</p>
+
+  <h2>How Does Churn Destroy Your Unit Economics?</h2>
+
+  <p>Churn doesn't just lower your current MRR; it obliterates your Customer Lifetime Value (LTV), which in turn dictates exactly how much you can afford to spend on marketing and acquisition (CAC).</p>
+  
+  <p>The basic formula for LTV is your ARPU divided by your Customer Churn Rate. If your SaaS charges $100 a month and you have a 5% monthly churn rate, your LTV is $2,000. But if you can optimize your product and drop that churn rate to 2%, your LTV instantly skyrockets to $5,000.</p>
+  
+  <p>Think about what that means for a bootstrapped business. With a $5,000 LTV, you can comfortably afford to spend $800 to acquire a customer. Your competitor, stuck at a 5% churn rate and a $2,000 LTV, will go bankrupt if they try to spend $800 on acquisition. Lowering churn gives you the financial leverage to outspend your competitors, buy better ads, and scale faster without raising outside capital.</p>
+
+  <h2>The 12-Month Cohort Cliff: Are You Leaking Old Customers?</h2>
+  
+  <p>Calculating your monthly churn rate across the board is a good starting point, but an aggregate number often hides the ugly truth beneath the surface. If you acquire 100 users in January, exactly how many are still paying you in December? This is cohort retention, and it is the single most important chart you can look at in Stripe or ProfitWell.</p>
+  
+  <p>Many founders celebrate a "stable" 3% aggregate monthly churn rate without realizing the brutal compounding math behind it. Over 12 months, a 3% monthly churn compounds to losing <strong>30.6% of your original cohort</strong>. If your LTV calculations assume a customer sticks around for 3 years, but your cohort analysis shows they essentially all leave by month 10, your unit economics are fictional. You are building a business on a spreadsheet that doesn't reflect reality.</p>
+
+  <p>To fix this, you must adopt a long-term retention mindset. Stop looking just at the next 30 days. You need to map out exactly when customers drop off. Is it after onboarding? After 3 months when they've exhausted the initial feature set? Or at 12 months when the annual renewal hits? For a comprehensive, step-by-step roadmap on surviving this exact problem, study our <a href="/articles/churn-prevention-saas-1-year">churn prevention SaaS 1 year battle plan</a>.</p>
+
+  <h2>How Do You Fix SaaS Customer Retention Fast?</h2>
+
+  <p>Knowing your exact churn rate is just the diagnosis. It tells you how sick the patient is. Now, you need the treatment plan. Here is the operational playbook for bootstrapped founders who need to stop the bleeding immediately:</p>
+
+  <h3>1. Kill the "Empty Room" Onboarding Experience</h3>
+  <p>When a user signs up and hands over their credit card, do they face a blank dashboard waiting for them to upload data? That's an empty room. They will get overwhelmed and leave. You must inject sample data immediately. Force them to complete one core action that delivers the "Aha!" moment within the first 10 minutes of their first session.</p>
+
+  <h3>2. Implement Value-Based Pricing Tiers</h3>
+  <p>If you charge a flat $49/mo for everything, your expansion revenue will always mathematically be zero, making Net Negative Churn impossible. You must price based on usage metrics, seats, or clear feature tiers. When your customers grow their businesses and get more value out of your tool, your MRR must grow with them.</p>
+
+  <h3>3. Master the Cancel Flow (Ethically)</h3>
+  <p>Never hide the cancel button. Doing so just leads to chargebacks, Stripe disputes, and a ruined domain reputation. But when they do click cancel, do not just let them walk away in silence. Ask them <em>why</em>. Offer a pause plan (e.g., "$5/mo to keep your historical data intact while you figure things out"). Offer a customized downgrade. Fight for that MRR before it officially churns.</p>
+
+  <h3>4. Monitor Leading Indicators, Not Just Lagging Ones</h3>
+  <p>Churn doesn't happen on the day the customer clicks the cancel button. It happens three weeks earlier when they stopped logging in. Track "Time Since Last Login" or "Core Actions Taken." If an active user suddenly goes dormant for 7 days, trigger a personalized, automated outreach email. Not a glossy marketing newsletter—a plain-text email from you, the founder, asking if they are stuck or need help setting up a specific feature.</p>
+
+  <h3>5. Crush Involuntary Churn</h3>
+  <p>Roughly 20% to 40% of all SaaS churn is involuntary. It is literally just expired credit cards, failed payments, and blocked transactions. If you are not using a robust dunning management system to automatically retry cards and proactively email customers before their cards expire, you are setting money on fire. Fix this today; it requires zero changes to your actual product.</p>
+
+  <p>Stop ignoring the leak. Use the calculator above, face the brutal reality of your math, stop tweaking your landing page for one week, and get back to work fixing the core product experience.</p>
+</article>
+
+<div class="faq">
+  <h3>Frequently Asked Questions</h3>
+  
+  <details>
+    <summary>Should I calculate churn daily, monthly, or annually?</summary>
+    <div class="faq-answer">
+      For operational velocity in a bootstrapped SaaS, track it monthly. Daily churn is incredibly noisy and will cause emotional whiplash every time a single customer cancels. Annual churn is a lagging indicator—by the time you calculate it at the end of the year, your business might already be dead. Use monthly cohorts for the most actionable, clear-headed data.
+    </div>
+  </details>
+
+  <details>
+    <summary>Does a failed credit card payment count as churn?</summary>
+    <div class="faq-answer">
+      Yes. Involuntary churn (failed payments, expired cards, insufficient funds) is still churn because the MRR is gone. However, it should be tracked separately from voluntary churn (the user actively deciding to hit the cancel button). Fix involuntary churn with automated dunning management to retry cards on smart schedules.
+    </div>
+  </details>
+
+  <details>
+    <summary>How is B2B churn different from B2C churn?</summary>
+    <div class="faq-answer">
+      B2C churn is highly emotional, fickle, and sensitive to personal budget cuts or shiny new objects. B2B churn is logical; if your tool demonstrably saves a business $500 a month in labor, they will not cancel a $50 subscription. B2B software naturally has much lower churn rates, but it requires significantly longer sales cycles, heavier compliance, and higher ongoing customer support loads.
+    </div>
+  </details>
+  
+  <details>
+    <summary>Should I include promotional discounts when calculating starting MRR?</summary>
+    <div class="faq-answer">
+      Always use the actual revenue you expect to collect. If a customer is on a 50% off discount paying $50/mo instead of $100/mo, their MRR is $50. When their discount expires and they start paying $100/mo, that $50 increase counts exactly as Expansion MRR, which will directly improve your Net MRR Churn rate.
+    </div>
+  </details>
+</div>
+
+<script>
+function calculate() {
+  const custStartStr = document.getElementById('customersStart').value;
+  const custChurnedStr = document.getElementById('customersChurned').value;
+  
+  const mrrStartStr = document.getElementById('mrrStart').value;
+  const mrrLostStr = document.getElementById('mrrLost').value;
+  const mrrExpStr = document.getElementById('mrrExpansion').value;
+
+  const errorCust = document.getElementById('error-customers');
+  const errorMrr = document.getElementById('error-mrr');
+  const interpretationBox = document.getElementById('churnInterpretation');
+  const inputCustChurned = document.getElementById('customersChurned');
+  const inputMrrLost = document.getElementById('mrrLost');
+
+  errorCust.hidden = true;
+  errorMrr.hidden = true;
+  inputCustChurned.classList.remove('error-input');
+  inputMrrLost.classList.remove('error-input');
+  
+  interpretationBox.hidden = true;
+  interpretationBox.className = 'interpretation';
+
+  const custStart = parseFloat(custStartStr) || 0;
+  const custChurned = parseFloat(custChurnedStr) || 0;
+  const mrrStart = parseFloat(mrrStartStr) || 0;
+  const mrrLost = parseFloat(mrrLostStr) || 0;
+  const mrrExp = parseFloat(mrrExpStr) || 0;
+
+  let hasError = false;
+
+  if (custStart > 0 && custChurned > custStart) {
+    errorCust.hidden = false;
+    inputCustChurned.classList.add('error-input');
+    hasError = true;
+  }
+  if (mrrStart > 0 && mrrLost > mrrStart) {
+    errorMrr.hidden = false;
+    inputMrrLost.classList.add('error-input');
+    hasError = true;
+  }
+
+  let custChurnRate = 0;
+  if (custStart > 0 && !hasError && custChurned >= 0) {
+    custChurnRate = (custChurned / custStart) * 100;
+  }
+
+  let grossChurnRate = 0;
+  let netChurnRate = 0;
+  
+  if (mrrStart > 0 && !hasError && mrrLost >= 0) {
+    grossChurnRate = (mrrLost / mrrStart) * 100;
+    netChurnRate = ((mrrLost - mrrExp) / mrrStart) * 100;
+  }
+
+  document.getElementById('resCustomerChurn').innerText = custChurnRate.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+  document.getElementById('resGrossChurn').innerText = grossChurnRate.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+  document.getElementById('resNetChurn').innerText = netChurnRate.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+  if (mrrStart > 0 && !hasError && (mrrLost > 0 || mrrExp > 0 || custChurned > 0)) {
+    interpretationBox.hidden = false;
+    
+    if (netChurnRate < 0) {
+      interpretationBox.classList.add('healthy');
+      interpretationBox.innerHTML = `<strong>Status: Healthy (Net Negative Churn)</strong><br>Excellent. Your expansion MRR is outpacing your lost MRR. Your business is growing automatically from its existing customer base.`;
+    } else if (netChurnRate > 0 && netChurnRate <= 2) {
+      interpretationBox.classList.add('warning');
+      interpretationBox.innerHTML = `<strong>Status: Warning</strong><br>You are leaking revenue. A net churn of ${netChurnRate.toLocaleString('en-US', {maximumFractionDigits: 2})}% means you rely heavily on new sales just to tread water. Focus on upselling existing customers.`;
+    } else if (netChurnRate > 2) {
+      interpretationBox.classList.add('danger');
+      interpretationBox.innerHTML = `<strong>Status: Danger</strong><br>A net churn of ${netChurnRate.toLocaleString('en-US', {maximumFractionDigits: 2})}% is highly destructive long-term. You are losing significant revenue. Halt top-of-funnel marketing and aggressively fix your product retention.`;
+    } else {
+      interpretationBox.classList.add('healthy');
+      interpretationBox.innerHTML = `<strong>Status: Neutral</strong><br>Your net churn is exactly 0.00%. You aren't bleeding, but you aren't compounding either. Look for expansion revenue opportunities.`;
+    }
+  }
+}
+
+document.addEventListener('DOMContentLoaded', calculate);
+</script>
+<div id="related-content" class="related-content"></div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <a href="/" class="footer-brand">SaaS<span class="footer-accent">Tools</span></a>
+      <nav class="footer-nav">
+        <a href="/articles/">Articles</a>
+        <a href="/tools/">Tools</a>
+        <a href="/about.html">About</a>
+        <a href="/privacy">Privacy</a>
+      </nav>
+    </div>
+    <div class="footer-bottom">
+      Built for bootstrapped founders. No VC fluff.
+    </div>
+  </div>
+</footer>
+
+<script>
+(function() {
+  var meta    = document.querySelector('meta[name="cluster"]');
+  var cluster = meta ? meta.getAttribute('content') : '';
+  if (!cluster) return;
+  var parts       = window.location.pathname.split('/').filter(Boolean);
+  var currentSlug = (parts[parts.length - 1] || '').replace('.html', '');
+  fetch('/content-index.json')
+    .then(function(r) { return r.json(); })
+    .then(function(idx) {
+      var articles = (idx.articles || [])
+        .filter(function(a) { return a.cluster === cluster && a.slug !== currentSlug; })
+        .slice(0, 3);
+      var tools = (idx.tools || [])
+        .filter(function(t) { return t.cluster === cluster && t.slug !== currentSlug; })
+        .slice(0, 2);
+      var html = '';
+      if (articles.length) {
+        html += '<h3 class="related-heading">Related Articles</h3>'
+              + '<ul class="related-list">';
+        articles.forEach(function(a) {
+          html += '<li><a href="/articles/' + a.slug + '">' + a.title + '</a></li>';
+        });
+        html += '</ul>';
+      }
+      if (tools.length) {
+        html += '<h3 class="related-heading">Related Tools</h3>'
+              + '<ul class="related-list">';
+        tools.forEach(function(t) {
+          html += '<li><a href="/tools/' + t.slug + '">' + t.title + '</a></li>';
+        });
+        html += '</ul>';
+      }
+      if (html) {
+        var el = document.getElementById('related-content');
+        if (el) el.innerHTML = html;
+      }
+    })
+    .catch(function() {});
+})();
+</script>
+
+<script>
+(function () {
+  document.addEventListener('click', function (e) {
+    var el = e.target.closest('a[href]');
+    if (!el) return;
+    var href = el.getAttribute('href') || '';
+    if (href.indexOf('cloudways.com') === -1 || href.indexOf('id=') === -1) return;
+    if (typeof window.cfBeacon === 'undefined' || typeof window.cfBeacon.pushEvent !== 'function') return;
+    window.cfBeacon.pushEvent('affiliate_click', {
+      affiliate: 'cloudways',
+      page: window.location.pathname
+    });
+  }, true);
+})();
+</script>
+
+</body>
+</html>
