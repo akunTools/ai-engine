@@ -686,6 +686,10 @@ def build_homepage(files: list, content_index: dict) -> str:
         key=lambda x: x["name"]
     )[:6]
 
+    title_map = {
+        e["slug"]: e.get("title", "")
+        for e in content_index.get("articles", [])
+    }
     excerpt_map = {
         e["slug"]: e.get("excerpt", "")
         for e in content_index.get("articles", [])
@@ -696,7 +700,7 @@ def build_homepage(files: list, content_index: dict) -> str:
         for f in article_files:
             slug    = file_to_slug(f["name"])
             url     = file_to_url("articles", f["name"])
-            title   = slug_to_title(slug)
+            title   = title_map.get(slug) or slug_to_title(slug)
             excerpt = excerpt_map.get(slug, "")
             date_match = re.match(r'^\d{4}-\d{2}-\d{2}', f["name"])
             date_str = date_match.group(0) if date_match else ""
@@ -720,14 +724,25 @@ def build_homepage(files: list, content_index: dict) -> str:
 
     if tool_files:
         tools_html = ""
+        tool_title_map_home = {
+            e["slug"]: e.get("title", "")
+            for e in content_index.get("tools", [])
+        }
+        tool_excerpt_map_home = {
+            e["slug"]: e.get("excerpt", "")
+            for e in content_index.get("tools", [])
+        }
         for f in tool_files:
             slug  = file_to_slug(f["name"])
             url   = file_to_url("tools", f["name"])
-            title = slug_to_title(slug)
+            title = tool_title_map_home.get(slug) or slug_to_title(slug)
+            desc  = tool_excerpt_map_home.get(slug, "")
+            desc_html = f'<div class="tool-card__desc">{desc}</div>' if desc else ""
             tools_html += f"""
         <a href="{url}" class="tool-card">
           <div class="tool-card__icon">⚡</div>
           <div class="tool-card__name">{title}</div>
+          {desc_html}
         </a>"""
     else:
         tools_html = '<p class="empty-note">No tools yet — check back soon.</p>'
@@ -822,6 +837,10 @@ def build_articles_index(files: list, content_index: dict) -> str:
         key=lambda x: x["name"], reverse=True
     )
 
+    title_map = {
+        e["slug"]: e.get("title", "")
+        for e in content_index.get("articles", [])
+    }
     excerpt_map = {
         e["slug"]: e.get("excerpt", "")
         for e in content_index.get("articles", [])
@@ -831,7 +850,7 @@ def build_articles_index(files: list, content_index: dict) -> str:
     for f in article_files:
         slug    = file_to_slug(f["name"])
         url     = file_to_url("articles", f["name"])
-        title   = slug_to_title(slug)
+        title   = title_map.get(slug) or slug_to_title(slug)
         excerpt = excerpt_map.get(slug, "")
         date_match = re.match(r'^\d{4}-\d{2}-\d{2}', f["name"])
         date_str = date_match.group(0) if date_match else ""
@@ -909,37 +928,28 @@ def build_articles_index(files: list, content_index: dict) -> str:
 # TOOLS INDEX
 # ─────────────────────────────────────────────
 
-def build_tools_index(files: list) -> str:
+def build_tools_index(files: list, content_index: dict) -> str:
     """Build tools/index.html."""
     tool_files = sorted(
         [f for f in files if f["folder"] == "tools"],
         key=lambda x: x["name"]
     )
 
-    _DESCRIPTIONS = {
-        "runway":     "How many months before cash runs out?",
-        "burn":       "What is your real monthly cash burn?",
-        "break-even": "How many customers to cover all fixed costs?",
-        "ltv":        "Is your LTV:CAC ratio healthy?",
-        "cac":        "Is your LTV:CAC ratio healthy?",
-        "churn":      "What percentage of customers are you losing?",
-        "mrr":        "How fast is your MRR actually growing?",
-        "pricing":    "Is your pricing model financially sound?",
+    tool_title_map = {
+        e["slug"]: e.get("title", "")
+        for e in content_index.get("tools", [])
     }
-
-    def _get_desc(slug: str) -> str:
-        slug_lower = slug.lower()
-        for kw, desc in _DESCRIPTIONS.items():
-            if kw in slug_lower:
-                return desc
-        return "Calculate and understand your SaaS metrics."
+    tool_excerpt_map = {
+        e["slug"]: e.get("excerpt", "")
+        for e in content_index.get("tools", [])
+    }
 
     items_html = ""
     for f in tool_files:
         slug  = file_to_slug(f["name"])
         url   = file_to_url("tools", f["name"])
-        title = slug_to_title(slug)
-        desc  = _get_desc(slug)
+        title = tool_title_map.get(slug) or slug_to_title(slug)
+        desc  = tool_excerpt_map.get(slug) or "Calculate and understand your SaaS metrics."
         items_html += f"""
       <a href="{url}" class="tool-card">
         <div class="tool-card__icon">⚡</div>
@@ -1122,10 +1132,10 @@ if __name__ == "__main__":
     print(f"Content index: {len(content_index.get('articles', []))} articles, "
           f"{len(content_index.get('tools', []))} tools")
 
-    publish_file("sitemap.xml",         build_sitemap(files),                        "Sitemap")
-    publish_file("index.html",          build_homepage(files, content_index),        "Homepage")
-    publish_file("articles/index.html", build_articles_index(files, content_index),  "Articles index")
-    publish_file("tools/index.html",    build_tools_index(files),                    "Tools index")
+    publish_file("sitemap.xml",         build_sitemap(files),                         "Sitemap")
+    publish_file("index.html",          build_homepage(files, content_index),         "Homepage")
+    publish_file("articles/index.html", build_articles_index(files, content_index),   "Articles index")
+    publish_file("tools/index.html",    build_tools_index(files, content_index),      "Tools index")
     prune_content_index(files)
 
     print("Done")
