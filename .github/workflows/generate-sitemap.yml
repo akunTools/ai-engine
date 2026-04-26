@@ -1,11 +1,13 @@
-name: Generate Sitemap
+name: Rebuild Indexes & Sitemap
 
 on:
   push:
+    branches:
+      - output
   workflow_dispatch:
 
 jobs:
-  sitemap:
+  rebuild:
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
@@ -18,9 +20,8 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Generate dan publish sitemap
+      - name: Rebuild Indexes & Sitemap
         env:
-          GITHUB_TOKEN:  ${{ secrets.GITHUB_TOKEN }}
-          ENGINE_REPO:   ${{ github.repository }}
-          SITE_BASE_URL: https://saas.blogtrick.eu.org
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ENGINE_REPO:  ${{ github.repository }}
         run: python scripts/sitemap_gen.py
