@@ -29,6 +29,13 @@
       "cluster": "saas-unit-economics",
       "date": "2026-04-25",
       "excerpt": "Stop guessing your SaaS health. Calculate LTV, CAC, ARPU, and Churn instantly with this free SaaS metrics calculator. Built for bootstrapped founders."
+    },
+    {
+      "slug": "saas-churn-calculator",
+      "title": "SaaS Churn Calculator: Calculate Your Customer &amp; Revenue Churn Instantly",
+      "cluster": "saas-churn-retention",
+      "date": "2026-04-28",
+      "excerpt": "Calculate your SaaS churn rate in seconds. See customer churn, MRR churn, annual revenue at risk. The tool bootstrapped founders actually need."
     }
   ]
 }
