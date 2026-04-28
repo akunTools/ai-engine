@@ -24,13 +24,6 @@
   ],
   "tools": [
     {
-      "slug": "saas-runway-calculator",
-      "title": "The Brutal SaaS Runway Calculator",
-      "cluster": "saas-financial-planning",
-      "date": "2026-04-25",
-      "excerpt": "Calculate your exact SaaS runway in months. Stop guessing, know your true net burn, and see exactly when your startup runs out of cash before it"
-    },
-    {
       "slug": "saas-metrics-calculator",
       "title": "The Brutal SaaS Metrics Calculator",
       "cluster": "saas-unit-economics",
