@@ -36,6 +36,13 @@
       "cluster": "saas-churn-retention",
       "date": "2026-04-28",
       "excerpt": "Calculate your SaaS churn rate in seconds. See customer churn, MRR churn, annual revenue at risk. The tool bootstrapped founders actually need."
+    },
+    {
+      "slug": "saas-runway-calculator",
+      "title": "SaaS Runway Calculator: How Many Months of Cash Do You Have Left?",
+      "cluster": "saas-financial-planning",
+      "date": "2026-04-29",
+      "excerpt": "Calculate your SaaS runway months instantly. See if your burn rate puts you in danger. For bootstrapped founders who need financial clarity without fluff."
     }
   ]
 }
