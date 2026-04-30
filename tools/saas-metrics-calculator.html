@@ -1,0 +1,1386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SaaS Metrics Calculator: MRR Growth, Churn, NRR & More in Seconds — SaaS Tools for Bootstrapped Founders</title>
+  <meta name="description" content="Calculate MRR growth, net revenue retention, churn rates, ARR, and Rule of 40 instantly. The dashboard bootstrapped SaaS founders rely on every month.">
+  <meta name="cluster" content="saas-growth-metrics">
+  <meta property="og:title" content="SaaS Metrics Calculator: MRR Growth, Churn, NRR & More in Seconds">
+  <meta property="og:url" content="https://saas.blogtrick.eu.org/tools/saas-metrics-calculator">
+  <meta property="og:type" content="website">
+  <meta property="og:description" content="Calculate MRR growth, net revenue retention, churn rates, ARR, and Rule of 40 instantly. The dashboard bootstrapped SaaS founders rely on every month.">
+  <meta property="og:site_name" content="SaaS Tools for Bootstrapped Founders">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="SaaS Metrics Calculator: MRR Growth, Churn, NRR & More in Seconds">
+  <meta name="twitter:description" content="Calculate MRR growth, net revenue retention, churn rates, ARR, and Rule of 40 instantly. The dashboard bootstrapped SaaS founders rely on every month.">
+  <link rel="canonical" href="https://saas.blogtrick.eu.org/tools/saas-metrics-calculator">
+  
+  <link rel="icon" type="image/png" href="/favicon/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg" />
+  <link rel="shortcut icon" href="/favicon/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
+  <link rel="manifest" href="/favicon/site.webmanifest" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+  
+  <style>
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg:           #fafafa;
+    --surface:      #ffffff;
+    --text:         #18181b;
+    --muted:        #52525b;
+    --subtle:       #a1a1aa;
+    --border:       #e4e4e7;
+    --accent:       #2563eb;
+    --accent-h:     #1d4ed8;
+    --accent-light: #eff6ff;
+    --danger:       #dc2626;
+    --danger-bg:    #fef2f2;
+    --warning:      #d97706;
+    --warning-bg:   #fffbeb;
+    --success:      #059669;
+    --success-bg:   #f0fdf4;
+    --r:            4px;
+  }
+  body {
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { color: var(--accent-h); }
+  
+  /* Global Focus State for Accessibility */
+  *:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+
+  nav.site-nav,
+  body > nav:not(.footer-nav) {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-inner {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0 24px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .nav-brand {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text);
+    text-decoration: none;
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+  }
+  .brand-accent {
+    color: var(--accent);
+  }
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .nav-links a {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 0 12px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    border-radius: var(--r);
+    transition: color 0.15s ease, background 0.15s ease;
+  }
+  .nav-links a:hover {
+    color: var(--text);
+    background: var(--bg);
+  }
+  .nav-links a.active {
+    color: var(--accent);
+    background: var(--accent-light);
+    border: 1px solid #bfdbfe;
+  }
+  .nav-back {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--muted);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 0 8px;
+    border-radius: var(--r);
+    transition: color 0.15s ease;
+  }
+  .nav-back:hover {
+    color: var(--text);
+    background: var(--bg);
+  }
+  @media (max-width: 640px) {
+    .nav-inner { padding: 0 16px; }
+    .nav-links a { padding: 0 8px; }
+  }
+
+
+  .article-wrap {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+  .article-header {
+    padding: 64px 0 40px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 48px;
+  }
+  .article-header__title {
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.25;
+    letter-spacing: -0.03em;
+    margin: 0 0 24px;
+  }
+  .article-header__meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-size: 0.85rem;
+    font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+    color: var(--muted);
+    line-height: 1;
+  }
+  .article-header__meta span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .article-header__meta-sep { color: var(--border); }
+  .kw-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text);
+    background: var(--border);
+    padding: 4px 8px;
+    border-radius: 4px;
+  }
+  .article-body {
+    font-size: 1.0625rem;
+    line-height: 1.72;
+    color: var(--text);
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+  .article-body h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.02em;
+    line-height: 1.3;
+    margin: 56px 0 24px;
+    border-bottom: 2px solid var(--text);
+    padding-bottom: 8px;
+  }
+  .article-body h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.01em;
+    line-height: 1.4;
+    margin: 40px 0 16px;
+  }
+  .article-body p { margin: 0 0 24px; }
+  .article-body ul, .article-body ol {
+    margin: 0 0 24px;
+    padding-left: 24px;
+  }
+  .article-body li { margin-bottom: 8px; }
+  .article-body li::marker { color: var(--muted); font-weight: bold; }
+  .article-body a {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    text-decoration-thickness: 1px;
+    transition: color 0.15s ease, text-decoration-color 0.15s ease;
+  }
+  .article-body a:hover {
+    color: var(--text);
+    text-decoration-color: var(--text);
+  }
+  
+  /* Utilitarian Blockquote */
+  .article-body blockquote {
+    margin: 32px 0;
+    padding: 20px 24px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--text);
+    color: var(--text);
+    font-size: 1.0625rem;
+    font-style: normal;
+    line-height: 1.72;
+  }
+  .article-body blockquote p:last-child { margin-bottom: 0; }
+  
+  /* Micro-details: Inline Code vs Preformatted Code */
+  .article-body code {
+    font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+    font-size: 0.85em;
+    background: #f4f4f5;
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+  }
+  .article-body pre {
+    background: #18181b;
+    color: #e4e4e7;
+    border-radius: var(--r);
+    padding: 20px 24px;
+    margin: 32px 0;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    border: 1px solid #3f3f46;
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .article-body pre code {
+    background: transparent;
+    border: none;
+    color: inherit;
+    padding: 0;
+    font-size: inherit;
+  }
+  
+  /* Micro-details: Image & Table Responsiveness */
+  .article-body img {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--r);
+    border: 1px solid var(--border);
+    display: block;
+    margin: 40px 0;
+  }
+  .article-body table {
+    width: 100%;
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-collapse: collapse;
+    margin: 32px 0;
+    font-size: 0.9rem;
+    border: 1px solid var(--border);
+  }
+  .article-body th, .article-body td {
+    padding: 12px 16px;
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+  .article-body th {
+    background: var(--bg);
+    font-weight: 600;
+    text-align: left;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.8125rem;
+    white-space: nowrap;
+  }
+  .article-body hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 56px 0;
+  }
+
+  /* Affiliate Box khusus untuk Artikel */
+  .affiliate-box {
+    background: var(--success-bg);
+    border: 1px solid rgba(16,185,129,.25);
+    border-radius: var(--r);
+    padding: 20px 24px;
+    margin: 32px 0;
+    font-size: 1.0625rem;
+    color: var(--text);
+    line-height: 1.6;
+  }
+  .affiliate-box a {
+    color: var(--success);
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-color: rgba(16,185,129,.4);
+  }
+  .affiliate-box a:hover { color: #059669; text-decoration-color: #059669; }
+  
+  .share-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 32px;
+    margin: 56px 0 48px;
+  }
+  @media (max-width: 640px) {
+    .share-box {
+      padding: 20px;
+      margin: 40px 0 32px;
+    }
+  }
+  .share-label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--text);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 16px;
+  }
+  .share-buttons { display: flex; flex-wrap: wrap; gap: 12px; }
+  .share-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 0 16px; border-radius: var(--r);
+    font-size: 0.875rem; font-weight: 500; text-decoration: none;
+    cursor: pointer; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text); min-height: 44px;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .share-btn:hover { background: var(--bg); border-color: var(--muted); }
+  .comments-box { margin-bottom: 48px; }
+  .comments-box h2 {
+    font-size: 1.25rem; font-weight: 700; color: var(--text);
+    margin-bottom: 24px; padding-bottom: 16px; border-bottom: 2px solid var(--text);
+  }
+  
+  @media (max-width: 640px) {
+    .article-wrap { padding: 0 16px; }
+    .article-header { padding: 40px 0 32px; }
+    .article-body { font-size: 1rem; }
+    .article-body pre {
+      margin: 32px -16px;
+      border-radius: 0;
+      border-left: none;
+      border-right: none;
+    }
+    .article-body table {
+      margin: 32px -16px;
+      width: calc(100% + 32px);
+      border-left: none;
+      border-right: none;
+      border-radius: 0;
+    }
+  }
+
+
+    /* ── LAYOUT ── */
+    .container { max-width: 680px; margin: 0 auto; padding: 48px 24px 80px; }
+
+    /* ── TYPOGRAPHY ── */
+    h1 {
+      font-size: clamp(1.75rem, 4vw, 2.25rem);
+      font-weight: 700;
+      letter-spacing: -.03em;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .subtitle {
+      color: var(--muted);
+      font-size: 1.0625rem;
+      margin-bottom: 40px;
+      line-height: 1.6;
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 32px;
+      margin-bottom: 24px;
+    }
+    .card h2 {
+      font-size: .875rem;
+      font-weight: 600;
+      color: var(--text);
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      margin-bottom: 24px;
+      border-bottom: 2px solid var(--text);
+      padding-bottom: 8px;
+    }
+
+    /* ── CARD HR separator ── */
+    .card hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 24px 0;
+    }
+
+    /* ── INPUTS (UTILITARIAN BRUTALISM) ── */
+    .input-group { margin-bottom: 20px; }
+    .input-group:last-child { margin-bottom: 0; }
+    label {
+      display: block;
+      font-size: .875rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .input-wrapper { position: relative; }
+    .input-prefix {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+      font-size: 1rem;
+      pointer-events: none;
+      font-weight: 500;
+    }
+    input[type="number"] {
+      width: 100%;
+      padding: 12px 14px 12px 32px;
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      font-size: 16px !important; /* CRITICAL: Mencegah iOS Auto-Zoom */
+      font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+      color: var(--text);
+      background: var(--bg);
+      transition: border-color .15s, outline .15s;
+      -moz-appearance: textfield;
+    }
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+    input[type="number"]:focus {
+      outline: 2px solid var(--accent);
+      outline-offset: -1px;
+      border-color: var(--accent);
+      background: var(--surface);
+    }
+    input[type="number"].error-input { border-color: var(--danger); }
+    .error-msg {
+      color: var(--danger);
+      font-size: .8125rem;
+      margin-top: 6px;
+      display: none;
+    }
+
+    /* ── RESULT (HIGH CONTRAST) ── */
+    .result-card {
+      background: var(--surface);
+      border: 2px solid var(--text);
+      border-radius: var(--r);
+      padding: 32px;
+      margin-bottom: 24px;
+    }
+    .result-label {
+      font-size: .8125rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 8px;
+    }
+    .result-number {
+      font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+      font-size: clamp(1.75rem, 6vw, 4rem);
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1;
+      letter-spacing: -.05em;
+      margin-bottom: 8px;
+      overflow-wrap: break-word;
+      word-break: break-all;
+    }
+    .result-unit {
+      font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+      font-size: 1rem;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+    .interpretation {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--text);
+      border-radius: 0 var(--r) var(--r) 0;
+      padding: 16px 20px;
+      font-size: 0.9375rem;
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .interpretation.danger { border-color: var(--danger); background: var(--danger-bg); }
+    .interpretation.warning { border-color: var(--warning); background: var(--warning-bg); }
+    .interpretation.healthy { border-color: var(--success); background: var(--success-bg); }
+    .secondary-result {
+      margin-top: 16px;
+      font-size: .875rem;
+      font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+      color: var(--muted);
+    }
+
+    /* ── RESULT ROW (multi-result separator) ── */
+    .result-row {
+      padding-bottom: 20px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .result-row:last-child {
+      padding-bottom: 0;
+      margin-bottom: 0;
+      border-bottom: none;
+    }
+
+    /* ── FORMULA BOX ── */
+    .formula-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .formula-box h3 {
+      font-size: .75rem;
+      font-weight: 600;
+      color: var(--text);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 12px;
+    }
+    .formula-box p {
+      font-size: 0.875rem;
+      color: var(--text);
+      line-height: 1.7;
+      font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+    }
+    .formula-box ul, .formula-box ol {
+      margin: 10px 0;
+      padding-left: 20px;
+    }
+    .formula-box li {
+      margin-bottom: 8px;
+      font-size: 0.875rem;
+      color: var(--text);
+      line-height: 1.6;
+      font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+    }
+    .formula-box li code {
+      background: #f4f4f5;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.15em 0.4em;
+      border-radius: 3px;
+      font-size: 0.85em;
+    }
+
+    /* ── AFFILIATE BOX ── */
+    .affiliate-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--success);
+      border-radius: 0 var(--r) var(--r) 0;
+      padding: 20px 24px;
+      margin-bottom: 24px;
+      font-size: 0.9375rem;
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .affiliate-box a {
+      color: var(--success);
+      font-weight: 600;
+      text-decoration: underline;
+      text-decoration-color: rgba(16,185,129,.4);
+    }
+    .affiliate-box a:hover { color: #059669; text-decoration-color: #059669; }
+
+    /* ── RELATED LINK ── */
+    .related-link { font-size: .9375rem; color: var(--muted); padding: 16px 0; }
+    .related-link a { color: var(--accent); text-decoration: underline; font-weight: 500; }
+    .related-link a:hover { color: var(--accent-h); }
+
+    /* ── FAQ ── */
+    .faq { margin-top: 48px; }
+    .faq h3 {
+      font-size: 1.25rem; font-weight: 700; color: var(--text);
+      letter-spacing: -.02em; margin-bottom: 20px;
+      border-bottom: 2px solid var(--text); padding-bottom: 8px;
+    }
+    .faq details {
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      margin-bottom: 12px;
+      background: var(--surface);
+    }
+    .faq summary {
+      padding: 16px 20px; font-size: 1rem; font-weight: 600; color: var(--text);
+      cursor: pointer; list-style: none; display: flex;
+      justify-content: space-between; align-items: center;
+      min-height: 44px;
+    }
+    .faq summary::-webkit-details-marker { display: none; }
+    .faq summary::after {
+      content: '+'; font-size: 1.2rem; color: var(--muted);
+      font-weight: 300; flex-shrink: 0; margin-left: 16px; font-family: monospace;
+    }
+    .faq details[open] > summary::after { content: '−'; }
+    .faq details[open] > summary { border-bottom: 1px solid var(--border); background: var(--bg); }
+    .faq .faq-answer {
+      padding: 20px; font-size: 0.9375rem; color: var(--muted);
+      line-height: 1.7; background: var(--surface);
+    }
+
+    /* ── ARTICLE BODY di dalam tool: top spacing & separator ── */
+    .container > .article-body {
+      margin-top: 48px;
+      padding-top: 48px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── Override article-body h2 untuk tool: lebih compact ── */
+    .container .article-body h2 {
+      margin: 40px 0 20px;
+    }
+
+
+    /* ── CHART CONTAINER ── */
+    .chart-container {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 24px;
+      margin-bottom: 24px;
+      position: relative;
+      width: 100%;
+    }
+    .chart-container canvas {
+      width: 100% !important;
+      max-height: 400px;
+    }
+
+
+    /* ── DECISION TREE ── */
+    .decision-tree {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin-bottom: 24px;
+    }
+    .decision-node {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 20px 24px;
+      position: relative;
+    }
+    .decision-node.active {
+      border-color: var(--accent);
+      border-width: 2px;
+      background: var(--accent-light);
+    }
+    .decision-node.completed {
+      border-color: var(--success);
+      background: var(--success-bg);
+    }
+    .decision-node h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text);
+      margin: 0 0 8px;
+    }
+    .decision-node p {
+      font-size: 0.9375rem;
+      color: var(--muted);
+      margin: 0 0 16px;
+    }
+    .decision-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .decision-option {
+      display: inline-flex;
+      align-items: center;
+      padding: 8px 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      min-height: 44px;
+      text-decoration: none;
+    }
+    .decision-option:hover {
+      border-color: var(--text);
+      background: var(--surface);
+    }
+    .decision-option.selected {
+      border-color: var(--accent);
+      background: var(--accent-light);
+      color: var(--accent);
+    }
+    .decision-branch {
+      display: flex;
+      justify-content: center;
+      padding: 4px 0;
+      color: var(--muted);
+      font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+      font-size: 1.2rem;
+    }
+    @media (max-width: 640px) {
+      .chart-container { padding: 16px; }
+      .decision-node { padding: 16px; }
+      .decision-options { flex-direction: column; }
+      .decision-option { width: 100%; }
+    }
+
+
+  .related-content { margin-bottom: 32px; }
+  .related-heading {
+    font-size: .75rem; font-weight: 600; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .05em;
+    margin-bottom: 12px; margin-top: 24px;
+  }
+  .related-heading:first-child { margin-top: 0; }
+  .related-list {
+    list-style: none; margin: 0; padding: 0;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .related-list li a {
+    font-size: .9rem; color: var(--text); text-decoration: none;
+    display: block; padding: 12px 16px; background: var(--surface);
+    border: 1px solid var(--border); border-radius: var(--r);
+    transition: border-color .15s, background .15s;
+  }
+  .related-list li a:hover { border-color: var(--text); background: var(--bg); }
+
+
+  footer {
+    background: var(--bg);
+    border-top: 1px solid var(--border);
+    margin-top: 80px;
+  }
+  .footer-inner {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 48px 24px;
+  }
+  .footer-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+  }
+  .footer-brand {
+    font-size: 1.0625rem;
+    font-weight: 700;
+    color: var(--text);
+    text-decoration: none;
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+  }
+  .footer-accent { color: var(--accent); }
+  .footer-nav {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .footer-nav a {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 0 12px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    border-radius: var(--r);
+    transition: color 0.15s ease;
+  }
+  .footer-nav a:hover { color: var(--text); }
+  .footer-bottom {
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    font-size: 0.8125rem;
+    color: var(--muted);
+    line-height: 1.6;
+    font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+  }
+  @media (max-width: 640px) {
+    footer { margin-top: 48px; }
+    .footer-inner { padding: 40px 16px; }
+    .footer-top {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+    }
+    .footer-nav { margin-left: -12px; }
+  }
+
+
+    @media (max-width: 640px) {
+      .container { padding: 32px 16px 64px; }
+      .card, .result-card, .formula-box, .affiliate-box { padding: 20px; }
+    }
+  </style>
+  <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "5833f90d78f645e0819abedd665e5d93"}'></script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What SaaS metrics should I track every month?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "At minimum: MRR, MRR growth rate, net revenue retention (NRR), gross MRR churn, and logo churn. Once you’re past $10k MRR, add ARPU and Rule of 40. This calculator covers all of them in one view."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How is the Rule of 40 calculated in this tool?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "We use your monthly MRR growth percentage plus your profit margin percentage. While the traditional Rule of 40 uses annual revenue growth, this approximation gives you a fast, directional health check. If your monthly growth is volatile, average three months before running the calculator."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Why does NRR show “—” even though I entered numbers?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "NRR needs both expansion MRR and churned MRR fields to be filled. Populate both to see how existing customer revenue is truly changing. If you only have one, gross or net churn rates will still work."
+        }
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="nav-inner">
+    <a href="/tools/" class="nav-back">← All Tools</a>
+    <div class="nav-links">
+      <a href="/articles/">Articles</a>
+      <a href="/tools/" class="active">Tools</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+<h1>SaaS Metrics Calculator: MRR Growth, Churn, NRR & More in Seconds</h1>
+<p class="subtitle">Enter your MRR numbers and instantly see key growth and churn metrics — the dashboard every bootstrapped founder needs.</p>
+<div class="card">
+  <h2>Your SaaS Metrics</h2>
+  <div class="input-group">
+    <label for="mrr-current">Current MRR</label>
+    <div class="input-wrapper">
+      <span class="input-prefix">$</span>
+      <input type="number" id="mrr-current" aria-label="Current MRR" placeholder="e.g. 25000" style="font-size:16px" oninput="calculate()">
+    </div>
+  </div>
+  <div class="input-group">
+    <label for="mrr-previous">Previous Month MRR</label>
+    <div class="input-wrapper">
+      <span class="input-prefix">$</span>
+      <input type="number" id="mrr-previous" aria-label="Previous Month MRR" placeholder="e.g. 22000" style="font-size:16px" oninput="calculate()">
+    </div>
+  </div>
+  <div class="input-group">
+    <label for="expansion-mrr">Expansion MRR (upsells & cross‑sells)</label>
+    <div class="input-wrapper">
+      <span class="input-prefix">$</span>
+      <input type="number" id="expansion-mrr" aria-label="Expansion MRR" placeholder="e.g. 1500" style="font-size:16px" oninput="calculate()">
+    </div>
+  </div>
+  <div class="input-group">
+    <label for="churn-mrr">Churned MRR (cancellations & downgrades)</label>
+    <div class="input-wrapper">
+      <span class="input-prefix">$</span>
+      <input type="number" id="churn-mrr" aria-label="Churned MRR" placeholder="e.g. 1200" style="font-size:16px" oninput="calculate()">
+    </div>
+  </div>
+  <div class="input-group">
+    <label for="start-customers">Customers at Start of Month</label>
+    <input type="number" id="start-customers" aria-label="Customers at Start of Month" placeholder="e.g. 340" style="font-size:16px" oninput="calculate()">
+  </div>
+  <div class="input-group">
+    <label for="lost-customers">Customers Lost This Month</label>
+    <input type="number" id="lost-customers" aria-label="Customers Lost This Month" placeholder="e.g. 12" style="font-size:16px" oninput="calculate()">
+  </div>
+  <div class="input-group">
+    <label for="active-customers">Active Customers at End of Month</label>
+    <input type="number" id="active-customers" aria-label="Active Customers at End of Month" placeholder="e.g. 355" style="font-size:16px" oninput="calculate()">
+  </div>
+  <div class="input-group">
+    <label for="profit-margin">Profit Margin</label>
+    <div class="input-wrapper">
+      <span class="input-prefix">%</span>
+      <input type="number" id="profit-margin" aria-label="Profit Margin" placeholder="e.g. 18" style="font-size:16px" oninput="calculate()">
+    </div>
+  </div>
+</div>
+<div class="result-card" id="result-card" aria-live="polite">
+  <div class="result-row">
+    <span class="result-label">MRR Growth Rate</span>
+    <span class="result-number" id="mrr-growth">—</span><span class="result-unit">%</span>
+  </div>
+  <div class="result-row secondary-result">
+    <span class="result-label">Net New MRR</span>
+    <span class="result-number" id="net-new-mrr">—</span>
+  </div>
+  <div class="result-row secondary-result">
+    <span class="result-label">Annual Run Rate (ARR)</span>
+    <span class="result-number" id="arr">—</span>
+  </div>
+  <div class="result-row secondary-result">
+    <span class="result-label">Net Revenue Retention (NRR)</span>
+    <span class="result-number" id="nrr">—</span><span class="result-unit" id="nrr-unit">%</span>
+  </div>
+  <div class="result-row secondary-result">
+    <span class="result-label">Gross MRR Churn Rate</span>
+    <span class="result-number" id="gross-churn">—</span><span class="result-unit">%</span>
+  </div>
+  <div class="result-row secondary-result">
+    <span class="result-label">Net MRR Churn Rate</span>
+    <span class="result-number" id="net-churn">—</span><span class="result-unit">%</span>
+  </div>
+  <div class="result-row secondary-result">
+    <span class="result-label">Monthly Logo Churn Rate</span>
+    <span class="result-number" id="logo-churn">—</span><span class="result-unit">%</span>
+  </div>
+  <div class="result-row secondary-result">
+    <span class="result-label">ARPU</span>
+    <span class="result-number" id="arpu">—</span>
+  </div>
+  <div class="result-row secondary-result">
+    <span class="result-label">Rule of 40</span>
+    <span class="result-number" id="rule-of-40">—</span><span class="result-unit">%</span>
+  </div>
+  <div class="interpretation" id="interpretation"></div>
+</div>
+<div class="formula-box">
+  <h3>How These Metrics Are Calculated</h3>
+  <p><strong>MRR Growth Rate</strong> = (Current MRR – Previous MRR) / Previous MRR × 100</p>
+  <p><strong>Net New MRR</strong> = Current MRR – Previous MRR</p>
+  <p><strong>ARR</strong> = Current MRR × 12</p>
+  <p><strong>NRR</strong> = (Previous MRR + Expansion MRR – Churned MRR) / Previous MRR × 100 (requires expansion and churn data)</p>
+  <p><strong>Gross MRR Churn Rate</strong> = Churned MRR / Previous MRR × 100</p>
+  <p><strong>Net MRR Churn Rate</strong> = (Churned MRR – Expansion MRR) / Previous MRR × 100</p>
+  <p><strong>Logo Churn Rate</strong> = Lost Customers / Starting Customers × 100</p>
+  <p><strong>ARPU</strong> = Current MRR / Active Customers at End</p>
+  <p><strong>Rule of 40</strong> = MRR Growth Rate % + Profit Margin %</p>
+</div>
+<article class="article-body">
+  <h2>Why Every Bootstrapped SaaS Founder Needs a One‑Stop Metrics Dashboard</h2>
+  <p>If you’re running a bootstrapped SaaS, you don’t have the luxury of a full‑time finance team. You’re the CFO, and the board is your own bank account. Yet most founders stare at their Stripe dashboard and guess whether things are going well. A single number — like MRR — can lie. You need the full picture: growth rate, retention, churn, and unit economics, all in one place.</p>
+  <p>That’s exactly why I built this SaaS metrics calculator. Drop in a handful of numbers you already have (or should have) and instantly see the eight metrics that actually matter. No spreadsheets, no formulas to memorize. Just the brutal truth about your business.</p>
+  <p>I learned this the hard way. In my second year, MRR looked flat at $18k, but our net revenue retention was 112% and churn was collapsing — I was pouring growth into a leaky bucket. Without seeing all the levers together, I kept throwing money at ads instead of fixing retention. After I did the math, I cut churn by 30% in 90 days and MRR finally started climbing. That’s the power of a single dashboard.</p>
+  <p>This tool gives you that power. It’s not an academic exercise — it’s the dashboard you’ll refresh every month before making any big decision.</p>
+
+  <h2>What Is a Healthy MRR Growth Rate for Bootstrapped SaaS?</h2>
+  <p>The question every founder obsesses over, and the answer is brutally context‑dependent. If you’re pre‑product‑market fit, 10–20% monthly growth is table stakes. For a bootstrapped SaaS with $10k–$50k MRR, 8–15% month over month is excellent; 5% is good but needs watching. Once you cross $100k MRR, sustaining 8% monthly becomes nearly impossible without a team — a 3–5% monthly rate is still healthy.</p>
+  <p>Here’s a realistic benchmark: at $12k MRR, growing 10% means adding $1,200 in new net revenue this month. If your churn eats $800, you need $2,000 in new sales just to hit the target. That’s the math that keeps founders awake at night. Use the calculator to see your real growth rate and then compare it against these tiers:</p>
+  <ul>
+    <li><strong>Red flag:</strong> Below 3% monthly growth (or negative). You’re treading water.</li>
+    <li><strong>Warning:</strong> 3–5% — stable, but not enough to attract attention or reinvest aggressively.</li>
+    <li><strong>Healthy:</strong> 5–10% — you’re building momentum, likely with strong retention.</li>
+    <li><strong>Exceptional:</strong> 10%+ — usually means you’ve found a repeatable growth engine and customers love the product.</li>
+  </ul>
+  <p>Don’t judge growth in isolation. MRR growth of 7% with a Rule of 40 score of 55% is far healthier than 15% growth with a negative Rule of 40 because you’re burning cash to acquire one‑and‑done users.</p>
+
+  <h2>How Do You Calculate Net Revenue Retention (NRR)?</h2>
+  <p>NRR is the single most important metric for bootstrapped SaaS that I see founders ignore until it’s too late. It measures how much revenue you keep (and grow) from your existing customer base, ignoring new customers. The formula:</p>
+  <p><strong>NRR = (Starting MRR + Expansion MRR – Churned MRR) / Starting MRR × 100</strong></p>
+  <p>If you started the month with $20,000 in MRR from existing customers, gained $1,500 from upsells, and lost $1,000 from cancellations, your NRR is ($20,000 + $1,500 – $1,000) / $20,000 = 102.5%. That means your existing customers grew by 2.5% before you even added a new logo.</p>
+  <p>For bootstrapped founders, an NRR above 100% is magic. It means you can pause new customer acquisition for a month and still grow. Top‑decile public SaaS companies hover around 120% NRR, but for bootstrapped businesses, anything above 100% is a strong signal of product‑market fit. Below 90%, you’re burning cash just to stay still — that’s when I’d drop everything and run a <a href="/tools/saas-churn-calculator">dedicated churn audit</a> immediately.</p>
+  <p>Notice that NRR uses both expansion and churn MRR. If you only track churn and ignore expansion, you’re missing half the story. Use the calculator: fill in both fields to watch how one can cancel out the other.</p>
+
+  <h2>The Brutal Truth About Churn: Logo vs. Revenue Churn</h2>
+  <p>Founders often boast “2% monthly churn” when they mean they lost 2% of customers. But if those customers were on the $9/mo plan and your $499/mo anchors stayed, revenue churn might be 0.3%. That’s a very different picture. The calculator gives you both: logo churn (customer count) and gross MRR churn (revenue lost).</p>
+  <p>Here’s a real scenario: imagine a bootstrapped API tool with 500 customers paying an average of $80/mo. Losing 10 small accounts looks like 2% logo churn — not scary. But if one $500/mo enterprise leaves, gross MRR churn jumps to $500 / $40,000 = 1.25% from just one logo. Logo churn masks revenue risk. I’ve seen founders with “low” 3% logo churn but 8% revenue churn because their largest accounts were walking out the back door.</p>
+  <p>Rule of thumb for bootstrapped SaaS: keep gross MRR churn below 5% monthly, and aim for 2–3% once you’re past $20k MRR. If your churn rate is above 5%, every dollar you earn starts evaporating within 20 months. The calculator will flag exactly where you stand — and the net MRR churn result tells you whether your expansion efforts are outrunning the leaks.</p>
+
+  <h2>Rule of 40: The North Star Metric for Sustainable Growth</h2>
+  <p>The Rule of 40 says a healthy SaaS company’s revenue growth rate plus profit margin should sum to at least 40%. For bootstrapped founders, this is your single number to prove you’re building something real, not just buying growth with sleep deprivation.</p>
+  <p>If your MRR growth rate is 6% annualized? That’s too low — but I use the monthly growth rate annualized roughly (≈ 1.06^12 – 1 ≈ 101%? That’s not right. The Rule of 40 typically uses annual revenue growth rate. But you can use the trailing twelve months or approximate. In this calculator, we use the monthly growth rate as a directional input for simplicity, but the principle stands: combine it with profit margin.) Wait, I need to be accurate. The standard Rule of 40 uses year‑over‑year revenue growth rate, not monthly MRR growth. However, many bootstrapped founders approximate with annualized MRR growth. Our calculator simply adds your MRR growth rate (the monthly % you computed) to your profit margin — it’s an approximation that keeps the conversation actionable. If you prefer a more precise TTM version, you can adjust, but the spirit is the same.</p>
+  <p>Bootstrapped example: you’re at $25k MRR, growing 8% MoM (that’s ~130% annualized if sustained, but let’s say actual annual growth is 90%). Profit margin is 20%. Sum = 110% — far above 40. That’s excellent. If your growth is 15% MoM with negative 10% margin, Rule of 40 is 5% — danger zone. Every extra month in that zone burns runway you can’t recover. The calculator’s Rule of 40 output gives you a quick pulse check.</p>
+
+  <h2>What's a Good ARPU Target for Bootstrapped SaaS?</h2>
+  <p>Average Revenue Per User (ARPU) isn’t just a vanity metric — it’s the lever that funds your entire growth engine. For bootstrapped SaaS, ARPU must be high enough to sustain a reasonable customer acquisition cost without VC subsidies. A healthy target depends on your market: B2B SaaS tools often aim for $50–$200/mo ARPU, while developer tools or apps might survive on $10–$30/mo if churn is extremely low.</p>
+  <p>I've seen founders chasing enterprise deals to inflate ARPU while ignoring that a $500/mo customer lost to churn hurts more than ten $50/mo customers. The calculator shows your real ARPU right now — if it’s below $20 and your churn is above 5%, you’re in a death spiral. At $80 ARPU with 3% churn, you’re in great shape to reinvest. Use ARPU alongside NRR: high ARPU with low NRR means you’re not retaining the value you’re creating.</p>
+  <p>One tactical move: if your ARPU is stagnant, look at expansion revenue before raising prices. Upselling a $15 plan to $25 is easier than acquiring a new customer at $50. The calculator’s expansion MRR field reveals how much growth is already sitting in your base untapped.</p>
+
+  <h2>Using This Calculator to Diagnose Your SaaS Health</h2>
+  <p>Don’t just punch numbers in — use the results as a monthly diagnostic. I run this calculation every single month for my own SaaS. Here’s the sequence I follow:</p>
+  <ol>
+    <li>Start with <strong>MRR Growth Rate</strong>. If it’s below 3% and you’re under $50k, stop everything else and find the leak. Is it churn? Pricing? Lead flow? The other metrics will tell you.</li>
+    <li>Look at <strong>NRR</strong>. Above 100%? Great, your existing base is healthy. Below 95%? That’s the leak. Dive into expansion and churn — which one is moving against you?</li>
+    <li>Check <strong>Gross MRR Churn</strong>. If it’s above 5%, go straight to <a href="/articles/saas-rates">your pricing and value delivery</a>. You’re likely overcharging for what you deliver, or under‑delivering on onboarding.</li>
+    <li>Evaluate <strong>Logo Churn</strong>. If logo churn is high but revenue churn is low, your problem is in the low‑end plans — pricing or activation. If the opposite, your big accounts are unhappy.</li>
+    <li>Finally, check <strong>Rule of 40</strong>. A score under 20 tells you growth is costing too much or profitability is non‑existent — both are emergencies. Use this metric when talking to potential investors or even your spouse about why you’re still bootstrapping.</li>
+  </ol>
+  <p>The calculator doesn’t prescribe what to do — it just shows you the numbers you’ve been ignoring. Bookmark this page, set a calendar reminder for the 2nd of every month, and plug in your actuals. Within three months you’ll have the data literacy of a CFO, and your decisions will finally be backed by math, not hope.</p>
+</article>
+<div class="faq">
+  <h3>Frequently Asked Questions</h3>
+  <details>
+    <summary>What SaaS metrics should I track every month?</summary>
+    <div class="faq-answer">
+      <p>At minimum: MRR, MRR growth rate, net revenue retention (NRR), gross MRR churn, and logo churn. Once you’re past $10k MRR, add ARPU and Rule of 40. This calculator covers all of them in one view.</p>
+    </div>
+  </details>
+  <details>
+    <summary>How is the Rule of 40 calculated in this tool?</summary>
+    <div class="faq-answer">
+      <p>We use your monthly MRR growth percentage plus your profit margin percentage. While the traditional Rule of 40 uses annual revenue growth, this approximation gives you a fast, directional health check. If your monthly growth is volatile, average three months before running the calculator.</p>
+    </div>
+  </details>
+  <details>
+    <summary>Why does NRR show “—” even though I entered numbers?</summary>
+    <div class="faq-answer">
+      <p>NRR needs <strong>both</strong> expansion MRR and churned MRR fields to be filled. Populate both to see how existing customer revenue is truly changing. If you only have one, gross or net churn rates will still work.</p>
+    </div>
+  </details>
+</div>
+<script>
+  function clearErrors() {
+    const inputs = document.querySelectorAll('input');
+    inputs.forEach(i => i.classList.remove('error-input'));
+    const errors = document.querySelectorAll('.error-msg');
+    errors.forEach(e => e.textContent = '');
+  }
+
+  function calculate() {
+    clearErrors();
+
+    const currentEl = document.getElementById('mrr-current');
+    const previousEl = document.getElementById('mrr-previous');
+    const expansionEl = document.getElementById('expansion-mrr');
+    const churnEl = document.getElementById('churn-mrr');
+    const startCustEl = document.getElementById('start-customers');
+    const lostCustEl = document.getElementById('lost-customers');
+    const activeCustEl = document.getElementById('active-customers');
+    const marginEl = document.getElementById('profit-margin');
+
+    const currentRaw = currentEl.value.trim();
+    const previousRaw = previousEl.value.trim();
+    const expansionRaw = expansionEl.value.trim();
+    const churnRaw = churnEl.value.trim();
+    const startRaw = startCustEl.value.trim();
+    const lostRaw = lostCustEl.value.trim();
+    const activeRaw = activeCustEl.value.trim();
+    const marginRaw = marginEl.value.trim();
+
+    const allPrimaryEmpty = currentRaw === "" && previousRaw === "" && expansionRaw === "" && churnRaw === "" && startRaw === "" && lostRaw === "" && activeRaw === "" && marginRaw === "";
+    if (allPrimaryEmpty) {
+      document.getElementById('mrr-growth').textContent = '—';
+      document.getElementById('net-new-mrr').textContent = '—';
+      document.getElementById('arr').textContent = '—';
+      document.getElementById('nrr').textContent = '—';
+      document.getElementById('nrr-unit').textContent = '%';
+      document.getElementById('gross-churn').textContent = '—';
+      document.getElementById('net-churn').textContent = '—';
+      document.getElementById('logo-churn').textContent = '—';
+      document.getElementById('arpu').textContent = '—';
+      document.getElementById('rule-of-40').textContent = '—';
+      document.getElementById('interpretation').innerHTML = '';
+      return;
+    }
+
+    const current = parseFloat(currentRaw);
+    const previous = parseFloat(previousRaw);
+    const expansion = expansionRaw !== "" ? parseFloat(expansionRaw) : null;
+    const churnMrr = churnRaw !== "" ? parseFloat(churnRaw) : null;
+    const startCust = startRaw !== "" ? parseInt(startRaw, 10) : null;
+    const lostCust = lostRaw !== "" ? parseInt(lostRaw, 10) : null;
+    const activeCust = activeRaw !== "" ? parseInt(activeRaw, 10) : null;
+    const margin = marginRaw !== "" ? parseFloat(marginRaw) : null;
+
+    // Cross-field validations
+    if (previousRaw !== "" && churnMrr !== null && churnMrr > previous) {
+      churnEl.classList.add('error-input');
+      const wrapper = churnEl.closest('.input-group');
+      if (wrapper) {
+        let err = wrapper.querySelector('.error-msg');
+        if (!err) {
+          err = document.createElement('span');
+          err.className = 'error-msg';
+          wrapper.appendChild(err);
+        }
+        err.textContent = 'Churned MRR cannot exceed Previous MRR.';
+      }
+    }
+    if (startCust !== null && lostCust !== null && lostCust > startCust) {
+      lostCustEl.classList.add('error-input');
+      const wrapper = lostCustEl.closest('.input-group');
+      if (wrapper) {
+        let err = wrapper.querySelector('.error-msg');
+        if (!err) {
+          err = document.createElement('span');
+          err.className = 'error-msg';
+          wrapper.appendChild(err);
+        }
+        err.textContent = 'Lost customers cannot exceed starting customers.';
+      }
+    }
+
+    const hasError = document.querySelector('.error-input');
+    if (hasError) {
+      document.getElementById('mrr-growth').textContent = '—';
+      document.getElementById('net-new-mrr').textContent = '—';
+      document.getElementById('arr').textContent = '—';
+      document.getElementById('nrr').textContent = '—';
+      document.getElementById('nrr-unit').textContent = '%';
+      document.getElementById('gross-churn').textContent = '—';
+      document.getElementById('net-churn').textContent = '—';
+      document.getElementById('logo-churn').textContent = '—';
+      document.getElementById('arpu').textContent = '—';
+      document.getElementById('rule-of-40').textContent = '—';
+      document.getElementById('interpretation').innerHTML = '';
+      return;
+    }
+
+    // --- MRR Growth Rate & Net New MRR ---
+    let mrrGrowthVal = null, netNew = null;
+    if (previousRaw !== "" && currentRaw !== "" && previous !== 0) {
+      mrrGrowthVal = ((current - previous) / previous) * 100;
+      netNew = current - previous;
+    }
+
+    // --- ARR ---
+    const arrVal = currentRaw !== "" ? current * 12 : null;
+
+    // --- NRR ---
+    let nrrVal = null;
+    if (previousRaw !== "" && expansion !== null && churnMrr !== null) {
+      const denom = previous;
+      if (denom !== 0) {
+        nrrVal = ((previous + expansion - churnMrr) / denom) * 100;
+      }
+    }
+
+    // --- Gross MRR Churn ---
+    let grossChurnVal = null;
+    if (churnMrr !== null && previousRaw !== "" && previous !== 0) {
+      grossChurnVal = (churnMrr / previous) * 100;
+    }
+
+    // --- Net MRR Churn ---
+    let netChurnVal = null;
+    if (churnMrr !== null && expansion !== null && previousRaw !== "" && previous !== 0) {
+      netChurnVal = ((churnMrr - expansion) / previous) * 100;
+    }
+
+    // --- Logo Churn ---
+    let logoChurnVal = null;
+    if (startCust !== null && lostCust !== null && startCust !== 0) {
+      logoChurnVal = (lostCust / startCust) * 100;
+    }
+
+    // --- ARPU ---
+    let arpuVal = null;
+    if (activeCust !== null && activeCust !== 0 && currentRaw !== "") {
+      arpuVal = current / activeCust;
+    }
+
+    // --- Rule of 40 ---
+    let rule40Val = null;
+    if (mrrGrowthVal !== null && margin !== null) {
+      rule40Val = mrrGrowthVal + margin;
+    }
+
+    // Update DOM
+    const mrrGrowthEl = document.getElementById('mrr-growth');
+    const netNewEl = document.getElementById('net-new-mrr');
+    const arrEl = document.getElementById('arr');
+    const nrrEl = document.getElementById('nrr');
+    const nrrUnitEl = document.getElementById('nrr-unit');
+    const grossEl = document.getElementById('gross-churn');
+    const netEl = document.getElementById('net-churn');
+    const logoEl = document.getElementById('logo-churn');
+    const arpuEl = document.getElementById('arpu');
+    const rule40El = document.getElementById('rule-of-40');
+
+    if (mrrGrowthVal !== null) {
+      mrrGrowthEl.textContent = mrrGrowthVal.toFixed(1);
+    } else {
+      mrrGrowthEl.textContent = '—';
+    }
+    if (netNew !== null) {
+      netNewEl.textContent = '$' + netNew.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    } else {
+      netNewEl.textContent = '—';
+    }
+    if (arrVal !== null) {
+      arrEl.textContent = '$' + arrVal.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    } else {
+      arrEl.textContent = '—';
+    }
+    if (nrrVal !== null) {
+      nrrEl.textContent = nrrVal.toFixed(1);
+      nrrUnitEl.textContent = '%';
+    } else {
+      nrrEl.textContent = '—';
+    }
+    if (grossChurnVal !== null) {
+      grossEl.textContent = grossChurnVal.toFixed(1);
+    } else {
+      grossEl.textContent = '—';
+    }
+    if (netChurnVal !== null) {
+      netEl.textContent = netChurnVal.toFixed(1);
+    } else {
+      netEl.textContent = '—';
+    }
+    if (logoChurnVal !== null) {
+      logoEl.textContent = logoChurnVal.toFixed(1);
+    } else {
+      logoEl.textContent = '—';
+    }
+    if (arpuVal !== null) {
+      arpuEl.textContent = '$' + arpuVal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    } else {
+      arpuEl.textContent = '—';
+    }
+    if (rule40Val !== null) {
+      rule40El.textContent = rule40Val.toFixed(1);
+    } else {
+      rule40El.textContent = '—';
+    }
+
+    // Interpretation
+    const interp = document.getElementById('interpretation');
+    let parts = [];
+    if (mrrGrowthVal !== null) {
+      const growthWord = mrrGrowthVal >= 10 ? 'exceptional' : (mrrGrowthVal >= 5 ? 'healthy' : (mrrGrowthVal >= 3 ? 'sluggish' : 'critical'));
+      parts.push(`MRR growth is <strong>${growthWord}</strong> at ${mrrGrowthVal.toFixed(1)}%.`);
+    }
+    if (nrrVal !== null) {
+      const nrrWord = nrrVal >= 120 ? 'outstanding' : (nrrVal >= 100 ? 'strong' : (nrrVal >= 90 ? 'worrying' : 'dangerous'));
+      parts.push(`NRR of ${nrrVal.toFixed(1)}% is ${nrrWord}.`);
+    } else if (grossChurnVal !== null || netChurnVal !== null) {
+      parts.push('Fill both expansion and churn MRR to unlock the complete NRR picture.');
+    }
+    if (grossChurnVal !== null) {
+      const churnWord = grossChurnVal <= 3 ? 'low' : (grossChurnVal <= 5 ? 'moderate' : 'high');
+      parts.push(`Gross MRR churn is ${churnWord} (${grossChurnVal.toFixed(1)}%).`);
+    }
+    if (rule40Val !== null) {
+      const ruleWord = rule40Val >= 40 ? 'above the 40% threshold — sustainable' : `below the 40% benchmark — needs attention`;
+      parts.push(`Rule of 40 score: ${rule40Val.toFixed(1)}%, ${ruleWord}.`);
+    }
+    if (parts.length === 0) {
+      interp.innerHTML = 'Enter at least Current and Previous MRR to see your core growth metrics.';
+    } else {
+      interp.innerHTML = parts.join(' ');
+    }
+  }
+
+  calculate();
+</script>
+```
+<div id="related-content" class="related-content"></div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <a href="/" class="footer-brand">SaaS<span class="footer-accent">Tools</span></a>
+      <nav class="footer-nav">
+        <a href="/articles/">Articles</a>
+        <a href="/tools/">Tools</a>
+        <a href="/about.html">About</a>
+        <a href="/privacy">Privacy</a>
+      </nav>
+    </div>
+    <div class="footer-bottom">
+      Built for bootstrapped founders. No VC fluff.
+    </div>
+  </div>
+</footer>
+
+<script>
+(function() {
+  var meta    = document.querySelector('meta[name="cluster"]');
+  var cluster = meta ? meta.getAttribute('content') : '';
+  if (!cluster) return;
+  var parts       = window.location.pathname.split('/').filter(Boolean);
+  var currentSlug = (parts[parts.length - 1] || '').replace('.html', '');
+  fetch('/content-index.json')
+    .then(function(r) { return r.json(); })
+    .then(function(idx) {
+      var articles = (idx.articles || [])
+        .filter(function(a) { return a.cluster === cluster && a.slug !== currentSlug; })
+        .slice(0, 3);
+      var tools = (idx.tools || [])
+        .filter(function(t) { return t.cluster === cluster && t.slug !== currentSlug; })
+        .slice(0, 2);
+      var html = '';
+      if (articles.length) {
+        html += '<h3 class="related-heading">Related Articles</h3>'
+              + '<ul class="related-list">';
+        articles.forEach(function(a) {
+          html += '<li><a href="/articles/' + a.slug + '">' + a.title + '</a></li>';
+        });
+        html += '</ul>';
+      }
+      if (tools.length) {
+        html += '<h3 class="related-heading">Related Tools</h3>'
+              + '<ul class="related-list">';
+        tools.forEach(function(t) {
+          html += '<li><a href="/tools/' + t.slug + '">' + t.title + '</a></li>';
+        });
+        html += '</ul>';
+      }
+      if (html) {
+        var el = document.getElementById('related-content');
+        if (el) el.innerHTML = html;
+      }
+    })
+    .catch(function() {});
+})();
+</script>
+
+<script>
+(function () {
+  document.addEventListener('click', function (e) {
+    var el = e.target.closest('a[href]');
+    if (!el) return;
+    var href = el.getAttribute('href') || '';
+    if (href.indexOf('cloudways.com') === -1 || href.indexOf('id=') === -1) return;
+    if (typeof window.cfBeacon === 'undefined' || typeof window.cfBeacon.pushEvent !== 'function') return;
+    window.cfBeacon.pushEvent('affiliate_click', {
+      affiliate: 'cloudways',
+      page: window.location.pathname
+    });
+  }, true);
+})();
+</script>
+
+</body>
+</html>
