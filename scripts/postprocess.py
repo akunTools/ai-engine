@@ -50,6 +50,12 @@ _AFFILIATE_TRACKER_JS = """<script>
 })();
 </script>"""
 
+# ── Chart.js CDN — hanya di-inject jika tool mengandung <canvas> ─────────────
+_CHARTJS_CDN = (
+    '<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">'
+    '</script>'
+)
+
 _BASE_CSS = """
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
@@ -502,6 +508,104 @@ _ARTICLE_CSS = """
 
 _TOOL_CSS = ""  # CSS disediakan oleh wrap_tool_html — tidak dipakai standalone
 
+# ── CSS untuk Chart & Decision Tree — di-inject ke tool page ─────────────────
+_CHART_CSS = """
+    /* ── CHART CONTAINER ── */
+    .chart-container {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 24px;
+      margin-bottom: 24px;
+      position: relative;
+      width: 100%;
+    }
+    .chart-container canvas {
+      width: 100% !important;
+      max-height: 400px;
+    }
+"""
+
+_DECISION_TREE_CSS = """
+    /* ── DECISION TREE ── */
+    .decision-tree {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin-bottom: 24px;
+    }
+    .decision-node {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 20px 24px;
+      position: relative;
+    }
+    .decision-node.active {
+      border-color: var(--accent);
+      border-width: 2px;
+      background: var(--accent-light);
+    }
+    .decision-node.completed {
+      border-color: var(--success);
+      background: var(--success-bg);
+    }
+    .decision-node h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text);
+      margin: 0 0 8px;
+    }
+    .decision-node p {
+      font-size: 0.9375rem;
+      color: var(--muted);
+      margin: 0 0 16px;
+    }
+    .decision-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .decision-option {
+      display: inline-flex;
+      align-items: center;
+      padding: 8px 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      min-height: 44px;
+      text-decoration: none;
+    }
+    .decision-option:hover {
+      border-color: var(--text);
+      background: var(--surface);
+    }
+    .decision-option.selected {
+      border-color: var(--accent);
+      background: var(--accent-light);
+      color: var(--accent);
+    }
+    .decision-branch {
+      display: flex;
+      justify-content: center;
+      padding: 4px 0;
+      color: var(--muted);
+      font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+      font-size: 1.2rem;
+    }
+    @media (max-width: 640px) {
+      .chart-container { padding: 16px; }
+      .decision-node { padding: 16px; }
+      .decision-options { flex-direction: column; }
+      .decision-option { width: 100%; }
+    }
+"""
+
 _RELATED_CSS = """
   .related-content { margin-bottom: 32px; }
   .related-heading {
@@ -828,6 +932,9 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
     """
     Bungkus body tool/kalkulator ke full HTML page.
     """
+    # Deteksi fitur — apakah tool membutuhkan Chart.js?
+    _has_chart = '<canvas' in body_html
+    
     # Ekstrak cluster_id (BULLETPROOF REGEX)
     cluster_match = re.search(
         r'<meta\s+name=["\']cluster["\']\s+content=(["\'])(.*?)\1',
@@ -858,6 +965,9 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
     # Fallback: generate deskripsi standar jika Claude tidak menulis meta description
     if not meta_desc:
         meta_desc = f"{title_clean}. Free calculator for bootstrapped SaaS founders."
+
+    # ── Chart.js CDN — hanya di-inject jika tool mengandung <canvas> ─────────
+    chartjs_script = _CHARTJS_CDN if _has_chart else ""
 
     # ── FAQPage JSON-LD schema ────────────────────────────────────────────────
     faq_schema = ""
@@ -916,6 +1026,7 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
   <link rel="manifest" href="/favicon/site.webmanifest" />
 
   {_FONT}
+  {chartjs_script}
   <style>
 {_BASE_CSS}
 {_NAV_CSS}
@@ -1190,6 +1301,8 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
       margin: 40px 0 20px;
     }}
 
+{_CHART_CSS}
+{_DECISION_TREE_CSS}
 {_RELATED_CSS}
 {_FOOTER_CSS}
 
@@ -1225,3 +1338,7 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
 
 </body>
 </html>"""
+
+
+# ── Re-export untuk backward compatibility ────────────────────────────────────
+# Tidak ada perubahan API publik. Semua fungsi dan konstanta tetap sama.
