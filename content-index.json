@@ -36,6 +36,13 @@
       "cluster": "saas-financial-planning",
       "date": "2026-04-29",
       "excerpt": "Calculate your SaaS runway months instantly. See if your burn rate puts you in danger. For bootstrapped founders who need financial clarity without fluff."
+    },
+    {
+      "slug": "saas-metrics-calculator",
+      "title": "SaaS Metrics Calculator: MRR Growth, Churn, NRR & More in Seconds",
+      "cluster": "saas-growth-metrics",
+      "date": "2026-04-30",
+      "excerpt": "Calculate MRR growth, net revenue retention, churn rates, ARR, and Rule of 40 instantly. The dashboard bootstrapped SaaS founders rely on every month."
     }
   ]
 }
