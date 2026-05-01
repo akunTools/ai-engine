@@ -57,13 +57,6 @@
       "cluster": "saas-churn-retention",
       "date": "2026-04-30",
       "excerpt": "Calculate your SaaS churn rate instantly. See customer churn, MRR churn, net churn, and annual revenue at risk. Essential metrics for bootstrapped founders"
-    },
-    {
-      "slug": "which-saas-customer-retention-policy",
-      "title": "Which SaaS Customer Retention Policy Actually Stops MRR Bleed for Bootstrapped Founders?",
-      "cluster": "saas-churn-retention",
-      "date": "2026-05-01",
-      "excerpt": "Wondering which SaaS customer retention policy stops MRR bleed? Use this decision framework and case study to pick the right policy for your bootstrapped SaaS."
     }
   ]
 }
