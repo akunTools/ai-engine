@@ -27,6 +27,13 @@
       "cluster": "saas-churn-retention",
       "date": "2026-04-30",
       "excerpt": "Wondering which SaaS customer retention policy stops MRR bleed? Use this decision framework and case study to pick the right policy for your bootstrapped SaaS."
+    },
+    {
+      "slug": "saas-churn-rate",
+      "title": "SaaS Churn Rate: The Silent Runway Killer Every Bootstrapped Founder Must Stop Before It Compounds",
+      "cluster": "saas-churn-retention",
+      "date": "2026-05-01",
+      "excerpt": "SaaS churn rate kills bootstrapped MRR. Learn to calculate, benchmark by tier, see the compounding cost, and apply 4 founder-tested tactics to fix it."
     }
   ],
   "tools": [
