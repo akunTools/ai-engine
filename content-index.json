@@ -34,6 +34,13 @@
       "cluster": "saas-churn-retention",
       "date": "2026-05-01",
       "excerpt": "SaaS churn rate kills bootstrapped MRR. Learn to calculate, benchmark by tier, see the compounding cost, and apply 4 founder-tested tactics to fix it."
+    },
+    {
+      "slug": "saas-user-retention",
+      "title": "SaaS User Retention: The Engagement Metric That Predicts Churn Before It Hits Your MRR",
+      "cluster": "saas-churn-retention",
+      "date": "2026-05-02",
+      "excerpt": "Master SaaS user retention: calculate your retention rate, benchmark by tier, and deploy 4 tactics to stop silent churn before it drains MRR."
     }
   ],
   "tools": [
