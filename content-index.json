@@ -41,6 +41,13 @@
       "cluster": "saas-churn-retention",
       "date": "2026-05-02",
       "excerpt": "Master SaaS user retention: calculate your retention rate, benchmark by tier, and deploy 4 tactics to stop silent churn before it drains MRR."
+    },
+    {
+      "slug": "why-saas-churn-rate-increase",
+      "title": "Why SaaS Churn Rate Increase? The Root Causes Bootstrapped Founders Ignore Until It\u2019s Too Late",
+      "cluster": "saas-churn-retention",
+      "date": "2026-05-05",
+      "excerpt": "Why your SaaS churn rate increases: root causes from pricing misalignment to onboarding decay. Diagnose and stop MRR bleed before it compounds."
     }
   ],
   "tools": [
