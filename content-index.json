@@ -48,6 +48,13 @@
       "cluster": "saas-churn-retention",
       "date": "2026-05-05",
       "excerpt": "Why your SaaS churn rate increases: root causes from pricing misalignment to onboarding decay. Diagnose and stop MRR bleed before it compounds."
+    },
+    {
+      "slug": "where-reduce-saas-churn-rate",
+      "title": "Where to Reduce SaaS Churn Rate: The Tactical Friction Map for Bootstrapped Founders",
+      "cluster": "saas-churn-retention",
+      "date": "2026-05-05",
+      "excerpt": "Pinpoint where to reduce SaaS churn rate with a friction map. Calculate churn by stage, benchmark by tier, and apply 4 fixes that stop MRR bleed fast."
     }
   ],
   "tools": [
