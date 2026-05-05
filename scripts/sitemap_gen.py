@@ -1022,7 +1022,7 @@ def publish_file(path: str, content: str, label: str):
         req = urllib.request.Request(
             f"{url}?ref={OUTPUT_BRANCH}", headers=_headers()
         )
-        with urllib.request.urlopen(req) as r:
+        with urllib.request.urlopen(req, timeout=60) as r:
             sha = json.loads(r.read()).get("sha")
     except Exception:
         pass
@@ -1041,7 +1041,7 @@ def publish_file(path: str, content: str, label: str):
         headers={**_headers(), "Content-Type": "application/json"},
         method="PUT"
     )
-    with urllib.request.urlopen(req) as r:
+    with urllib.request.urlopen(req, timeout=60) as r:
         print(f"{label} published: HTTP {r.status}")
 
 
