@@ -78,6 +78,13 @@
       "cluster": "saas-churn-retention",
       "date": "2026-04-30",
       "excerpt": "Calculate your SaaS churn rate instantly. See customer churn, MRR churn, net churn, and annual revenue at risk. Essential metrics for bootstrapped founders"
+    },
+    {
+      "slug": "saas-growth-calculator",
+      "title": "SaaS Growth Calculator: MRR Growth Rate, NRR & Rule of 40",
+      "cluster": "saas-growth-metrics",
+      "date": "2026-05-06",
+      "excerpt": "Calculate your SaaS MRR growth rate, net new MRR, ARR, NRR, and Rule of 40 instantly. The growth metrics calculator for bootstrapped SaaS founders."
     }
   ]
 }
