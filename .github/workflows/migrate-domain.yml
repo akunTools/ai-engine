@@ -1,0 +1,32 @@
+name: Migrate Domain in Output Branch
+
+on:
+  workflow_dispatch:
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout output branch
+        uses: actions/checkout@v4
+        with:
+          ref: output
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Replace old domain di semua HTML
+        run: |
+          find . -name "*.html" -not -path "./.git/*" \
+            | xargs sed -i 's|https://saas\.blogtrick\.eu\.org|https://saastools.corenk.com|g'
+
+          REMAINING=$(grep -r "saas.blogtrick.eu.org" . --include="*.html" | wc -l)
+          echo "Sisa kemunculan domain lama: $REMAINING"
+
+      - name: Commit dan push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --staged --quiet && echo "Tidak ada perubahan" && exit 0
+          git commit -m "migrate: replace saas.blogtrick.eu.org → saastools.corenk.com"
+          git push origin output
