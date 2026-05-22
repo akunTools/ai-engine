@@ -22,6 +22,7 @@ GITHUB_TOKEN  = os.environ.get("GITHUB_TOKEN", "")
 TASK_TYPE     = os.environ.get("TASK_TYPE", "article")
 WORKER_URL    = os.environ.get("WORKER_URL", "").rstrip("/") + "/"
 BRIEF_TOKEN   = os.environ.get("BRIEF_TOKEN", "")
+SITE_BASE_URL = os.environ.get("SITE_BASE_URL", "https://saastools.corenk.com")
 
 
 def notify_keyword_done(slug: str) -> None:
@@ -331,7 +332,7 @@ def run_pipeline(task_type: str) -> None:
             if og_ok:
                 print(f"OG image published: og/{slug}.png")
                 warm_facebook_cache(
-                    f"https://saas.blogtrick.eu.org/articles/{slug}"
+                    f"{SITE_BASE_URL}/articles/{slug}"
                 )
             else:
                 print(f"Warning: OG image publish failed (non-fatal)")
