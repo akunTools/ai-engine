@@ -113,7 +113,7 @@ def generate_og_image(title: str, slug: str, output_dir: str) -> str:
     f_domain = _font(bold=False, size=24)
     draw.text(
         (PAD_L, OG_H - MARGIN - 58),
-        "saas.blogtrick.eu.org",
+        os.environ.get("SITE_BASE_URL", "https://saastools.corenk.com").replace("https://", ""),
         font=f_domain,
         fill=SUBTLE
     )
