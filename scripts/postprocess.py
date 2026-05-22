@@ -679,6 +679,30 @@ def _build_article_html(fm: dict, body_html: str,
                         slug: str, date_str: str,
                         cluster_id: str = "") -> str:
     """
+
+_FUTURE_LINK_JS = """<script>
+(function() {
+  fetch('/content-index.json')
+    .then(function(r) { return r.json(); })
+    .then(function(idx) {
+      var live = new Set();
+      (idx.articles || []).forEach(function(a) { live.add('/articles/' + a.slug); });
+      (idx.tools    || []).forEach(function(t) { live.add('/tools/'    + t.slug); });
+      document.querySelectorAll('strong[data-future-link]').forEach(function(el) {
+        var href = el.getAttribute('data-future-link');
+        if (live.has(href)) {
+          var a = document.createElement('a');
+          a.href        = href;
+          a.textContent = el.textContent;
+          el.parentNode.replaceChild(a, el);
+        }
+      });
+    })
+    .catch(function() {});
+})();
+</script>"""
+
+
     Bungkus article body HTML ke dalam full HTML page.
     """
     site_url    = os.environ.get("SITE_BASE_URL", "https://saastools.corenk.com")
@@ -851,6 +875,8 @@ def _build_article_html(fm: dict, body_html: str,
 </script>
 
 {_RELATED_JS}
+
+{_FUTURE_LINK_JS}
 
 {_AFFILIATE_TRACKER_JS}
 
@@ -1334,6 +1360,8 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
 {_FOOTER_HTML}
 
 {_RELATED_JS}
+
+{_FUTURE_LINK_JS}
 
 {_AFFILIATE_TRACKER_JS}
 
