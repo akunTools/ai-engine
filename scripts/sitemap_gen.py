@@ -13,7 +13,7 @@ from datetime import datetime
 
 ENGINE_REPO   = os.environ.get("ENGINE_REPO", "akunTools/ai-engine")
 ENGINE_TOKEN  = os.environ.get("GITHUB_TOKEN")
-SITE_URL      = os.environ.get("SITE_BASE_URL", "https://saas.blogtrick.eu.org")
+SITE_URL      = os.environ.get("SITE_BASE_URL", "https://saastools.corenk.com")
 OUTPUT_BRANCH = "output"
 API_BASE      = "https://api.github.com"
 
