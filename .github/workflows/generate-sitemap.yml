@@ -22,6 +22,7 @@ jobs:
 
       - name: Rebuild Indexes & Sitemap
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ENGINE_REPO:  ${{ github.repository }}
+          GITHUB_TOKEN:  ${{ secrets.GITHUB_TOKEN }}
+          ENGINE_REPO:   ${{ github.repository }}
+          SITE_BASE_URL: ${{ vars.SITE_BASE_URL }}
         run: python scripts/sitemap_gen.py
