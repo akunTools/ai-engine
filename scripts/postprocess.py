@@ -3,6 +3,7 @@ postprocess.py
 Validasi dan format output dari AI sebelum dipublish.
 Artikel di-convert dari Markdown ke HTML lengkap sebelum dipublish.
 """
+import os
 import re
 from datetime import datetime
 
@@ -680,7 +681,7 @@ def _build_article_html(fm: dict, body_html: str,
     """
     Bungkus article body HTML ke dalam full HTML page.
     """
-    site_url    = "https://saas.blogtrick.eu.org"
+    site_url    = os.environ.get("SITE_BASE_URL", "https://saastools.corenk.com")
     title       = fm.get("title", slug.replace("-", " ").title())
     keyword     = fm.get("primary_keyword", "")
     article_url = f"{site_url}/articles/{slug}"
@@ -951,7 +952,7 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
     meta_desc = desc_match.group(2).strip() if desc_match else ""
     body_html = re.sub(r'<meta[^>]*name=["\']description["\'][^>]*>\n?', '', body_html, flags=re.IGNORECASE)
 
-    site_url     = "https://saas.blogtrick.eu.org"
+    site_url     = os.environ.get("SITE_BASE_URL", "https://saastools.corenk.com")
     tool_url     = f"{site_url}/tools/{slug}"
     cluster_meta = f'<meta name="cluster" content="{cluster_id}">' if cluster_id else ""
 
