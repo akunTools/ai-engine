@@ -128,13 +128,19 @@ def update_editorial_memory(slug: str, body_html: str,
     }
 
     if content_type == "article":
-        existing = {a["slug"] for a in memory.get("published_articles", [])}
-        if slug not in existing:
-            memory.setdefault("published_articles", []).append(entry)
+        key = "published_articles"
+        idx = next((i for i, a in enumerate(memory.get(key, [])) if a["slug"] == slug), -1)
+        if idx == -1:
+            memory.setdefault(key, []).append(entry)
+        else:
+            memory[key][idx] = entry  # overwrite: update published_date ke tanggal publish asli
     else:
-        existing = {t["slug"] for t in memory.get("published_tools", [])}
-        if slug not in existing:
-            memory.setdefault("published_tools", []).append(entry)
+        key = "published_tools"
+        idx = next((i for i, t in enumerate(memory.get(key, [])) if t["slug"] == slug), -1)
+        if idx == -1:
+            memory.setdefault(key, []).append(entry)
+        else:
+            memory[key][idx] = entry  # overwrite: update published_date ke tanggal publish asli
 
     memory["last_updated"] = date_str
 
