@@ -10,6 +10,9 @@ jobs:
   rebuild:
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    # Skip jika push dari pipeline — pipeline sudah jalankan sitemap_gen.py sendiri.
+    # Ini mencegah sitemap di-regenerate dua kali per publish dan menghemat Actions quota.
+    if: "!contains(github.event.head_commit.message, '[pipeline]')"
 
     steps:
       - name: Checkout ai-engine
