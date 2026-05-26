@@ -59,14 +59,19 @@ def update_file(path: str, content: str, message: str) -> bool:
         headers={**_headers(), "Content-Type": "application/json"},
         method="PUT"
     )
-    with urllib.request.urlopen(req) as r:
-        return r.status in (200, 201)
+    try:
+        with urllib.request.urlopen(req) as r:
+            return r.status in (200, 201)
+    except urllib.error.HTTPError as e:
+        print(f"update_file error for {path}: {e.code} {e.read().decode()}")
+        return False
 
 
 def list_folder(path: str) -> list:
     """
     Daftar semua file dalam sebuah folder di ai-brain.
     Return: [{name, path, sha}] atau [] jika folder tidak ada.
+    Raises exception jika terjadi error selain 404.
     """
     url = f"{API_BASE}/repos/{BRAIN_REPO}/contents/{path}"
     req = urllib.request.Request(url, headers=_headers())
@@ -80,7 +85,12 @@ def list_folder(path: str) -> list:
         ]
     except urllib.error.HTTPError as e:
         if e.code == 404:
-            return []
+            return []  # Folder tidak ada, anggap kosong
+        # Error lain (401, 403, 500) harus di-raise agar pipeline gagal
+        print(f"HTTP error {e.code} saat mengakses folder {path}: {e.reason}")
+        raise
+    except Exception as e:
+        print(f"Unexpected error saat list folder {path}: {e}")
         raise
 
 
