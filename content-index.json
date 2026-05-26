@@ -55,6 +55,13 @@
       "cluster": "saas-churn-retention",
       "date": "2026-05-05",
       "excerpt": "Pinpoint where to reduce SaaS churn rate with a friction map. Calculate churn by stage, benchmark by tier, and apply 4 fixes that stop MRR bleed fast."
+    },
+    {
+      "slug": "is-saas-churn-rate-same",
+      "title": "Is SaaS Churn Rate the Same? Why Logo, Gross MRR, and Net Revenue Churn Paint Wildly Different Pictures",
+      "cluster": "saas-churn-retention",
+      "date": "2026-05-26",
+      "excerpt": "Is SaaS churn rate the same? No \u2014 logo, gross MRR, and net revenue churn each reveal different truths. Confusing them silently bleeds bootstrapped MRR."
     }
   ],
   "tools": [
