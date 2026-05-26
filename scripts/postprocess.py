@@ -670,16 +670,6 @@ _RELATED_JS = """<script>
 })();
 </script>"""
 
-
-# ─────────────────────────────────────────────
-# ARTICLE TEMPLATE
-# ─────────────────────────────────────────────
-
-def _build_article_html(fm: dict, body_html: str,
-                        slug: str, date_str: str,
-                        cluster_id: str = "") -> str:
-    """
-
 _FUTURE_LINK_JS = """<script>
 (function() {
   fetch('/content-index.json')
@@ -703,6 +693,14 @@ _FUTURE_LINK_JS = """<script>
 </script>"""
 
 
+# ─────────────────────────────────────────────
+# ARTICLE TEMPLATE
+# ─────────────────────────────────────────────
+
+def _build_article_html(fm: dict, body_html: str,
+                        slug: str, date_str: str,
+                        cluster_id: str = "") -> str:
+    """
     Bungkus article body HTML ke dalam full HTML page.
     """
     site_url    = os.environ.get("SITE_BASE_URL", "https://saastools.corenk.com")
@@ -875,9 +873,7 @@ _FUTURE_LINK_JS = """<script>
 </script>
 
 {_RELATED_JS}
-
 {_FUTURE_LINK_JS}
-
 {_AFFILIATE_TRACKER_JS}
 
 </body>
@@ -886,8 +882,6 @@ _FUTURE_LINK_JS = """<script>
 
 # ─────────────────────────────────────────────
 # MANUAL CONTENT WRAPPING
-# Digunakan untuk konten yang ditulis manual
-# dan disimpan sebagai body HTML di staging.
 # ─────────────────────────────────────────────
 
 def wrap_article_html(body_html: str, slug: str) -> str:
@@ -903,13 +897,12 @@ def wrap_article_html(body_html: str, slug: str) -> str:
     # Strip meta cluster dengan aman
     body_html = re.sub(r'<meta[^>]*name=["\']cluster["\'][^>]*>\n?', '', body_html, flags=re.IGNORECASE)
 
-    # Ekstrak meta description (BULLETPROOF REGEX)
+    # Ekstrak meta description
     desc_match = re.search(
         r'<meta\s+name=["\']description["\']\s+content=(["\'])(.*?)\1',
         body_html, re.IGNORECASE | re.DOTALL
     )
     meta_desc = desc_match.group(2).strip() if desc_match else ""
-    # Strip meta description dengan aman
     body_html = re.sub(r'<meta[^>]*name=["\']description["\'][^>]*>\n?', '', body_html, flags=re.IGNORECASE)
 
     date_str = datetime.utcnow().strftime("%Y-%m-%d")
@@ -925,7 +918,7 @@ def wrap_article_html(body_html: str, slug: str) -> str:
         body_html = (body_html[:h1_match.start()]
                      + body_html[h1_match.end():]).lstrip("\n")
 
-    # ── Postprocess: patch formula highlight div ─────────────────────────────
+    # Postprocess: patch formula highlight div
     body_html = re.sub(
         r'(style="background:#0f172a;color:#e2e8f0;[^"]*)"',
         lambda m: m.group(1) + (
@@ -938,7 +931,6 @@ def wrap_article_html(body_html: str, slug: str) -> str:
     title_clean = re.sub(r'<[^>]+>', '', title).strip()
     word_count  = len(re.sub(r'<[^>]+>', '', body_html).split())
 
-    # Fallback: gunakan judul jika Claude tidak menulis meta description
     if not meta_desc:
         meta_desc = title_clean
 
@@ -959,10 +951,8 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
     """
     Bungkus body tool/kalkulator ke full HTML page.
     """
-    # Deteksi fitur — apakah tool membutuhkan Chart.js?
     _has_chart = '<canvas' in body_html
     
-    # Ekstrak cluster_id (BULLETPROOF REGEX)
     cluster_match = re.search(
         r'<meta\s+name=["\']cluster["\']\s+content=(["\'])(.*?)\1',
         body_html, re.IGNORECASE | re.DOTALL
@@ -970,7 +960,6 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
     cluster_id = cluster_match.group(2).strip() if cluster_match else ""
     body_html = re.sub(r'<meta[^>]*name=["\']cluster["\'][^>]*>\n?', '', body_html, flags=re.IGNORECASE)
 
-    # Ekstrak meta description (BULLETPROOF REGEX)
     desc_match = re.search(
         r'<meta\s+name=["\']description["\']\s+content=(["\'])(.*?)\1',
         body_html, re.IGNORECASE | re.DOTALL
@@ -989,14 +978,12 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
              else slug.replace("-", " ").title())
     title_clean = re.sub(r'<[^>]+>', '', title).strip()
 
-    # Fallback: generate deskripsi standar jika Claude tidak menulis meta description
     if not meta_desc:
         meta_desc = f"{title_clean}. Free calculator for bootstrapped SaaS founders."
 
-    # ── Chart.js CDN — hanya di-inject jika tool mengandung <canvas> ─────────
     chartjs_script = _CHARTJS_CDN if _has_chart else ""
 
-    # ── FAQPage JSON-LD schema ────────────────────────────────────────────────
+    # FAQPage JSON-LD schema
     faq_schema = ""
     faq_pairs = re.findall(
         r'<summary[^>]*>(.*?)</summary>.*?<div[^>]*class=["\']faq-answer["\'][^>]*>(.*?)</div>',
@@ -1358,16 +1345,9 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
 </div>
 
 {_FOOTER_HTML}
-
 {_RELATED_JS}
-
 {_FUTURE_LINK_JS}
-
 {_AFFILIATE_TRACKER_JS}
 
 </body>
 </html>"""
-
-
-# ── Re-export untuk backward compatibility ────────────────────────────────────
-# Tidak ada perubahan API publik. Semua fungsi dan konstanta tetap sama.
