@@ -28,8 +28,6 @@ SITE_BASE_URL = os.environ.get("SITE_BASE_URL", "https://saastools.corenk.com")
 def notify_keyword_done(slug: str) -> None:
     """
     Set status keyword ke DONE di keyword_stock.json via Worker.
-    Lookup dilakukan berdasarkan slug (bukan keyword text) untuk
-    menghindari mismatch jika user mengubah slug di BriefActivity.
     Non-fatal: jika gagal, sync_check akan jadi fallback.
     """
     if not WORKER_URL or not BRIEF_TOKEN:
@@ -60,7 +58,13 @@ def sync_manifest(staging_ready_path: str, manifest_path: str) -> tuple:
     Return: (queue list, actual_files dict {filename: sha})
     """
     # Ambil file aktual
-    actual_files_list = list_folder(staging_ready_path)
+    try:
+        actual_files_list = list_folder(staging_ready_path)
+    except Exception as e:
+        # Jangan hapus antrian jika folder staging tidak bisa diakses
+        print(f"ERROR: Cannot list staging folder {staging_ready_path}: {e}")
+        raise  # Biarkan pipeline gagal, jangan lanjut dengan antrian kosong
+
     actual_files = {f["name"]: f["sha"] for f in actual_files_list}
 
     # Ambil manifest
@@ -75,9 +79,7 @@ def sync_manifest(staging_ready_path: str, manifest_path: str) -> tuple:
 
     # Tambah file baru ke akhir antrian
     queued_names = {e["filename"] for e in queue}
-    new_files = sorted(
-        [f for f in actual_files if f not in queued_names]
-    )
+    new_files = sorted([f for f in actual_files if f not in queued_names])
     for filename in new_files:
         queue.append({
             "filename": filename,
@@ -133,24 +135,26 @@ def update_editorial_memory(slug: str, body_html: str,
         if idx == -1:
             memory.setdefault(key, []).append(entry)
         else:
-            memory[key][idx] = entry  # overwrite: update published_date ke tanggal publish asli
+            memory[key][idx] = entry
     else:
         key = "published_tools"
         idx = next((i for i, t in enumerate(memory.get(key, [])) if t["slug"] == slug), -1)
         if idx == -1:
             memory.setdefault(key, []).append(entry)
         else:
-            memory[key][idx] = entry  # overwrite: update published_date ke tanggal publish asli
+            memory[key][idx] = entry
 
     memory["last_updated"] = date_str
 
-    update_file(
+    success = update_file(
         "editorial_memory.json",
         json.dumps(memory, indent=2),
         f"[pipeline] Update editorial memory: {slug}"
     )
-    print(f"Editorial memory updated: {slug}")
-
+    if success:
+        print(f"Editorial memory updated: {slug}")
+    else:
+        print(f"Warning: Failed to update editorial memory for {slug}")
 
 
 def extract_cluster(body_html: str) -> str:
@@ -165,9 +169,7 @@ def extract_cluster(body_html: str) -> str:
 def warm_facebook_cache(url: str) -> None:
     """
     Paksa Facebook crawl ulang OG meta tag untuk URL yang baru dipublish.
-    Menggunakan Facebook Graph API publik — tidak butuh token atau akun developer.
     Non-fatal: jika gagal, pipeline tetap lanjut.
-    Berlaku untuk semua platform yang pakai Facebook crawler (FB, Instagram link preview).
     """
     try:
         encoded = urllib.parse.quote(url, safe="")
@@ -189,10 +191,6 @@ def update_content_index(slug: str, title: str, cluster_id: str,
                           excerpt: str = "") -> None:
     """
     Update content-index.json di branch output ENGINE_REPO.
-    File ini dibaca oleh JavaScript di setiap halaman untuk
-    menampilkan Related Articles dan Related Tools secara otomatis.
-    Field excerpt digunakan oleh sitemap_gen.py untuk menampilkan
-    deskripsi singkat di artikel list (homepage dan articles index).
     """
     path    = "content-index.json"
     api_url = f"https://api.github.com/repos/{ENGINE_REPO}/contents/{path}"
@@ -202,7 +200,6 @@ def update_content_index(slug: str, title: str, cluster_id: str,
         "User-Agent":    "ai-engine"
     }
 
-    # Baca content-index.json yang sudah ada
     sha   = None
     index = {"articles": [], "tools": []}
     try:
@@ -215,10 +212,9 @@ def update_content_index(slug: str, title: str, cluster_id: str,
             raw     = base64.b64decode(data["content"]).decode("utf-8")
             index   = json.loads(raw)
     except Exception:
-        pass  # File belum ada → mulai dari kosong
+        pass
 
-    # Tambah entry baru (skip jika slug sudah ada)
-    key            = "articles" if content_type == "article" else "tools"
+    key = "articles" if content_type == "article" else "tools"
     existing_slugs = {e["slug"] for e in index.get(key, [])}
     if slug not in existing_slugs:
         index.setdefault(key, []).append({
@@ -229,7 +225,6 @@ def update_content_index(slug: str, title: str, cluster_id: str,
             "excerpt": excerpt
         })
 
-    # Simpan kembali ke branch output
     payload = {
         "message": f"[pipeline] Update content index: {slug}",
         "content": base64.b64encode(
@@ -264,15 +259,17 @@ def run_pipeline(task_type: str) -> None:
     print(f"Task type: {task_type}")
     print("Syncing manifest...")
 
-    queue, actual_files = sync_manifest(staging_ready, manifest_path)
+    try:
+        queue, actual_files = sync_manifest(staging_ready, manifest_path)
+    except Exception as e:
+        print(f"FATAL: Sync manifest gagal: {e}")
+        sys.exit(1)
 
     if not queue:
         print(f"STAGING_EMPTY: No {folder_type} in staging/ready.")
-        # Tulis flag agar workflow bisa membedakan staging kosong vs error
         open("/tmp/staging_empty", "w").close()
         sys.exit(2)
 
-    # Ambil item pertama dari antrian
     next_item = queue[0]
     filename  = next_item["filename"]
     file_sha  = actual_files[filename]
@@ -280,16 +277,13 @@ def run_pipeline(task_type: str) -> None:
 
     print(f"Publishing: {filename} → slug: {slug}")
 
-    # Ambil body HTML dari staging
     body_html = fetch_file(f"{staging_ready}/{filename}")
 
-    # Wrap dengan template
     if is_article:
         full_html = wrap_article_html(body_html, slug)
     else:
         full_html = wrap_tool_html(body_html, slug)
 
-    # Publish ke branch output
     success = publish_html(output_dir, f"{slug}.html", full_html)
     if not success:
         print(f"PUBLISH_FAILED: Could not publish {slug}.html")
@@ -305,11 +299,17 @@ def run_pipeline(task_type: str) -> None:
     )
     print(f"Removed from staging: {filename}")
 
-    # Update tracking files
-    notify_keyword_done(slug)
-    update_editorial_memory(slug, body_html, task_type)
-    
-    # Update content-index.json untuk related content otomatis
+    # Update tracking files (non-fatal jika gagal)
+    try:
+        notify_keyword_done(slug)
+    except Exception as e:
+        print(f"Warning: notify_keyword_done gagal: {e}")
+
+    try:
+        update_editorial_memory(slug, body_html, task_type)
+    except Exception as e:
+        print(f"Warning: update_editorial_memory gagal: {e}")
+
     h1_match   = re.search(r'<h1[^>]*>(.*?)</h1>', body_html,
                             re.IGNORECASE | re.DOTALL)
     page_title = (re.sub(r'<[^>]+>', '', h1_match.group(1)).strip()
@@ -317,18 +317,17 @@ def run_pipeline(task_type: str) -> None:
     cluster_id = extract_cluster(body_html)
     date_str   = datetime.utcnow().strftime("%Y-%m-%d")
 
-    # Ekstrak excerpt dari meta description (diisi Claude saat authoring)
     desc_match = re.search(
         r'<meta\s+name=["\']description["\']\s+content=["\']([^"\']*)["\'][^>]*/?>',
         body_html, re.IGNORECASE
     )
     excerpt = desc_match.group(1).strip() if desc_match else ""
 
-    update_content_index(slug, page_title, cluster_id, task_type, date_str,
-                         excerpt)
+    try:
+        update_content_index(slug, page_title, cluster_id, task_type, date_str, excerpt)
+    except Exception as e:
+        print(f"Warning: update_content_index gagal: {e}")
 
-    # Generate dan publish OG image (hanya untuk artikel)
-    # Ditempatkan di sini karena page_title sudah tersedia
     if is_article:
         try:
             og_path = generate_og_image(page_title, slug, "/tmp/og")
@@ -337,9 +336,7 @@ def run_pipeline(task_type: str) -> None:
             og_ok = publish_binary("og", f"{slug}.png", og_data)
             if og_ok:
                 print(f"OG image published: og/{slug}.png")
-                warm_facebook_cache(
-                    f"{SITE_BASE_URL}/articles/{slug}"
-                )
+                warm_facebook_cache(f"{SITE_BASE_URL}/articles/{slug}")
             else:
                 print(f"Warning: OG image publish failed (non-fatal)")
         except Exception as e:
