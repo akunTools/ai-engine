@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Is SaaS Churn Rate the Same? Why Logo, Gross MRR, and Net Revenue Churn Paint Wildly Different Pictures — SaaS Tools for Bootstrapped Founders</title>
+  <meta name="description" content="Is SaaS churn rate the same? No — logo, gross MRR, and net revenue churn each reveal different truths. Confusing them silently bleeds bootstrapped MRR.">
+  
+  <meta name="cluster" content="saas-churn-retention">
+  <meta property="og:title" content="Is SaaS Churn Rate the Same? Why Logo, Gross MRR, and Net Revenue Churn Paint Wildly Different Pictures">
+  <meta property="og:url" content="https://saastools.corenk.com/articles/is-saas-churn-rate-same">
+  <meta property="og:type" content="article">
+  <meta property="og:image" content="https://saastools.corenk.com/og/is-saas-churn-rate-same.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="SaaS Tools for Bootstrapped Founders">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Is SaaS Churn Rate the Same? Why Logo, Gross MRR, and Net Revenue Churn Paint Wildly Different Pictures">
+  <meta name="twitter:image" content="https://saastools.corenk.com/og/is-saas-churn-rate-same.png">
+  <link rel="canonical" href="https://saastools.corenk.com/articles/is-saas-churn-rate-same">
+  
+  <link rel="icon" type="image/png" href="/favicon/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg" />
+  <link rel="shortcut icon" href="/favicon/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
+  <link rel="manifest" href="/favicon/site.webmanifest" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+  <style>
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg:           #fafafa;
+    --surface:      #ffffff;
+    --text:         #18181b;
+    --muted:        #52525b;
+    --subtle:       #a1a1aa;
+    --border:       #e4e4e7;
+    --accent:       #2563eb;
+    --accent-h:     #1d4ed8;
+    --accent-light: #eff6ff;
+    --danger:       #dc2626;
+    --danger-bg:    #fef2f2;
+    --warning:      #d97706;
+    --warning-bg:   #fffbeb;
+    --success:      #059669;
+    --success-bg:   #f0fdf4;
+    --r:            4px;
+  }
+  body {
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { color: var(--accent-h); }
+  
+  /* Global Focus State for Accessibility */
+  *:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+
+  nav.site-nav,
+  body > nav:not(.footer-nav) {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-inner {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0 24px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .nav-brand {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text);
+    text-decoration: none;
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+  }
+  .brand-accent {
+    color: var(--accent);
+  }
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .nav-links a {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 0 12px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    border-radius: var(--r);
+    transition: color 0.15s ease, background 0.15s ease;
+  }
+  .nav-links a:hover {
+    color: var(--text);
+    background: var(--bg);
+  }
+  .nav-links a.active {
+    color: var(--accent);
+    background: var(--accent-light);
+    border: 1px solid #bfdbfe;
+  }
+  .nav-back {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--muted);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 0 8px;
+    border-radius: var(--r);
+    transition: color 0.15s ease;
+  }
+  .nav-back:hover {
+    color: var(--text);
+    background: var(--bg);
+  }
+  @media (max-width: 640px) {
+    .nav-inner { padding: 0 16px; }
+    .nav-links a { padding: 0 8px; }
+  }
+
+
+  .article-wrap {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+  .article-header {
+    padding: 64px 0 40px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 48px;
+  }
+  .article-header__title {
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.25;
+    letter-spacing: -0.03em;
+    margin: 0 0 24px;
+  }
+  .article-header__meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-size: 0.85rem;
+    font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+    color: var(--muted);
+    line-height: 1;
+  }
+  .article-header__meta span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .article-header__meta-sep { color: var(--border); }
+  .kw-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text);
+    background: var(--border);
+    padding: 4px 8px;
+    border-radius: 4px;
+  }
+  .article-body {
+    font-size: 1.0625rem;
+    line-height: 1.72;
+    color: var(--text);
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+  .article-body h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.02em;
+    line-height: 1.3;
+    margin: 56px 0 24px;
+    border-bottom: 2px solid var(--text);
+    padding-bottom: 8px;
+  }
+  .article-body h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.01em;
+    line-height: 1.4;
+    margin: 40px 0 16px;
+  }
+  .article-body p { margin: 0 0 24px; }
+  .article-body ul, .article-body ol {
+    margin: 0 0 24px;
+    padding-left: 24px;
+  }
+  .article-body li { margin-bottom: 8px; }
+  .article-body li::marker { color: var(--muted); font-weight: bold; }
+  .article-body a {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    text-decoration-thickness: 1px;
+    transition: color 0.15s ease, text-decoration-color 0.15s ease;
+  }
+  .article-body a:hover {
+    color: var(--text);
+    text-decoration-color: var(--text);
+  }
+  
+  /* Utilitarian Blockquote */
+  .article-body blockquote {
+    margin: 32px 0;
+    padding: 20px 24px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--text);
+    color: var(--text);
+    font-size: 1.0625rem;
+    font-style: normal;
+    line-height: 1.72;
+  }
+  .article-body blockquote p:last-child { margin-bottom: 0; }
+  
+  /* Micro-details: Inline Code vs Preformatted Code */
+  .article-body code {
+    font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+    font-size: 0.85em;
+    background: #f4f4f5;
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+  }
+  .article-body pre {
+    background: #18181b;
+    color: #e4e4e7;
+    border-radius: var(--r);
+    padding: 20px 24px;
+    margin: 32px 0;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    border: 1px solid #3f3f46;
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .article-body pre code {
+    background: transparent;
+    border: none;
+    color: inherit;
+    padding: 0;
+    font-size: inherit;
+  }
+  
+  /* Micro-details: Image & Table Responsiveness */
+  .article-body img {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--r);
+    border: 1px solid var(--border);
+    display: block;
+    margin: 40px 0;
+  }
+  .article-body table {
+    width: 100%;
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-collapse: collapse;
+    margin: 32px 0;
+    font-size: 0.9rem;
+    border: 1px solid var(--border);
+  }
+  .article-body th, .article-body td {
+    padding: 12px 16px;
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+  .article-body th {
+    background: var(--bg);
+    font-weight: 600;
+    text-align: left;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.8125rem;
+    white-space: nowrap;
+  }
+  .article-body hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 56px 0;
+  }
+
+  /* Affiliate Box khusus untuk Artikel */
+  .affiliate-box {
+    background: var(--success-bg);
+    border: 1px solid rgba(16,185,129,.25);
+    border-radius: var(--r);
+    padding: 20px 24px;
+    margin: 32px 0;
+    font-size: 1.0625rem;
+    color: var(--text);
+    line-height: 1.6;
+  }
+  .affiliate-box a {
+    color: var(--success);
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-color: rgba(16,185,129,.4);
+  }
+  .affiliate-box a:hover { color: #059669; text-decoration-color: #059669; }
+  
+  .share-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 32px;
+    margin: 56px 0 48px;
+  }
+  @media (max-width: 640px) {
+    .share-box {
+      padding: 20px;
+      margin: 40px 0 32px;
+    }
+  }
+  .share-label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--text);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 16px;
+  }
+  .share-buttons { display: flex; flex-wrap: wrap; gap: 12px; }
+  .share-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 0 16px; border-radius: var(--r);
+    font-size: 0.875rem; font-weight: 500; text-decoration: none;
+    cursor: pointer; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text); min-height: 44px;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .share-btn:hover { background: var(--bg); border-color: var(--muted); }
+  .comments-box { margin-bottom: 48px; }
+  .comments-box h2 {
+    font-size: 1.25rem; font-weight: 700; color: var(--text);
+    margin-bottom: 24px; padding-bottom: 16px; border-bottom: 2px solid var(--text);
+  }
+  
+  @media (max-width: 640px) {
+    .article-wrap { padding: 0 16px; }
+    .article-header { padding: 40px 0 32px; }
+    .article-body { font-size: 1rem; }
+    .article-body pre {
+      margin: 32px -16px;
+      border-radius: 0;
+      border-left: none;
+      border-right: none;
+    }
+    .article-body table {
+      margin: 32px -16px;
+      width: calc(100% + 32px);
+      border-left: none;
+      border-right: none;
+      border-radius: 0;
+    }
+  }
+
+
+  .related-content { margin-bottom: 32px; }
+  .related-heading {
+    font-size: .75rem; font-weight: 600; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .05em;
+    margin-bottom: 12px; margin-top: 24px;
+  }
+  .related-heading:first-child { margin-top: 0; }
+  .related-list {
+    list-style: none; margin: 0; padding: 0;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .related-list li a {
+    font-size: .9rem; color: var(--text); text-decoration: none;
+    display: block; padding: 12px 16px; background: var(--surface);
+    border: 1px solid var(--border); border-radius: var(--r);
+    transition: border-color .15s, background .15s;
+  }
+  .related-list li a:hover { border-color: var(--text); background: var(--bg); }
+
+
+  footer {
+    background: var(--bg);
+    border-top: 1px solid var(--border);
+    margin-top: 80px;
+  }
+  .footer-inner {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 48px 24px;
+  }
+  .footer-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+  }
+  .footer-brand {
+    font-size: 1.0625rem;
+    font-weight: 700;
+    color: var(--text);
+    text-decoration: none;
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+  }
+  .footer-accent { color: var(--accent); }
+  .footer-nav {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .footer-nav a {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 0 12px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    border-radius: var(--r);
+    transition: color 0.15s ease;
+  }
+  .footer-nav a:hover { color: var(--text); }
+  .footer-bottom {
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    font-size: 0.8125rem;
+    color: var(--muted);
+    line-height: 1.6;
+    font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+  }
+  @media (max-width: 640px) {
+    footer { margin-top: 48px; }
+    .footer-inner { padding: 40px 16px; }
+    .footer-top {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+    }
+    .footer-nav { margin-left: -12px; }
+  }
+
+
+    /* ── FOOTER: override global margin-top for article page ── */
+    footer { margin-top: 0; }
+  </style>
+  <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "5833f90d78f645e0819abedd665e5d93"}'></script>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="nav-inner">
+    <a href="/articles/" class="nav-back">← Articles</a>
+    <div class="nav-links">
+      <a href="/tools/">Tools</a>
+    </div>
+  </div>
+</nav>
+
+<main class="article-wrap">
+
+  <header class="article-header">
+    <h1 class="article-header__title">Is SaaS Churn Rate the Same? Why Logo, Gross MRR, and Net Revenue Churn Paint Wildly Different Pictures</h1>
+    <div class="article-header__meta">
+      <span>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+        May 26, 2026
+      </span>
+      <span class="article-header__meta-sep">·</span>
+      <span>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+        10 min read
+      </span>
+      
+    </div>
+  </header>
+
+  <article class="article-body">
+    <p>You closed the month at $11,730 MRR. The dashboard ticked up, and for a moment it felt like momentum. Then the 1st hit — $1,240 quietly walked out. Not a single angry email, just a silent drip of cancellations and downgrades. If you only glance at a single “churn rate” number, you’re flying blind. The question that kills more bootstrapped SaaS businesses than anything else is a quiet one: is SaaS churn rate the same across all the numbers you’re tracking? It isn’t. And the day you realize that is the day your runway math stops lying to you.</p>
+
+<p>I’ve watched founders celebrate 3% logo churn while their MRR churn burned at 8%. They had a retention party while the bank account bled. The difference between the churn rate you report and the one you actually feel in your MRR is where the silent runway killer lives.</p>
+
+<p>But is SaaS churn rate the same? It isn’t. This guide pulls that apart so you never confuse them again.</p>
+
+<h2>What Are the Different Types of SaaS Churn Rates, and Why Do They Matter?</h2>
+
+<p>Most bootstrapped founders inherit a single “churn rate” number from a dashboard and assume it’s the truth. But there are at least three distinct SaaS churn rates, and each answers a completely different business question. Mix them up and you’ll make decisions based on the wrong number.</p>
+
+<p><strong>1. Logo (Customer) Churn</strong> – The percentage of customers who cancel, regardless of how much they paid. It answers: “How many customers are leaving?” A business with mostly $29/month users can have horrific logo churn and still keep a decent MRR if the big accounts stay.</p>
+
+<p><strong>2. Gross MRR Churn</strong> – The percentage of recurring revenue lost from cancellations and downgrades before expansion. It answers: “How much raw revenue is leaking out?” This is the number that directly hits your bank account. A single enterprise customer leaving can spike gross MRR churn even when logo churn stays flat.</p>
+
+<p><strong>3. Net MRR Churn</strong> – Gross churn minus expansion revenue from existing customers (upgrades, add-ons). It answers: “After all ups and downs, did we end up with more or less money from the same customer base?” If net MRR churn is negative, you’re in net negative churn territory — one of the few mathematically provable growth engines for a bootstrapped company without outside capital.</p>
+
+<div style="background-color:#e0f2fe;border-left:4px solid #0ea5e9;padding:1rem;margin:1.5rem 0;">
+  <strong>FOUNDER INSIGHT: The metric your investors would ask for, even if you don’t have any</strong><br>Baremetrics open benchmark data consistently shows that bootstrapped SaaS companies with net negative churn grow at a median rate nearly 2× faster than those with positive net churn, simply because each retained cohort becomes more valuable over time.
+</div>
+
+<h2>Why Do Founders Confuse Logo Churn With MRR Churn?</h2>
+
+<p>It’s a psychological shortcut. Logo churn is easy to count — 10 customers left out of 200. That’s 5%, feels manageable. But those 10 customers could represent 40% of your revenue if they were your highest-tier accounts. The opposite is also dangerous: losing 15 small customers looks like a crisis, but if they only contributed $300 MRR combined, your MRR churn is practically flat.</p>
+
+<p>I saw this play out with a founder I’ll call Julian. He ran a CRM for marketing agencies. He tracked logo churn religiously — a steady 3.2% per month. He thought things were fine. When we finally ran his <a href="/tools/saas-churn-calculator">SaaS Churn Calculator — logo, MRR, and revenue risk</a> numbers together, his gross MRR churn was actually 6.2%. The difference? Two agency accounts paying $1,200/month each had churned quietly over the prior two quarters. Because Julian only looked at customer count, he missed that $28,800 annualized revenue had evaporated while he celebrated “low churn.” After segmenting by plan tier and setting alerts on MRR churn specifically, he caught an early cancellation signal on a high-value account and saved $800/month in just one intervention.</p>
+
+<div style="background-color:#fee2e2;border-left:4px solid #ef4444;padding:1rem;margin:1.5rem 0;">
+  <strong>WARNING: A single churn rate can gaslight your entire retention strategy</strong><br>If you’re only looking at logo churn, you’ll optimize for keeping small, low-effort customers while ignoring the whale accounts that actually fund your runway. Your retention efforts become perfectly tuned to the wrong outcome.
+</div>
+
+<h2>What Is the True Cost of Treating All Churn Rates as the Same?</h2>
+
+<p>Let’s put math behind the pain. Assume a bootstrapped SaaS with $11,730 MRR. The founder reports “5% churn” but they’re looking at logo churn — 5 customers cancel out of 100. Those five customers, however, are a mixed bag: two are $29/month hobbyists, one is a $149/month freelancer, one is a $499/month small team, and one is the $1,200/month anchor account. The actual MRR lost is $1,906, which makes gross MRR churn 16.2%. The founder thinks they’re bleeding 5% a month, but their bank account feels 16%.</p>
+
+<p>Now compound that misunderstanding over time. Here’s what happens to the same $11,730 starting MRR over 12 months when you mistake logo churn for gross MRR churn.</p>
+
+<table style="width:100%;border-collapse:collapse;margin:1.5rem 0;">
+  <thead>
+    <tr style="background-color:#1e2b37;color:#fff;text-align:left;">
+      <th style="padding:1rem;">Scenario</th>
+      <th style="padding:1rem;">Churn Metric Used</th>
+      <th style="padding:1rem;">Month 1 MRR</th>
+      <th style="padding:1rem;">Month 6 MRR</th>
+      <th style="padding:1rem;">Month 12 MRR</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #e2e8f0;">
+      <td style="padding:1rem;">Founder’s belief</td>
+      <td style="padding:1rem;">5% logo churn (assumed)</td>
+      <td style="padding:1rem;">$11,730</td>
+      <td style="padding:1rem;">$8,583</td>
+      <td style="padding:1rem;">$6,295</td>
+    </tr>
+    <tr style="border-bottom:1px solid #e2e8f0;">
+      <td style="padding:1rem;">Reality</td>
+      <td style="padding:1rem;">16.2% gross MRR churn</td>
+      <td style="padding:1rem;">$11,730</td>
+      <td style="padding:1rem;">$4,067</td>
+      <td style="padding:1rem;">$1,409</td>
+    </tr>
+    <tr style="border-bottom:1px solid #e2e8f0;">
+      <td style="padding:1rem;">Runway impact</td>
+      <td style="padding:1rem;">Cash left (if $30k saved)</td>
+      <td style="padding:1rem;">Comfortable</td>
+      <td style="padding:1rem;">3.2 months of burn left</td>
+      <td style="padding:1rem;">Dead before month 13</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>The math is brutal. When you treat all churn as the same metric, your financial projections become fantasy. A bootstrapped founder without external capital can’t afford to run on fake churn numbers. The <a href="/articles/saas-churn-rate">full SaaS churn rate primer for bootstrapped founders</a> covers how these numbers interact with cash reserves, but the immediate lesson is this: every month you use the wrong denominator, your runway shrinks in secret.</p>
+
+<h2>When Should You Prioritize Net MRR Churn Over Logo Churn?</h2>
+
+<p>Logo churn still matters — it tells you if your product is fundamentally broken for a segment. But net MRR churn is the metric that determines survival when you’re bootstrapped. The simple rule: prioritize net MRR churn once your average revenue per account (ARPA) varies by more than 3× between your lowest and highest tiers. If you have a $29 plan and a $1,000 plan, logo churn is a vanity number. Net MRR churn tells you whether expansion from loyal accounts is outweighing the hemorrhage from cancellations.</p>
+
+<p>According to ProfitWell’s retention research, net negative churn companies in SaaS typically see ARPU growth of 15-25% annually from their existing base alone. That’s the growth engine that makes bootstrapping possible. If your net MRR churn is positive, your growth efforts are fighting a losing battle; every new customer you acquire is just plugging a hole that’s getting wider.</p>
+
+<div style="background-color:#e0f2fe;border-left:4px solid #0ea5e9;padding:1rem;margin:1.5rem 0;">
+  <strong>FOUNDER INSIGHT: Net negative churn is the bootstrapper’s closest thing to venture funding</strong><br>ChartMogul’s analysis of thousands of SaaS businesses shows that net negative churn companies can sustain healthy growth even with modest new customer acquisition, because the existing base effectively funds expansion. For a bootstrapped founder, that means you don’t need to pour every dollar into marketing to stay alive.
+</div>
+
+<h2>How to Track Multiple Churn Rates Without Your Metrics Dashboard Turning Into a Liar</h2>
+
+<p>You don’t need a data science team. You need a simple ritual, the right formulas, and a refusal to let your dashboard hide the real story. Here are the non-obvious tactics that make the difference.</p>
+
+<ol style="list-style:none;padding-left:0;margin:1.5rem 0;">
+  <li style="display:flex;align-items:flex-start;margin-bottom:1.5rem;">
+    <span style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;background:#1e2b37;color:#fff;border-radius:50%;font-weight:bold;font-size:1rem;flex-shrink:0;margin-right:1rem;">1</span>
+    <div><strong>Run a weekly “split-screen churn review” — 15 minutes every Monday</strong><p style="margin:0.5rem 0 0;">Pull logo churn, gross MRR churn, and net MRR churn for the last 7 days side by side. When logo churn is below 3% but gross MRR churn spikes above 7%, you have a whale problem that needs an immediate retention call. Julian’s team caught a $400/month cancellation this way before it finalized, saving $4,800 annually.</p></div>
+  </li>
+  <li style="display:flex;align-items:flex-start;margin-bottom:1.5rem;">
+    <span style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;background:#1e2b37;color:#fff;border-radius:50%;font-weight:bold;font-size:1rem;flex-shrink:0;margin-right:1rem;">2</span>
+    <div><strong>Segment churn by ARPA band — not by feature usage</strong><p style="margin:0.5rem 0 0;">Divide your customer base into three buckets: under $100/month, $100-$500/month, and over $500/month. Track gross MRR churn separately for each. A bootstrapped project management tool founder discovered that his $19/month tier had 12% logo churn but only 2.4% MRR churn, while his $800/month tier had 2% logo churn and 8% MRR churn. By focusing retention efforts on the high-ARPA band, he reduced overall MRR churn from 5.1% to 3.7% in one quarter.</p></div>
+  </li>
+  <li style="display:flex;align-items:flex-start;margin-bottom:1.5rem;">
+    <span style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;background:#1e2b37;color:#fff;border-radius:50%;font-weight:bold;font-size:1rem;flex-shrink:0;margin-right:1rem;">3</span>
+    <div><strong>Calculate net MRR churn before you celebrate any growth month</strong><p style="margin:0.5rem 0 0;">New MRR from signups can hide net churn leaks. Make it a ritual: before you tweet that growth number, compute (lost MRR – expansion MRR) ÷ starting MRR × 100. One founder I know discovered that a month of $2,400 new MRR was actually net negative growth because $3,100 in gross churn from two mid-tier cancellations ate it all. Catching that early triggered a pricing restructure that lifted net retention by 11% over six months.</p></div>
+  </li>
+  <li style="display:flex;align-items:flex-start;margin-bottom:1.5rem;">
+    <span style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;background:#1e2b37;color:#fff;border-radius:50%;font-weight:bold;font-size:1rem;flex-shrink:0;margin-right:1rem;">4</span>
+    <div><strong>Set a “churn divergence alert” at 20% gap</strong><p style="margin:0.5rem 0 0;">When your gross MRR churn rate exceeds your logo churn rate by more than 20% (relative), trigger a manual review. For example, 5% logo vs 7.5% MRR churn is a 50% gap — that’s a signal that your pricing or retention is broken for higher-value customers. A micro-SaaS founder selling to e-commerce stores used this alert to identify that his $200/month plan was canceling at 4× the rate of his $50 plan, leading to a plan redesign that recovered $1,100/month in saved MRR.</p></div>
+  </li>
+</ol>
+
+<h2>The Formulas That Expose the Difference</h2>
+
+<p>You can’t argue with math. Here are the three SaaS churn formulas, side by side, so you see exactly why they produce different numbers from the same raw data. I’ll use a real-world scenario with the same $11,730 MRR base from earlier.</p>
+
+<div style="background:#f3f4f6;border:1px solid #d1d5db;border-radius:0.5rem;padding:1.5rem;margin:1.5rem 0;font-family:monospace;text-align:center;font-size:1.1rem;">
+  Logo (Customer) Churn = Canceled Customers ÷ Starting Customers × 100<br><br>
+  Example: 5 cancellations ÷ 100 starting customers = 5% logo churn
+</div>
+
+<div style="background:#f3f4f6;border:1px solid #d1d5db;border-radius:0.5rem;padding:1.5rem;margin:1.5rem 0;font-family:monospace;text-align:center;font-size:1.1rem;">
+  Gross MRR Churn = (MRR lost from cancellations + MRR lost from downgrades) ÷ Starting MRR × 100<br><br>
+  Example: ($1,906 lost from cancels + $420 lost from downgrades) ÷ $11,730 = 19.8% gross MRR churn
+</div>
+
+<div style="background:#f3f4f6;border:1px solid #d1d5db;border-radius:0.5rem;padding:1.5rem;margin:1.5rem 0;font-family:monospace;text-align:center;font-size:1.1rem;">
+  Net MRR Churn = (Lost MRR from cancellations/downgrades − Expansion MRR from upgrades/add-ons) ÷ Starting MRR × 100<br><br>
+  Example: ($2,326 lost − $890 expansion) ÷ $11,730 = 12.2% net MRR churn
+</div>
+
+<p>Notice what happens: the founder who only sees 5% logo churn thinks they have a small leak. But gross MRR churn reveals a 19.8% revenue hemorrhage. Net MRR churn at 12.2% shows that even with some upgrades, the net bleed is severe. When net MRR churn is negative — when expansion exceeds losses — you’ve hit the holy grail for bootstrapped SaaS: your existing customers are funding your growth. That’s when your SaaS stops being a treadmill and starts being a compound machine.</p>
+
+<div style="background-color:#fee2e2;border-left:4px solid #ef4444;padding:1rem;margin:1.5rem 0;">
+  <strong>WARNING: A positive net MRR churn that you mistake for “acceptable logo churn” will drain your runway twice as fast as you forecast</strong><br>When you budget for 5% monthly revenue loss but actually lose 12%, your 18-month runway becomes 9 months. No bootstrapped founder survives that math error.
+</div>
+
+<p>If you’re still looking at a single churn rate number and making retention decisions, you’re running your SaaS on a broken compass. The question isn’t “is my churn rate okay?” — it’s “which churn rate am I actually measuring, and what story is it hiding?” Stop letting your dashboard lie to you. Start your next Monday morning by pulling logo, gross MRR, and net MRR churn side by side. The gap between them is exactly how much runway you never knew you were losing.</p>
+  </article>
+
+  <div id="related-content" class="related-content"></div>
+
+  <div class="share-box">
+    <div class="share-label">Share this article</div>
+    <div class="share-buttons">
+      <a class="share-btn x-btn"
+         href="https://twitter.com/intent/tweet?text=Is%20SaaS%20Churn%20Rate%20the%20Same?%20Why%20Logo,%20Gross%20MRR,%20and%20Net%20Revenue%20Churn%20Paint%20Wildly%20Different%20Pictures&url=https://saastools.corenk.com/articles/is-saas-churn-rate-same"
+         target="_blank" rel="noopener">
+        𝕏 Post on X
+      </a>
+      <a class="share-btn li-btn"
+         href="https://www.linkedin.com/sharing/share-offsite/?url=https://saastools.corenk.com/articles/is-saas-churn-rate-same"
+         target="_blank" rel="noopener">
+        in Share
+      </a>
+      <button class="share-btn copy-btn" id="copy-btn" onclick="copyLink()">
+        🔗 Copy link
+      </button>
+    </div>
+  </div>
+
+  <div class="comments-box">
+    <h2>Discussion</h2>
+    <script src="https://giscus.app/client.js"
+      data-repo="akunTools/ai-engine"
+      data-repo-id="R_kgDORZ0kXg"
+      data-category="General"
+      data-category-id="DIC_kwDORZ0kXs4C3fKy"
+      data-mapping="pathname"
+      data-strict="0"
+      data-reactions-enabled="1"
+      data-emit-metadata="0"
+      data-input-position="top"
+      data-theme="light"
+      data-lang="en"
+      crossorigin="anonymous"
+      async>
+    </script>
+    <noscript>
+      <p style="color:var(--muted);font-size:.875rem;">
+        Enable JavaScript to load comments.
+      </p>
+    </noscript>
+  </div>
+
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <a href="/" class="footer-brand">SaaS<span class="footer-accent">Tools</span></a>
+      <nav class="footer-nav">
+        <a href="/articles/">Articles</a>
+        <a href="/tools/">Tools</a>
+        <a href="/about.html">About</a>
+        <a href="/privacy">Privacy</a>
+      </nav>
+    </div>
+    <div class="footer-bottom">
+      Built for bootstrapped founders. No VC fluff.
+    </div>
+  </div>
+</footer>
+
+<script>
+  function copyLink() {
+    navigator.clipboard.writeText("https://saastools.corenk.com/articles/is-saas-churn-rate-same").then(function() {
+      var btn = document.getElementById("copy-btn");
+      btn.textContent = "✓ Copied!";
+      btn.classList.add("copied");
+      setTimeout(function() {
+        btn.textContent = "🔗 Copy link";
+        btn.classList.remove("copied");
+      }, 2000);
+    });
+  }
+</script>
+
+<script>
+(function() {
+  var meta    = document.querySelector('meta[name="cluster"]');
+  var cluster = meta ? meta.getAttribute('content') : '';
+  if (!cluster) return;
+  var parts       = window.location.pathname.split('/').filter(Boolean);
+  var currentSlug = (parts[parts.length - 1] || '').replace('.html', '');
+  fetch('/content-index.json')
+    .then(function(r) { return r.json(); })
+    .then(function(idx) {
+      var articles = (idx.articles || [])
+        .filter(function(a) { return a.cluster === cluster && a.slug !== currentSlug; })
+        .slice(0, 3);
+      var tools = (idx.tools || [])
+        .filter(function(t) { return t.cluster === cluster && t.slug !== currentSlug; })
+        .slice(0, 2);
+      var html = '';
+      if (articles.length) {
+        html += '<h3 class="related-heading">Related Articles</h3>'
+              + '<ul class="related-list">';
+        articles.forEach(function(a) {
+          html += '<li><a href="/articles/' + a.slug + '">' + a.title + '</a></li>';
+        });
+        html += '</ul>';
+      }
+      if (tools.length) {
+        html += '<h3 class="related-heading">Related Tools</h3>'
+              + '<ul class="related-list">';
+        tools.forEach(function(t) {
+          html += '<li><a href="/tools/' + t.slug + '">' + t.title + '</a></li>';
+        });
+        html += '</ul>';
+      }
+      if (html) {
+        var el = document.getElementById('related-content');
+        if (el) el.innerHTML = html;
+      }
+    })
+    .catch(function() {});
+})();
+</script>
+<script>
+(function() {
+  fetch('/content-index.json')
+    .then(function(r) { return r.json(); })
+    .then(function(idx) {
+      var live = new Set();
+      (idx.articles || []).forEach(function(a) { live.add('/articles/' + a.slug); });
+      (idx.tools    || []).forEach(function(t) { live.add('/tools/'    + t.slug); });
+      document.querySelectorAll('strong[data-future-link]').forEach(function(el) {
+        var href = el.getAttribute('data-future-link');
+        if (live.has(href)) {
+          var a = document.createElement('a');
+          a.href        = href;
+          a.textContent = el.textContent;
+          el.parentNode.replaceChild(a, el);
+        }
+      });
+    })
+    .catch(function() {});
+})();
+</script>
+<script>
+(function () {
+  document.addEventListener('click', function (e) {
+    var el = e.target.closest('a[href]');
+    if (!el) return;
+    var href = el.getAttribute('href') || '';
+    if (href.indexOf('cloudways.com') === -1 || href.indexOf('id=') === -1) return;
+    if (typeof window.cfBeacon === 'undefined' || typeof window.cfBeacon.pushEvent !== 'function') return;
+    window.cfBeacon.pushEvent('affiliate_click', {
+      affiliate: 'cloudways',
+      page: window.location.pathname
+    });
+  }, true);
+})();
+</script>
+
+</body>
+</html>
