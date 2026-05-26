@@ -11,26 +11,23 @@ on:
         options:
           - article
           - calculator_tool
-
   repository_dispatch:
     types: [run-task]
-
   schedule:
-    # Artikel: setiap hari jam 02:00 UTC (bukan lagi setiap 2 hari)
-    - cron: '0 2 * * *'
-    # Tools: tetap setiap tanggal 1 dan 15 jam 06:00 UTC
-    - cron: '0 6 1,15 * *'
+    - cron: '0 2 * * *'      # Setiap hari jam 02:00 UTC
+    - cron: '0 6 1,15 * *'   # Tanggal 1 dan 15 jam 06:00 UTC
 
 jobs:
   generate-article:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
-      contents: write   # Wajib agar bisa push ke branch output
+      contents: write
+    # Hanya jalankan jika task_type article atau schedule article
     if: |
-      (github.event_name == 'schedule' && github.event.schedule == '0 2 * * *') ||
-      (github.event_name == 'repository_dispatch' && github.event.client_payload.task_type == 'article') ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.task_type == 'article')
+      github.event_name == 'workflow_dispatch' && github.event.inputs.task_type == 'article' ||
+      github.event_name == 'repository_dispatch' && github.event.client_payload.task_type == 'article' ||
+      github.event_name == 'schedule' && github.event.schedule == '0 2 * * *'
 
     steps:
       - name: Checkout ai-engine
@@ -41,15 +38,14 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Set task type artikel
+      - name: Set task type
         run: echo "TASK_TYPE=article" >> $GITHUB_ENV
 
-      - name: Install dependensi Python
+      - name: Install Pillow
         run: pip install Pillow --break-system-packages
 
-      - name: Jalankan Pipeline
+      - name: Run Pipeline
         id: pipeline
-        # Hapus continue-on-error agar kegagalan terdeteksi
         env:
           BRAIN_PAT:     ${{ secrets.BRAIN_PAT }}
           GITHUB_TOKEN:  ${{ secrets.GITHUB_TOKEN }}
@@ -60,14 +56,14 @@ jobs:
           SITE_BASE_URL: ${{ vars.SITE_BASE_URL }}
         run: python scripts/run_pipeline.py 2>&1 | tee pipeline.log
 
-      - name: Upload log pipeline (selalu, baik sukses maupun gagal)
+      - name: Upload pipeline log
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: pipeline-log-article
           path: pipeline.log
 
-      - name: Rebuild Indexes & Sitemap
+      - name: Rebuild indexes & sitemap
         if: success()
         env:
           GITHUB_TOKEN:  ${{ secrets.GITHUB_TOKEN }}
@@ -75,45 +71,45 @@ jobs:
           SITE_BASE_URL: ${{ vars.SITE_BASE_URL }}
         run: python scripts/sitemap_gen.py
 
-      - name: Kirim email notifikasi sukses
+      - name: Email success
         if: success()
         uses: dawidd6/action-send-mail@v4
         with:
           server_address: smtp-relay.brevo.com
-          server_port:    587
-          username:       ${{ secrets.BREVO_USERNAME }}
-          password:       ${{ secrets.BREVO_PASSWORD }}
-          subject:        "[AI Engine] Published: Article"
-          to:             ${{ secrets.NOTIFY_EMAIL }}
-          from:           ${{ secrets.BREVO_FROM_EMAIL }}
-          body:           "Article published successfully. Check the website."
+          server_port: 587
+          username: ${{ secrets.BREVO_USERNAME }}
+          password: ${{ secrets.BREVO_PASSWORD }}
+          subject: "[AI Engine] Published: Article"
+          to: ${{ secrets.NOTIFY_EMAIL }}
+          from: ${{ secrets.BREVO_FROM_EMAIL }}
+          body: "Article published successfully. Check the website."
 
-      - name: Kirim email staging kosong
-        if: failure() && hashFiles('pipeline.log') && contains(github.event_name, 'schedule')
+      - name: Email staging empty
+        if: failure() && contains(github.event_name, 'schedule')
         uses: dawidd6/action-send-mail@v4
         with:
           server_address: smtp-relay.brevo.com
-          server_port:    587
-          username:       ${{ secrets.BREVO_USERNAME }}
-          password:       ${{ secrets.BREVO_PASSWORD }}
-          subject:        "[AI Engine] ⚠️ Staging Empty — No Article to Publish"
-          to:             ${{ secrets.NOTIFY_EMAIL }}
-          from:           ${{ secrets.BREVO_FROM_EMAIL }}
-          body:           "Staging is empty. Add new articles to staging/articles/ready/ in ai-brain."
+          server_port: 587
+          username: ${{ secrets.BREVO_USERNAME }}
+          password: ${{ secrets.BREVO_PASSWORD }}
+          subject: "[AI Engine] ⚠️ Staging Empty — No Article"
+          to: ${{ secrets.NOTIFY_EMAIL }}
+          from: ${{ secrets.BREVO_FROM_EMAIL }}
+          body: "Staging is empty. Add new articles to staging/articles/ready/ in ai-brain."
 
-      - name: Kirim email publish gagal (termasuk crash)
-        if: failure() && !(hashFiles('pipeline.log') && contains(github.event_name, 'schedule'))
+      - name: Email pipeline failed
+        if: failure() && !contains(github.event_name, 'schedule')
         uses: dawidd6/action-send-mail@v4
         with:
           server_address: smtp-relay.brevo.com
-          server_port:    587
-          username:       ${{ secrets.BREVO_USERNAME }}
-          password:       ${{ secrets.BREVO_PASSWORD }}
-          subject:        "[AI Engine] ❌ Publish Failed — Article"
-          to:             ${{ secrets.NOTIFY_EMAIL }}
-          from:           ${{ secrets.BREVO_FROM_EMAIL }}
-          body:           "Pipeline failed. Check the Actions tab for details. Log attached."
-          attachments:    pipeline.log
+          server_port: 587
+          username: ${{ secrets.BREVO_USERNAME }}
+          password: ${{ secrets.BREVO_PASSWORD }}
+          subject: "[AI Engine] ❌ Publish Failed — Article"
+          to: ${{ secrets.NOTIFY_EMAIL }}
+          from: ${{ secrets.BREVO_FROM_EMAIL }}
+          body: "Pipeline failed. Check Actions tab for details. Log attached."
+          attachments: pipeline.log
 
   generate-tool:
     runs-on: ubuntu-latest
@@ -121,9 +117,9 @@ jobs:
     permissions:
       contents: write
     if: |
-      (github.event_name == 'schedule' && github.event.schedule == '0 6 1,15 * *') ||
-      (github.event_name == 'repository_dispatch' && github.event.client_payload.task_type == 'calculator_tool') ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.task_type == 'calculator_tool')
+      github.event_name == 'workflow_dispatch' && github.event.inputs.task_type == 'calculator_tool' ||
+      github.event_name == 'repository_dispatch' && github.event.client_payload.task_type == 'calculator_tool' ||
+      github.event_name == 'schedule' && github.event.schedule == '0 6 1,15 * *'
 
     steps:
       - name: Checkout ai-engine
@@ -134,13 +130,13 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Set task type tool
+      - name: Set task type
         run: echo "TASK_TYPE=calculator_tool" >> $GITHUB_ENV
 
-      - name: Install dependensi Python
+      - name: Install Pillow
         run: pip install Pillow --break-system-packages
 
-      - name: Jalankan Pipeline
+      - name: Run Pipeline
         id: pipeline
         env:
           BRAIN_PAT:     ${{ secrets.BRAIN_PAT }}
@@ -152,14 +148,14 @@ jobs:
           SITE_BASE_URL: ${{ vars.SITE_BASE_URL }}
         run: python scripts/run_pipeline.py 2>&1 | tee pipeline.log
 
-      - name: Upload log pipeline
+      - name: Upload pipeline log
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: pipeline-log-tool
           path: pipeline.log
 
-      - name: Rebuild Indexes & Sitemap
+      - name: Rebuild indexes & sitemap
         if: success()
         env:
           GITHUB_TOKEN:  ${{ secrets.GITHUB_TOKEN }}
@@ -167,42 +163,42 @@ jobs:
           SITE_BASE_URL: ${{ vars.SITE_BASE_URL }}
         run: python scripts/sitemap_gen.py
 
-      - name: Kirim email notifikasi sukses
+      - name: Email success
         if: success()
         uses: dawidd6/action-send-mail@v4
         with:
           server_address: smtp-relay.brevo.com
-          server_port:    587
-          username:       ${{ secrets.BREVO_USERNAME }}
-          password:       ${{ secrets.BREVO_PASSWORD }}
-          subject:        "[AI Engine] Published: Tool"
-          to:             ${{ secrets.NOTIFY_EMAIL }}
-          from:           ${{ secrets.BREVO_FROM_EMAIL }}
-          body:           "Tool published successfully. Check the website."
+          server_port: 587
+          username: ${{ secrets.BREVO_USERNAME }}
+          password: ${{ secrets.BREVO_PASSWORD }}
+          subject: "[AI Engine] Published: Tool"
+          to: ${{ secrets.NOTIFY_EMAIL }}
+          from: ${{ secrets.BREVO_FROM_EMAIL }}
+          body: "Tool published successfully. Check the website."
 
-      - name: Kirim email staging kosong
-        if: failure() && hashFiles('pipeline.log') && contains(github.event_name, 'schedule')
+      - name: Email staging empty
+        if: failure() && contains(github.event_name, 'schedule')
         uses: dawidd6/action-send-mail@v4
         with:
           server_address: smtp-relay.brevo.com
-          server_port:    587
-          username:       ${{ secrets.BREVO_USERNAME }}
-          password:       ${{ secrets.BREVO_PASSWORD }}
-          subject:        "[AI Engine] ⚠️ Staging Empty — No Tool to Publish"
-          to:             ${{ secrets.NOTIFY_EMAIL }}
-          from:           ${{ secrets.BREVO_FROM_EMAIL }}
-          body:           "Tool staging is empty. Add new tools to staging/tools/ready/ in ai-brain."
+          server_port: 587
+          username: ${{ secrets.BREVO_USERNAME }}
+          password: ${{ secrets.BREVO_PASSWORD }}
+          subject: "[AI Engine] ⚠️ Staging Empty — No Tool"
+          to: ${{ secrets.NOTIFY_EMAIL }}
+          from: ${{ secrets.BREVO_FROM_EMAIL }}
+          body: "Tool staging is empty. Add new tools to staging/tools/ready/ in ai-brain."
 
-      - name: Kirim email publish gagal
-        if: failure() && !(hashFiles('pipeline.log') && contains(github.event_name, 'schedule'))
+      - name: Email pipeline failed
+        if: failure() && !contains(github.event_name, 'schedule')
         uses: dawidd6/action-send-mail@v4
         with:
           server_address: smtp-relay.brevo.com
-          server_port:    587
-          username:       ${{ secrets.BREVO_USERNAME }}
-          password:       ${{ secrets.BREVO_PASSWORD }}
-          subject:        "[AI Engine] ❌ Publish Failed — Tool"
-          to:             ${{ secrets.NOTIFY_EMAIL }}
-          from:           ${{ secrets.BREVO_FROM_EMAIL }}
-          body:           "Pipeline failed. Check the Actions tab for details. Log attached."
-          attachments:    pipeline.log
+          server_port: 587
+          username: ${{ secrets.BREVO_USERNAME }}
+          password: ${{ secrets.BREVO_PASSWORD }}
+          subject: "[AI Engine] ❌ Publish Failed — Tool"
+          to: ${{ secrets.NOTIFY_EMAIL }}
+          from: ${{ secrets.BREVO_FROM_EMAIL }}
+          body: "Pipeline failed. Check Actions tab for details. Log attached."
+          attachments: pipeline.log
