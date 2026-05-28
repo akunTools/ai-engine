@@ -23,7 +23,6 @@ jobs:
     timeout-minutes: 10
     permissions:
       contents: write
-    # Hanya jalankan jika task_type article atau schedule article
     if: |
       github.event_name == 'workflow_dispatch' && github.event.inputs.task_type == 'article' ||
       github.event_name == 'repository_dispatch' && github.event.client_payload.task_type == 'article' ||
@@ -64,7 +63,7 @@ jobs:
           path: pipeline.log
 
       - name: Rebuild indexes & sitemap
-        if: success()
+        if: steps.pipeline.outcome == 'success'
         env:
           GITHUB_TOKEN:  ${{ secrets.GITHUB_TOKEN }}
           ENGINE_REPO:   ${{ github.repository }}
@@ -156,7 +155,7 @@ jobs:
           path: pipeline.log
 
       - name: Rebuild indexes & sitemap
-        if: success()
+        if: steps.pipeline.outcome == 'success'
         env:
           GITHUB_TOKEN:  ${{ secrets.GITHUB_TOKEN }}
           ENGINE_REPO:   ${{ github.repository }}
