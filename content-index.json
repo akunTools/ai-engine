@@ -69,6 +69,13 @@
       "cluster": "saas-churn-retention",
       "date": "2026-05-27",
       "excerpt": "Stop guessing if your churn reduction is working. Learn how to measure real churn rate improvement and validate your retention tactics before MRR evaporates."
+    },
+    {
+      "slug": "would-reduce-saas-churn-rate",
+      "title": "Would These Churn Tactics Actually Reduce SaaS Churn Rate, or Just Burn Your Runway?",
+      "cluster": "saas-churn-retention",
+      "date": "2026-05-28",
+      "excerpt": "Would churn tactics reduce SaaS churn rate or just burn time? 4 retention strategies tested with real bootstrapped MRR outcomes. See results."
     }
   ],
   "tools": [
