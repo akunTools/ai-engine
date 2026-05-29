@@ -76,6 +76,13 @@
       "cluster": "saas-churn-retention",
       "date": "2026-05-28",
       "excerpt": "Would churn tactics reduce SaaS churn rate or just burn time? 4 retention strategies tested with real bootstrapped MRR outcomes. See results."
+    },
+    {
+      "slug": "will-saas-churn-rate-increase",
+      "title": "Will Your SaaS Churn Rate Increase? The Compound Effect That Quietly Destroys Your Runway",
+      "cluster": "saas-churn-retention",
+      "date": "2026-05-29",
+      "excerpt": "Will your SaaS churn rate increase over time? The hidden compound effect silently erodes MRR month after month\u2014stop it before it destroys your runway."
     }
   ],
   "tools": [
