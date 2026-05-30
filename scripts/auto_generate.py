@@ -1,15 +1,20 @@
 """
 auto_generate.py
 Pilih keyword PENDING terbaik → rakit prompt via Worker /brief
-→ generate HTML via OpenRouter DeepSeek V4 Flash → upload ke staging.
+→ generate HTML (pass 1) + critique (pass 2) via OpenRouter DeepSeek V4 Flash
+→ upload ke staging.
 
-Mereplikasi alur manual BriefActivity:
+ALUR (identik dengan manual BriefActivity dua fase):
+  Pass 1: main prompt → DECISIONS block + HTML draft
+  Pass 2: critique prompt → DECISIONS slug/title + refined HTML
   Fase 1: register slug ke keyword_stock.json (/update_keyword)
   Fase 2: upload HTML ke staging (/upload_staging)
 
-Dipanggil oleh generate-content.yml SEBELUM run_pipeline.py.
-Jika tidak ada keyword tersedia atau AI gagal, exit 0 agar
-run_pipeline tetap berjalan untuk publish dari staging yang ada.
+CATATAN PENTING:
+  - extract_html_from_response() membuang DECISIONS block,
+    mengambil HANYA isi code block HTML.
+  - Prompt menginstruksikan quadruple backticks (````html...````).
+  - Fungsi ini handle keduanya: quadruple dan triple backticks.
 """
 import os
 import re
@@ -28,7 +33,7 @@ SITE_BASE_URL  = os.environ.get("SITE_BASE_URL", "https://saastools.corenk.com")
 
 MODEL      = "deepseek/deepseek-v4-flash:free"
 OR_URL     = "https://openrouter.ai/api/v1/chat/completions"
-MAX_TOKENS = 4096
+MAX_TOKENS = 8192
 
 
 # ─── HTTP helpers ──────────────────────────────────────────────────────────────
@@ -88,8 +93,6 @@ def pick_best_keyword(stock: dict, is_article: bool) -> dict | None:
     """
     Pilih keyword PENDING terbaik sesuai task type.
     Urutan prioritas: EASY > MEDIUM, lalu score tertinggi.
-    Artikel: intent ARTICLE, GENERAL, atau COMPARISON.
-    Tool   : intent TOOL.
     """
     candidates = []
     for kw in stock.get("keywords", []):
@@ -128,17 +131,16 @@ def get_staged_slugs(is_article: bool) -> set:
         key    = "staged_articles" if is_article else "staged_tools"
         return {item["slug"] for item in memory.get(key, [])}
     except Exception as e:
-        print(f"Warning: Gagal cek staged slugs (non-fatal, lanjut tanpa cek): {e}")
+        print(f"Warning: Gagal cek staged slugs (non-fatal): {e}")
         return set()
 
 
-# ─── Brief & AI ───────────────────────────────────────────────────────────────
+# ─── Brief ────────────────────────────────────────────────────────────────────
 
 def call_brief(kw: dict, content_type: str) -> dict:
     """
     Panggil Worker /brief.
-    Parameter identik dengan BriefActivity: keyword, intent, verdict,
-    gap, recommended, score, type.
+    Parameter identik dengan BriefActivity.
     Return: { prompt, critique, meta }
     """
     resp = worker_post("brief", {
@@ -153,15 +155,18 @@ def call_brief(kw: dict, content_type: str) -> dict:
     return json.loads(resp)
 
 
-def call_openrouter(prompt: str) -> str:
+# ─── OpenRouter ───────────────────────────────────────────────────────────────
+
+def call_openrouter(messages: list, label: str = "") -> str:
     """
-    Panggil OpenRouter DeepSeek V4 Flash.
-    Return: string HTML body, sudah di-strip dari markdown fencing.
+    Kirim messages ke OpenRouter DeepSeek V4 Flash.
+    Menerima list messages (mendukung multi-turn untuk critique pass).
+    Return: raw response text (belum di-extract HTML-nya).
     Raise Exception jika gagal — tidak ada fallback ke model lain.
     """
     payload = json.dumps({
         "model":      MODEL,
-        "messages":   [{"role": "user", "content": prompt}],
+        "messages":   messages,
         "max_tokens": MAX_TOKENS,
     }).encode("utf-8")
 
@@ -177,29 +182,80 @@ def call_openrouter(prompt: str) -> str:
         },
         method="POST"
     )
+    tag = f" ({label})" if label else ""
     try:
         with urllib.request.urlopen(req, timeout=120) as r:
             data = json.loads(r.read())
     except urllib.error.HTTPError as e:
         body = e.read().decode()
-        raise Exception(f"OpenRouter HTTP {e.code}: {body[:400]}")
+        raise Exception(f"OpenRouter HTTP {e.code}{tag}: {body[:400]}")
 
     try:
         content = data["choices"][0]["message"]["content"].strip()
     except (KeyError, IndexError) as e:
         raise Exception(
-            f"OpenRouter response format tidak terduga: {e}. "
+            f"OpenRouter response format tidak terduga{tag}: {e}. "
             f"Response: {str(data)[:300]}"
         )
 
     if not content:
-        raise Exception("OpenRouter mengembalikan konten kosong.")
+        raise Exception(f"OpenRouter mengembalikan konten kosong{tag}.")
 
-    # Strip markdown fencing jika AI menambahkannya
-    content = re.sub(r"^```(?:html)?\s*\n", "", content, flags=re.IGNORECASE)
-    content = re.sub(r"\n```\s*$", "", content)
+    return content
 
-    return content.strip()
+
+# ─── HTML extraction ──────────────────────────────────────────────────────────
+
+def extract_html_from_response(response: str) -> str:
+    """
+    Ekstrak HTML dari dalam code block di response AI.
+
+    AI diinstruksikan output dalam dua blok:
+      1. DECISIONS block (plain text — dibuang)
+      2. HTML dalam satu code block: ````html ... ````
+
+    Fungsi ini mengambil HANYA isi code block.
+    Mendukung: quadruple (````) dan triple (```) backticks.
+
+    Fallback: jika tidak ada code block, cari dari tag <meta cluster>.
+    """
+    # Quadruple backticks dengan 'html' (format yang diinstruksikan)
+    match = re.search(r'````html\s*\n(.*?)\n````', response, re.DOTALL | re.IGNORECASE)
+    if match:
+        return match.group(1).strip()
+
+    # Quadruple backticks tanpa 'html'
+    match = re.search(r'````\s*\n(.*?)\n````', response, re.DOTALL)
+    if match:
+        content = match.group(1).strip()
+        if "<" in content:
+            return content
+
+    # Triple backticks dengan 'html'
+    match = re.search(r'```html\s*\n(.*?)\n```', response, re.DOTALL | re.IGNORECASE)
+    if match:
+        return match.group(1).strip()
+
+    # Triple backticks tanpa 'html'
+    match = re.search(r'```\s*\n(.*?)\n```', response, re.DOTALL)
+    if match:
+        content = match.group(1).strip()
+        if "<" in content:
+            return content
+
+    # Fallback: ekstrak dari <meta name="cluster"> sampai akhir
+    # Terjadi jika AI tidak menggunakan code block sama sekali
+    meta_match = re.search(
+        r'(<meta\s+name=["\']cluster["\'].*)',
+        response, re.DOTALL | re.IGNORECASE
+    )
+    if meta_match:
+        print("Warning: Tidak ada code block. Fallback ekstraksi dari <meta cluster>.")
+        return meta_match.group(1).strip()
+
+    # Last resort: return as-is, biar validation catch
+    print("Warning: Tidak bisa ekstrak HTML. Returning raw response.")
+    return response.strip()
 
 
 # ─── Validasi & post-process ──────────────────────────────────────────────────
@@ -207,18 +263,18 @@ def call_openrouter(prompt: str) -> str:
 def validate_html(html: str, keyword: str) -> None:
     """
     Validasi minimum sebelum upload ke staging.
-    Jika gagal, sys.exit(1) — tidak ada konten jelek yang masuk staging.
+    Jika gagal → sys.exit(1). Konten jelek tidak masuk staging.
     """
+    if "<h1" not in html.lower():
+        raise Exception(
+            f"Konten tidak memiliki <h1>. "
+            f"AI gagal mengikuti format. Keyword: '{keyword}'"
+        )
     word_count = len(html.split())
     if word_count < 400:
         raise Exception(
             f"Konten terlalu pendek: {word_count} kata "
             f"(minimum 400). Keyword: '{keyword}'"
-        )
-    if "<h1" not in html.lower():
-        raise Exception(
-            f"Konten tidak memiliki <h1>. "
-            f"AI gagal mengikuti format. Keyword: '{keyword}'"
         )
 
 
@@ -226,35 +282,39 @@ def ensure_cluster_meta(html: str, kw: dict) -> str:
     """
     Pastikan HTML memiliki meta cluster tag.
     Jika AI sudah include, tidak diubah.
-    Jika tidak ada, injeksi berdasarkan keyword matching
-    terhadap cluster_definitions.json.
+    Jika tidak ada, injeksi berdasarkan keyword matching.
     """
     if 'name="cluster"' in html or "name='cluster'" in html:
-        return html  # AI sudah include
+        return html
 
-    # Mapping berdasarkan cluster_definitions.json di ai-brain
     kw_lower = kw["keyword"].lower()
     cluster_map = {
         "saas-churn-retention":    ["churn", "retention", "nrr"],
-        "saas-unit-economics":     ["ltv", "cac", "payback", "arpu", "unit economics", "acquisition cost"],
+        "saas-unit-economics":     ["ltv", "cac", "payback", "arpu",
+                                    "unit economics", "acquisition cost"],
         "saas-financial-planning": ["runway", "burn rate", "break even", "cash flow",
-                                    "default alive", "financial forecast", "financial planning"],
+                                    "default alive", "financial forecast",
+                                    "financial planning"],
         "saas-growth-funnel":      ["free trial", "conversion", "onboarding",
                                     "activation", "funnel", "product led growth"],
         "saas-revenue-pricing":    ["pricing", "mrr", "arr", "revenue", "billing",
                                     "profit margin", "monthly vs annual"],
-        "saas-bootstrapper-core":  ["micro saas", "bootstrapping", "solo founder", "side project"],
-        "saas-hosting-infra":      ["hosting", "vps", "server cost", "infrastructure",
-                                    "cloudways", "managed hosting"],
-        "saas-valuation-exit":     ["valuation", "acquisition", "exit", "multiple", "business worth"],
+        "saas-bootstrapper-core":  ["micro saas", "bootstrapping",
+                                    "solo founder", "side project"],
+        "saas-hosting-infra":      ["hosting", "vps", "server cost",
+                                    "infrastructure", "cloudways", "managed hosting"],
+        "saas-valuation-exit":     ["valuation", "acquisition", "exit",
+                                    "multiple", "business worth"],
         "saas-plg":                ["freemium", "landing page", "a/b testing",
                                     "product market fit", "trial conversion"],
-        "saas-marketing":          ["content marketing", "seo strategy", "marketing budget",
-                                    "google ads", "organic growth", "cac by channel"],
-        "saas-hiring-ops":         ["hiring", "revenue per employee", "contractor",
-                                    "headcount", "founder salary"],
+        "saas-marketing":          ["content marketing", "seo strategy",
+                                    "marketing budget", "google ads",
+                                    "organic growth", "cac by channel"],
+        "saas-hiring-ops":         ["hiring", "revenue per employee",
+                                    "contractor", "headcount", "founder salary"],
         "saas-micro-saas":         ["micro saas revenue", "micro saas pricing",
-                                    "micro saas validation", "income goal", "solo saas"],
+                                    "micro saas validation", "income goal",
+                                    "solo saas"],
     }
     cluster_id = ""
     for cid, keywords in cluster_map.items():
@@ -291,30 +351,31 @@ def run() -> None:
     print(f"=== auto_generate.py | task: {type_label} | model: {MODEL} ===")
 
     # 1. Ambil keyword stock
-    print("1/7 Mengambil keyword stock...")
+    print("1/8 Mengambil keyword stock...")
     try:
         stock = json.loads(worker_get("list_keywords"))
     except Exception as e:
         print(f"FATAL: Gagal ambil keyword stock: {e}")
         sys.exit(1)
     total_pending = sum(
-        1 for k in stock.get("keywords", [])
-        if k.get("status") == "PENDING"
+        1 for k in stock.get("keywords", []) if k.get("status") == "PENDING"
     )
     print(f"    Total PENDING: {total_pending} keyword.")
 
     # 2. Pilih keyword terbaik
-    print(f"2/7 Memilih keyword terbaik untuk {type_label}...")
+    print(f"2/8 Memilih keyword terbaik untuk {type_label}...")
     kw = pick_best_keyword(stock, is_article)
     if not kw:
         print(f"SKIP: Tidak ada keyword PENDING (EASY/MEDIUM) untuk {type_label}.")
         print("Pipeline tetap berjalan untuk publish dari staging yang ada.")
         sys.exit(0)
-    print(f"    Terpilih: '{kw['keyword']}' "
-          f"[{kw.get('verdict')} | score {kw.get('score')} | intent {kw.get('intent')}]")
+    print(
+        f"    Terpilih: '{kw['keyword']}' "
+        f"[{kw.get('verdict')} | score {kw.get('score')} | intent {kw.get('intent')}]"
+    )
 
     # 3. Cek duplikasi staging
-    print("3/7 Mengecek staging (cegah duplikasi)...")
+    print("3/8 Mengecek staging (cegah duplikasi)...")
     slug         = keyword_to_slug(kw["keyword"])
     staged_slugs = get_staged_slugs(is_article)
     if slug in staged_slugs:
@@ -323,56 +384,81 @@ def run() -> None:
         sys.exit(0)
     print(f"    Slug '{slug}' belum di staging, lanjut generate.")
 
-    # 4. Rakit prompt via Worker /brief (identik dengan BriefActivity)
-    print("4/7 Merakit prompt via Worker /brief...")
+    # 4. Rakit prompt via Worker /brief
+    print("4/8 Merakit prompt via Worker /brief...")
     try:
-        brief  = call_brief(kw, content_type)
-        prompt = brief["prompt"]
+        brief    = call_brief(kw, content_type)
+        prompt   = brief["prompt"]
+        critique = brief.get("critique", "")
     except Exception as e:
         print(f"FATAL: Gagal panggil /brief: {e}")
         sys.exit(1)
     print(f"    Prompt siap ({len(prompt):,} karakter).")
+    if critique:
+        print(f"    Critique prompt tersedia ({len(critique):,} karakter).")
+    else:
+        print("    Warning: Critique prompt tidak tersedia, hanya 1 pass.")
 
-    # 5. Generate konten dengan DeepSeek V4 Flash
-    print(f"5/7 Generate konten via OpenRouter ({MODEL})...")
+    # 5. Pass 1: Generate draft
+    print(f"5/8 Pass 1 — Generate draft ({MODEL})...")
+    messages_pass1 = [{"role": "user", "content": prompt}]
     try:
-        html_body = call_openrouter(prompt)
+        response_pass1 = call_openrouter(messages_pass1, label="pass1")
     except Exception as e:
-        print(f"FATAL: Gagal generate konten: {e}")
+        print(f"FATAL: Gagal generate pass 1: {e}")
         sys.exit(1)
 
-    # Validasi — jika gagal, sys.exit(1) sebelum upload (tidak ada konten jelek masuk staging)
+    html_draft = extract_html_from_response(response_pass1)
+    print(f"    Draft: {len(html_draft.split()):,} kata.")
+
+    # 6. Pass 2: Critique (jika tersedia)
+    # Kirim full conversation context: user → assistant (pass1) → user (critique)
+    # AI critique membaca DECISIONS block + HTML dari pass1 sebagai konteks
+    if critique:
+        print("6/8 Pass 2 — Critique & refinement...")
+        messages_pass2 = [
+            {"role": "user",      "content": prompt},
+            {"role": "assistant", "content": response_pass1},
+            {"role": "user",      "content": critique},
+        ]
+        try:
+            response_pass2 = call_openrouter(messages_pass2, label="pass2")
+            html_final     = extract_html_from_response(response_pass2)
+            print(f"    Final: {len(html_final.split()):,} kata.")
+        except Exception as e:
+            print(f"    Warning: Critique pass gagal ({e}). Fallback ke draft pass 1.")
+            html_final = html_draft
+    else:
+        print("6/8 Pass 2 — Dilewati (critique tidak tersedia).")
+        html_final = html_draft
+
+    # Validasi final — jika gagal, sys.exit(1) sebelum upload
     try:
-        validate_html(html_body, kw["keyword"])
+        validate_html(html_final, kw["keyword"])
     except Exception as e:
         print(f"FATAL: Validasi konten gagal: {e}")
         sys.exit(1)
-
-    word_count = len(html_body.split())
-    print(f"    Konten valid: {word_count:,} kata.")
+    print(f"    Validasi OK: {len(html_final.split()):,} kata.")
 
     # Post-process: pastikan cluster meta ada
-    html_body = ensure_cluster_meta(html_body, kw)
+    html_final = ensure_cluster_meta(html_final, kw)
 
-    # 6. FASE 1 (UPDATE MEMORY): Register slug ke keyword_stock.json
-    #    Identik dengan tombol "UPDATE MEMORY" di BriefActivity
-    print(f"6/7 Mendaftarkan slug ke keyword stock (Fase 1)...")
+    # 7. Fase 1: Register slug ke keyword_stock.json
+    #    Identik dengan tombol UPDATE MEMORY di BriefActivity
+    print("7/8 Mendaftarkan slug ke keyword stock (Fase 1)...")
     try:
         worker_get(
             "update_keyword?"
-            + urllib.parse.urlencode({
-                "keyword": kw["keyword"],
-                "slug":    slug,
-            })
+            + urllib.parse.urlencode({"keyword": kw["keyword"], "slug": slug})
         )
         print(f"    Slug '{slug}' terdaftar.")
     except Exception as e:
         print(f"    Warning: Gagal daftarkan slug (non-fatal, sync_check sebagai fallback): {e}")
 
-    # 7. FASE 2 (UPLOAD STAGING): Upload HTML ke staging
-    #    Identik dengan tombol "UPLOAD STAGING" di BriefActivity
-    print(f"7/7 Upload ke staging/{content_type}s/ready/{slug}.html (Fase 2)...")
-    content_b64 = base64.b64encode(html_body.encode("utf-8")).decode("utf-8")
+    # 8. Fase 2: Upload ke staging
+    #    Identik dengan tombol UPLOAD STAGING di BriefActivity
+    print(f"8/8 Upload ke staging/{content_type}s/ready/{slug}.html (Fase 2)...")
+    content_b64 = base64.b64encode(html_final.encode("utf-8")).decode("utf-8")
     try:
         result = worker_post("upload_staging", {
             "slug":    slug,
@@ -386,10 +472,13 @@ def run() -> None:
     if result != "OK":
         print(f"WARNING: Response upload tidak expected: '{result}'")
     else:
-        print(f"    Upload berhasil.")
+        print("    Upload berhasil.")
 
-    print(f"\n✓ Selesai: {type_label} '{kw['keyword']}' → staging/{content_type}s/ready/{slug}.html")
-    print(f"  Akan dipublish sesuai jadwal berikutnya.")
+    print(
+        f"\n✓ Selesai: {type_label} '{kw['keyword']}'"
+        f" → staging/{content_type}s/ready/{slug}.html"
+    )
+    print("  Akan dipublish sesuai jadwal berikutnya.")
 
 
 if __name__ == "__main__":
