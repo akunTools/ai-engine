@@ -90,6 +90,13 @@
       "cluster": "saas-churn-retention",
       "date": "2026-05-30",
       "excerpt": "Should you reduce SaaS churn rate or focus on growth? Use our cost-benefit framework to see the true runway math before you invest another dollar."
+    },
+    {
+      "slug": "how-to-reduce-saas-churn",
+      "title": "How to Reduce SaaS Churn: Stop the MRR Bleed Before It Cuts Your Runway in Half",
+      "cluster": "saas-churn-retention",
+      "date": "2026-05-30",
+      "excerpt": "Stop the silent MRR killer. Learn how to reduce SaaS churn with a brutal diagnosis, the 3 churn formulas, hidden lifecycle leaks, and 4 non-obvious tactics that actually work."
     }
   ],
   "tools": [
