@@ -11,6 +11,9 @@ ALUR (identik dengan manual BriefActivity dua fase):
   Fase 2: upload HTML ke staging (/upload_staging)
 
 CATATAN PENTING:
+  - Staging dicek SEBELUM pick keyword, bukan sesudah.
+    pick_best_keyword menerima exclude_slugs dan langsung melewati
+    keyword yang slugnya sudah ada di staging.
   - extract_html_from_response() membuang DECISIONS block,
     mengambil HANYA isi code block HTML.
   - Prompt menginstruksikan quadruple backticks (````html...````).
@@ -89,11 +92,18 @@ def parse_score(score_str: str) -> int:
         return 0
 
 
-def pick_best_keyword(stock: dict, is_article: bool) -> dict | None:
+def pick_best_keyword(stock: dict, is_article: bool,
+                      exclude_slugs: set | None = None) -> dict | None:
     """
     Pilih keyword PENDING terbaik sesuai task type.
     Urutan prioritas: EASY > MEDIUM, lalu score tertinggi.
+    exclude_slugs: set slug yang sudah ada di staging — dilewati langsung.
+    Dengan exclude_slugs, sistem tidak pernah SKIP selama masih ada
+    keyword PENDING yang belum pernah disentuh.
     """
+    if exclude_slugs is None:
+        exclude_slugs = set()
+
     candidates = []
     for kw in stock.get("keywords", []):
         if kw.get("status") != "PENDING":
@@ -105,6 +115,9 @@ def pick_best_keyword(stock: dict, is_article: bool) -> dict | None:
         if is_article and intent == "TOOL":
             continue
         if not is_article and intent != "TOOL":
+            continue
+        # Lewati keyword yang slugnya sudah ada di staging
+        if keyword_to_slug(kw["keyword"]) in exclude_slugs:
             continue
         candidates.append((
             kw,
@@ -119,12 +132,13 @@ def pick_best_keyword(stock: dict, is_article: bool) -> dict | None:
     return candidates[0][0]
 
 
-# ─── Staging dedup check ───────────────────────────────────────────────────────
+# ─── Staging slug check ────────────────────────────────────────────────────────
 
 def get_staged_slugs(is_article: bool) -> set:
     """
-    Ambil slug yang sudah ada di staging via /get_memory.
-    Mencegah generate ulang keyword yang sudah di-stage tapi belum publish.
+    Ambil semua slug yang sudah ada di staging via /get_memory.
+    Digunakan SEBELUM pick keyword agar sistem langsung melewati
+    keyword yang sudah di-stage tanpa harus SKIP seluruh sesi.
     """
     try:
         memory = json.loads(worker_get("get_memory"))
@@ -140,7 +154,8 @@ def get_staged_slugs(is_article: bool) -> set:
 def call_brief(kw: dict, content_type: str) -> dict:
     """
     Panggil Worker /brief.
-    Parameter identik dengan BriefActivity.
+    Parameter identik dengan BriefActivity:
+    keyword, intent, verdict, gap, recommended, score, type.
     Return: { prompt, critique, meta }
     """
     resp = worker_post("brief", {
@@ -282,7 +297,8 @@ def ensure_cluster_meta(html: str, kw: dict) -> str:
     """
     Pastikan HTML memiliki meta cluster tag.
     Jika AI sudah include, tidak diubah.
-    Jika tidak ada, injeksi berdasarkan keyword matching.
+    Jika tidak ada, injeksi berdasarkan keyword matching
+    terhadap cluster_definitions.json di ai-brain.
     """
     if 'name="cluster"' in html or "name='cluster'" in html:
         return html
@@ -362,29 +378,30 @@ def run() -> None:
     )
     print(f"    Total PENDING: {total_pending} keyword.")
 
-    # 2. Pilih keyword terbaik
-    print(f"2/8 Memilih keyword terbaik untuk {type_label}...")
-    kw = pick_best_keyword(stock, is_article)
+    # 2. Cek staging LEBIH DULU — ambil semua slug yang sudah ada
+    #    Dilakukan sebelum pick keyword agar pick_best_keyword bisa
+    #    langsung melewati keyword yang sudah di-stage.
+    print("2/8 Mengambil daftar staging (filter sebelum pick)...")
+    staged_slugs = get_staged_slugs(is_article)
+    print(f"    Slug di staging: {len(staged_slugs)} item.")
+
+    # 3. Pilih keyword terbaik yang BELUM ada di staging
+    print(f"3/8 Memilih keyword terbaik untuk {type_label}...")
+    kw = pick_best_keyword(stock, is_article, exclude_slugs=staged_slugs)
     if not kw:
-        print(f"SKIP: Tidak ada keyword PENDING (EASY/MEDIUM) untuk {type_label}.")
+        print(f"SKIP: Tidak ada keyword PENDING (EASY/MEDIUM) yang belum di staging.")
+        print("Semua keyword tersedia sudah ada di staging atau belum distock.")
         print("Pipeline tetap berjalan untuk publish dari staging yang ada.")
         sys.exit(0)
+    slug = keyword_to_slug(kw["keyword"])
     print(
         f"    Terpilih: '{kw['keyword']}' "
         f"[{kw.get('verdict')} | score {kw.get('score')} | intent {kw.get('intent')}]"
     )
-
-    # 3. Cek duplikasi staging
-    print("3/8 Mengecek staging (cegah duplikasi)...")
-    slug         = keyword_to_slug(kw["keyword"])
-    staged_slugs = get_staged_slugs(is_article)
-    if slug in staged_slugs:
-        print(f"SKIP: '{slug}' sudah ada di staging, menunggu giliran publish.")
-        print("Pipeline tetap berjalan untuk publish dari staging yang ada.")
-        sys.exit(0)
-    print(f"    Slug '{slug}' belum di staging, lanjut generate.")
+    print(f"    Slug: '{slug}' — belum di staging, lanjut generate.")
 
     # 4. Rakit prompt via Worker /brief
+    #    Identik dengan BriefActivity: kirim semua metadata keyword
     print("4/8 Merakit prompt via Worker /brief...")
     try:
         brief    = call_brief(kw, content_type)
@@ -411,9 +428,10 @@ def run() -> None:
     html_draft = extract_html_from_response(response_pass1)
     print(f"    Draft: {len(html_draft.split()):,} kata.")
 
-    # 6. Pass 2: Critique (jika tersedia)
-    # Kirim full conversation context: user → assistant (pass1) → user (critique)
-    # AI critique membaca DECISIONS block + HTML dari pass1 sebagai konteks
+    # 6. Pass 2: Critique
+    #    Kirim full conversation context: user → assistant (pass1) → user (critique)
+    #    AI critique membaca DECISIONS block + HTML dari pass1 sebagai konteks,
+    #    lalu output slug/title + HTML yang sudah diperbaiki.
     if critique:
         print("6/8 Pass 2 — Critique & refinement...")
         messages_pass2 = [
@@ -433,6 +451,7 @@ def run() -> None:
         html_final = html_draft
 
     # Validasi final — jika gagal, sys.exit(1) sebelum upload
+    # Konten yang tidak memenuhi standar minimum tidak pernah masuk staging
     try:
         validate_html(html_final, kw["keyword"])
     except Exception as e:
@@ -444,7 +463,9 @@ def run() -> None:
     html_final = ensure_cluster_meta(html_final, kw)
 
     # 7. Fase 1: Register slug ke keyword_stock.json
-    #    Identik dengan tombol UPDATE MEMORY di BriefActivity
+    #    Identik dengan tombol UPDATE MEMORY di BriefActivity.
+    #    Mendaftarkan slug agar sync_check dan notify_keyword_done
+    #    dapat menemukan keyword ini via slug match.
     print("7/8 Mendaftarkan slug ke keyword stock (Fase 1)...")
     try:
         worker_get(
@@ -453,10 +474,13 @@ def run() -> None:
         )
         print(f"    Slug '{slug}' terdaftar.")
     except Exception as e:
-        print(f"    Warning: Gagal daftarkan slug (non-fatal, sync_check sebagai fallback): {e}")
+        print(
+            f"    Warning: Gagal daftarkan slug (non-fatal, "
+            f"sync_check sebagai fallback): {e}"
+        )
 
     # 8. Fase 2: Upload ke staging
-    #    Identik dengan tombol UPLOAD STAGING di BriefActivity
+    #    Identik dengan tombol UPLOAD STAGING di BriefActivity.
     print(f"8/8 Upload ke staging/{content_type}s/ready/{slug}.html (Fase 2)...")
     content_b64 = base64.b64encode(html_final.encode("utf-8")).decode("utf-8")
     try:
