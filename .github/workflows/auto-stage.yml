@@ -15,10 +15,10 @@ on:
     - cron: '0 1 * * *'      # Artikel — setiap hari jam 01:00 UTC (08:00 WIB / 09:00 WITA)
     - cron: '0 3 * * 1'      # Tool — setiap Senin jam 03:00 UTC (10:00 WIB / 11:00 WITA)
 
-# Limit: OpenRouter free = 200 request/hari.
-# Setiap run = 2 call (pass1 + pass2).
-# Artikel harian = 2 call/hari = 1% dari limit.
-# Tool mingguan = 2 call/minggu = tidak signifikan.
+# Limit OpenRouter free: 200 request/hari.
+# Setiap run = 2 call (pass1 + pass2) = 1% dari limit.
+# DeepSeek V4 Pro (direct) hanya dipanggil jika kedua model free tidak tersedia.
+# Estimasi biaya jika V4 Pro selalu dipakai: ~$7.66/tahun.
 
 jobs:
   stage-article:
@@ -44,6 +44,7 @@ jobs:
           WORKER_URL:          ${{ secrets.WORKER_URL }}
           BRIEF_TOKEN:         ${{ secrets.BRIEF_TOKEN }}
           OPENROUTER_API_KEY:  ${{ secrets.OPENROUTER_API_KEY }}
+          DEEPSEEK_API_KEY:    ${{ secrets.DEEPSEEK_API_KEY }}
           TASK_TYPE:           article
           SITE_BASE_URL:       ${{ vars.SITE_BASE_URL }}
         run: python scripts/auto_generate.py 2>&1 | tee auto_generate.log
@@ -92,6 +93,7 @@ jobs:
           WORKER_URL:          ${{ secrets.WORKER_URL }}
           BRIEF_TOKEN:         ${{ secrets.BRIEF_TOKEN }}
           OPENROUTER_API_KEY:  ${{ secrets.OPENROUTER_API_KEY }}
+          DEEPSEEK_API_KEY:    ${{ secrets.DEEPSEEK_API_KEY }}
           TASK_TYPE:           calculator_tool
           SITE_BASE_URL:       ${{ vars.SITE_BASE_URL }}
         run: python scripts/auto_generate.py 2>&1 | tee auto_generate.log
