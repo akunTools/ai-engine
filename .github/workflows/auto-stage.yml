@@ -1,0 +1,118 @@
+name: Auto Stage Content
+
+on:
+  workflow_dispatch:
+    inputs:
+      task_type:
+        description: 'Jenis konten yang akan di-generate ke staging'
+        required: true
+        default: 'article'
+        type: choice
+        options:
+          - article
+          - calculator_tool
+  schedule:
+    - cron: '0 1 * * *'      # Artikel — setiap hari jam 01:00 UTC (08:00 WIB / 09:00 WITA)
+    - cron: '0 3 * * 1'      # Tool — setiap Senin jam 03:00 UTC (10:00 WIB / 11:00 WITA)
+
+# Limit: OpenRouter free = 200 request/hari.
+# Setiap run = 2 call (pass1 + pass2).
+# Artikel harian = 2 call/hari = 1% dari limit.
+# Tool mingguan = 2 call/minggu = tidak signifikan.
+
+jobs:
+  stage-article:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    if: |
+      github.event_name == 'workflow_dispatch' && github.event.inputs.task_type == 'article' ||
+      github.event_name == 'schedule' && github.event.schedule == '0 1 * * *'
+
+    steps:
+      - name: Checkout ai-engine
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Auto Generate Article ke Staging
+        id: auto_generate
+        continue-on-error: true
+        env:
+          WORKER_URL:          ${{ secrets.WORKER_URL }}
+          BRIEF_TOKEN:         ${{ secrets.BRIEF_TOKEN }}
+          OPENROUTER_API_KEY:  ${{ secrets.OPENROUTER_API_KEY }}
+          TASK_TYPE:           article
+          SITE_BASE_URL:       ${{ vars.SITE_BASE_URL }}
+        run: python scripts/auto_generate.py 2>&1 | tee auto_generate.log
+
+      - name: Upload log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: auto-stage-log-article
+          path: auto_generate.log
+
+      - name: Email gagal generate
+        if: steps.auto_generate.outcome == 'failure'
+        uses: dawidd6/action-send-mail@v4
+        with:
+          server_address: smtp-relay.brevo.com
+          server_port: 587
+          username: ${{ secrets.BREVO_USERNAME }}
+          password: ${{ secrets.BREVO_PASSWORD }}
+          subject: "[AI Engine] ❌ Auto Stage Gagal — Article"
+          to: ${{ secrets.NOTIFY_EMAIL }}
+          from: ${{ secrets.BREVO_FROM_EMAIL }}
+          body: "Auto generate artikel ke staging gagal. Cek tab Actions untuk detail. Log terlampir."
+          attachments: auto_generate.log
+
+  stage-tool:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    if: |
+      github.event_name == 'workflow_dispatch' && github.event.inputs.task_type == 'calculator_tool' ||
+      github.event_name == 'schedule' && github.event.schedule == '0 3 * * 1'
+
+    steps:
+      - name: Checkout ai-engine
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Auto Generate Tool ke Staging
+        id: auto_generate
+        continue-on-error: true
+        env:
+          WORKER_URL:          ${{ secrets.WORKER_URL }}
+          BRIEF_TOKEN:         ${{ secrets.BRIEF_TOKEN }}
+          OPENROUTER_API_KEY:  ${{ secrets.OPENROUTER_API_KEY }}
+          TASK_TYPE:           calculator_tool
+          SITE_BASE_URL:       ${{ vars.SITE_BASE_URL }}
+        run: python scripts/auto_generate.py 2>&1 | tee auto_generate.log
+
+      - name: Upload log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: auto-stage-log-tool
+          path: auto_generate.log
+
+      - name: Email gagal generate
+        if: steps.auto_generate.outcome == 'failure'
+        uses: dawidd6/action-send-mail@v4
+        with:
+          server_address: smtp-relay.brevo.com
+          server_port: 587
+          username: ${{ secrets.BREVO_USERNAME }}
+          password: ${{ secrets.BREVO_PASSWORD }}
+          subject: "[AI Engine] ❌ Auto Stage Gagal — Tool"
+          to: ${{ secrets.NOTIFY_EMAIL }}
+          from: ${{ secrets.BREVO_FROM_EMAIL }}
+          body: "Auto generate tool ke staging gagal. Cek tab Actions untuk detail. Log terlampir."
+          attachments: auto_generate.log
