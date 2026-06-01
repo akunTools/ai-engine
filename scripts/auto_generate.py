@@ -1,7 +1,7 @@
 """
 auto_generate.py
 Pilih keyword PENDING terbaik → rakit prompt via Worker /brief
-→ generate HTML (pass 1) + critique (pass 2) via OpenRouter
+→ generate HTML (pass 1) + critique (pass 2) via OpenRouter / DeepSeek direct
 → upload ke staging.
 
 ALUR (identik dengan manual BriefActivity dua fase):
@@ -10,22 +10,21 @@ ALUR (identik dengan manual BriefActivity dua fase):
   Fase 1: register slug ke keyword_stock.json (/update_keyword)
   Fase 2: upload HTML ke staging (/upload_staging)
 
-MODEL PRIORITY:
-  1. moonshotai/kimi-k2.6:free   — utama, gratis, 21 provider
-  2. deepseek/deepseek-v4-flash:free — fallback gratis
-  3. deepseek/deepseek-v4-pro    — fallback berbayar jika keduanya down
+MODEL PRIORITY & ROUTING:
+  1. moonshotai/kimi-k2.6:free   → OpenRouter (gratis, 21 provider)
+  2. deepseek/deepseek-v4-flash:free → OpenRouter (gratis, fallback)
+  3. deepseek-v4-pro              → DeepSeek direct API (berbayar, last resort)
+     Hanya aktif jika DEEPSEEK_API_KEY di-set.
+
+FALLBACK TRIGGERS (coba model berikutnya):
+  - HTTP 404 + "No endpoints found" → model tidak tersedia di OpenRouter
+  - HTTP 429 + "upstream"           → provider-side rate limit (bukan limit akun kita)
+  Selain itu → raise langsung, fallback tidak membantu.
 
 CATATAN PENTING:
-  - Staging dicek SEBELUM pick keyword, bukan sesudah.
-    pick_best_keyword menerima exclude_slugs dan langsung melewati
-    keyword yang slugnya sudah ada di staging.
-  - extract_html_from_response() membuang DECISIONS block,
-    mengambil HANYA isi code block HTML.
-  - Prompt menginstruksikan quadruple backticks (````html...````).
-  - Fungsi ini handle keduanya: quadruple dan triple backticks.
-  - call_openrouter() mencoba model secara berurutan.
-    404 "No endpoints found" = model tidak tersedia sementara → fallback.
-    Error lain (401, 429, 500) = langsung raise, fallback tidak membantu.
+  - Staging dicek SEBELUM pick keyword.
+  - extract_html_from_response() membuang DECISIONS block.
+  - Handle quadruple (````) dan triple (```) backticks.
 """
 import os
 import re
@@ -39,19 +38,26 @@ import urllib.parse
 WORKER_URL     = os.environ.get("WORKER_URL", "").rstrip("/") + "/"
 BRIEF_TOKEN    = os.environ.get("BRIEF_TOKEN", "")
 OPENROUTER_KEY = os.environ.get("OPENROUTER_API_KEY", "")
+DEEPSEEK_KEY   = os.environ.get("DEEPSEEK_API_KEY", "")
 TASK_TYPE      = os.environ.get("TASK_TYPE", "article")
 SITE_BASE_URL  = os.environ.get("SITE_BASE_URL", "https://saastools.corenk.com")
 
-# Model priority: gratis dulu, paid sebagai last resort
-# Estimasi biaya jika hanya V4 Pro yang jalan: ~$7.66/tahun (365 artikel + 24 tool)
-MODELS = [
-    "moonshotai/kimi-k2.6:free",        # Utama: 1T params, 21 provider, stabil
-    "deepseek/deepseek-v4-flash:free",  # Fallback 1: 284B params, fast
-    "deepseek/deepseek-v4-pro",         # Fallback 2: 1.6T params, 49B aktif, berbayar
-]
+OR_URL = "https://openrouter.ai/api/v1/chat/completions"
+DS_URL = "https://api.deepseek.com/v1/chat/completions"
 
-OR_URL     = "https://openrouter.ai/api/v1/chat/completions"
 MAX_TOKENS = 8192
+
+# Model priority: free dulu, paid sebagai last resort.
+# Setiap entry: {"model": str, "url": str, "key": str}
+# V4 Pro hanya masuk daftar jika DEEPSEEK_API_KEY tersedia.
+MODELS = [
+    {"model": "moonshotai/kimi-k2.6:free",       "url": OR_URL, "key": OPENROUTER_KEY},
+    {"model": "deepseek/deepseek-v4-flash:free",  "url": OR_URL, "key": OPENROUTER_KEY},
+]
+if DEEPSEEK_KEY:
+    MODELS.append(
+        {"model": "deepseek-v4-pro", "url": DS_URL, "key": DEEPSEEK_KEY}
+    )
 
 
 # ─── HTTP helpers ──────────────────────────────────────────────────────────────
@@ -113,8 +119,6 @@ def pick_best_keyword(stock: dict, is_article: bool,
     Pilih keyword PENDING terbaik sesuai task type.
     Urutan prioritas: EASY > MEDIUM, lalu score tertinggi.
     exclude_slugs: set slug yang sudah ada di staging — dilewati langsung.
-    Dengan exclude_slugs, sistem tidak pernah SKIP selama masih ada
-    keyword PENDING yang belum pernah disentuh.
     """
     if exclude_slugs is None:
         exclude_slugs = set()
@@ -131,7 +135,6 @@ def pick_best_keyword(stock: dict, is_article: bool,
             continue
         if not is_article and intent != "TOOL":
             continue
-        # Lewati keyword yang slugnya sudah ada di staging
         if keyword_to_slug(kw["keyword"]) in exclude_slugs:
             continue
         candidates.append((
@@ -152,8 +155,7 @@ def pick_best_keyword(stock: dict, is_article: bool,
 def get_staged_slugs(is_article: bool) -> set:
     """
     Ambil semua slug yang sudah ada di staging via /get_memory.
-    Digunakan SEBELUM pick keyword agar sistem langsung melewati
-    keyword yang sudah di-stage tanpa harus SKIP seluruh sesi.
+    Digunakan SEBELUM pick keyword.
     """
     try:
         memory = json.loads(worker_get("get_memory"))
@@ -169,8 +171,7 @@ def get_staged_slugs(is_article: bool) -> set:
 def call_brief(kw: dict, content_type: str) -> dict:
     """
     Panggil Worker /brief.
-    Parameter identik dengan BriefActivity:
-    keyword, intent, verdict, gap, recommended, score, type.
+    Parameter identik dengan BriefActivity.
     Return: { prompt, critique, meta }
     """
     resp = worker_post("brief", {
@@ -185,20 +186,48 @@ def call_brief(kw: dict, content_type: str) -> dict:
     return json.loads(resp)
 
 
-# ─── OpenRouter ───────────────────────────────────────────────────────────────
+# ─── AI call dengan multi-endpoint fallback ───────────────────────────────────
+
+def _should_fallback(code: int, body: str) -> bool:
+    """
+    Tentukan apakah error ini layak untuk mencoba model berikutnya.
+
+    Fallback jika:
+    - 404 + "No endpoints found" → model tidak tersedia di OpenRouter
+    - 429 + "upstream"           → rate limit di sisi provider (bukan akun kita)
+
+    Tidak fallback jika:
+    - 401 → API key salah (semua model akan sama-sama gagal)
+    - 429 tanpa "upstream" → limit akun kita sendiri
+    - 500, 503 → server error, retry bukan fallback yang tepat
+    """
+    if code == 404 and "No endpoints found" in body:
+        return True
+    if code == 429 and "upstream" in body.lower():
+        return True
+    return False
+
 
 def call_openrouter(messages: list, label: str = "") -> str:
     """
-    Kirim messages ke OpenRouter.
-    Coba MODELS secara berurutan (free dulu, paid sebagai last resort).
-    - 404 "No endpoints found" → model tidak tersedia sementara → coba berikutnya.
-    - Error lain (401, 429, 500) → langsung raise, fallback tidak membantu.
+    Kirim messages ke AI. Coba MODELS secara berurutan.
+    Setiap model bisa punya endpoint dan API key berbeda
+    (OpenRouter untuk free models, DeepSeek direct untuk V4 Pro).
+
     Raise Exception hanya jika semua model gagal.
     """
     tag        = f" ({label})" if label else ""
     last_error = None
 
-    for model in MODELS:
+    for entry in MODELS:
+        model = entry["model"]
+        url   = entry["url"]
+        key   = entry["key"]
+
+        if not key:
+            print(f"    Skip {model}: API key tidak tersedia.")
+            continue
+
         payload = json.dumps({
             "model":      model,
             "messages":   messages,
@@ -206,10 +235,10 @@ def call_openrouter(messages: list, label: str = "") -> str:
         }).encode("utf-8")
 
         req = urllib.request.Request(
-            OR_URL,
+            url,
             data=payload,
             headers={
-                "Authorization": f"Bearer {OPENROUTER_KEY}",
+                "Authorization": f"Bearer {key}",
                 "Content-Type":  "application/json",
                 "HTTP-Referer":  SITE_BASE_URL,
                 "X-Title":       "SaaS Tools Content Engine",
@@ -222,31 +251,32 @@ def call_openrouter(messages: list, label: str = "") -> str:
                 data = json.loads(r.read())
         except urllib.error.HTTPError as e:
             body = e.read().decode()
-            if e.code == 404 and "No endpoints found" in body:
-                # Model tidak tersedia sementara, coba fallback berikutnya
-                print(f"    Warning: {model} tidak tersedia (404), coba fallback...")
-                last_error = f"HTTP 404{tag}: {body[:200]}"
+            if _should_fallback(e.code, body):
+                reason = "No endpoints" if e.code == 404 else "upstream rate-limit"
+                print(f"    Warning: {model} tidak tersedia ({reason}), coba fallback...")
+                last_error = f"HTTP {e.code}{tag} [{model}]: {body[:200]}"
                 continue
             # Error lain: tidak ada gunanya coba model lain
-            raise Exception(f"OpenRouter HTTP {e.code}{tag}: {body[:400]}")
+            raise Exception(f"OpenRouter/DeepSeek HTTP {e.code}{tag} [{model}]: {body[:400]}")
 
         try:
             content = data["choices"][0]["message"]["content"].strip()
         except (KeyError, IndexError) as e:
             raise Exception(
-                f"OpenRouter response format tidak terduga{tag}: {e}. "
+                f"Response format tidak terduga{tag} [{model}]: {e}. "
                 f"Response: {str(data)[:300]}"
             )
 
         if not content:
-            raise Exception(f"OpenRouter mengembalikan konten kosong{tag}.")
+            raise Exception(f"AI mengembalikan konten kosong{tag} [{model}].")
 
         print(f"    Model dipakai: {model}")
         return content
 
-    # Semua model gagal
     raise Exception(
-        f"Semua model tidak tersedia{tag}. Error terakhir: {last_error}"
+        f"Semua model tidak tersedia{tag}. "
+        f"Tersisa {len(MODELS)} model dicoba. "
+        f"Error terakhir: {last_error}"
     )
 
 
@@ -260,12 +290,10 @@ def extract_html_from_response(response: str) -> str:
       1. DECISIONS block (plain text — dibuang)
       2. HTML dalam satu code block: ````html ... ````
 
-    Fungsi ini mengambil HANYA isi code block.
     Mendukung: quadruple (````) dan triple (```) backticks.
-
-    Fallback: jika tidak ada code block, cari dari tag <meta cluster>.
+    Fallback: ekstrak dari <meta name="cluster"> jika tidak ada code block.
     """
-    # Quadruple backticks dengan 'html' (format yang diinstruksikan)
+    # Quadruple backticks dengan 'html'
     match = re.search(r'````html\s*\n(.*?)\n````', response, re.DOTALL | re.IGNORECASE)
     if match:
         return match.group(1).strip()
@@ -290,7 +318,6 @@ def extract_html_from_response(response: str) -> str:
             return content
 
     # Fallback: ekstrak dari <meta name="cluster"> sampai akhir
-    # Terjadi jika AI tidak menggunakan code block sama sekali
     meta_match = re.search(
         r'(<meta\s+name=["\']cluster["\'].*)',
         response, re.DOTALL | re.IGNORECASE
@@ -299,7 +326,6 @@ def extract_html_from_response(response: str) -> str:
         print("Warning: Tidak ada code block. Fallback ekstraksi dari <meta cluster>.")
         return meta_match.group(1).strip()
 
-    # Last resort: return as-is, biar validation catch
     print("Warning: Tidak bisa ekstrak HTML. Returning raw response.")
     return response.strip()
 
@@ -309,7 +335,8 @@ def extract_html_from_response(response: str) -> str:
 def validate_html(html: str, keyword: str) -> None:
     """
     Validasi minimum sebelum upload ke staging.
-    Jika gagal → sys.exit(1). Konten jelek tidak masuk staging.
+    Jika gagal → raise Exception → sys.exit(1) di caller.
+    Konten jelek tidak pernah masuk staging.
     """
     if "<h1" not in html.lower():
         raise Exception(
@@ -328,8 +355,7 @@ def ensure_cluster_meta(html: str, kw: dict) -> str:
     """
     Pastikan HTML memiliki meta cluster tag.
     Jika AI sudah include, tidak diubah.
-    Jika tidak ada, injeksi berdasarkan keyword matching
-    terhadap cluster_definitions.json di ai-brain.
+    Jika tidak ada, injeksi berdasarkan keyword matching.
     """
     if 'name="cluster"' in html or "name='cluster'" in html:
         return html
@@ -380,6 +406,7 @@ def ensure_cluster_meta(html: str, kw: dict) -> str:
 # ─── Main ─────────────────────────────────────────────────────────────────────
 
 def run() -> None:
+    # Validasi env vars wajib
     missing = []
     if not WORKER_URL or WORKER_URL == "/":
         missing.append("WORKER_URL")
@@ -391,12 +418,16 @@ def run() -> None:
         print(f"FATAL: Environment variable tidak di-set: {', '.join(missing)}")
         sys.exit(1)
 
+    if not DEEPSEEK_KEY:
+        print("Warning: DEEPSEEK_API_KEY tidak di-set. Fallback V4 Pro tidak aktif.")
+
     is_article   = (TASK_TYPE == "article")
     content_type = "article" if is_article else "tool"
     type_label   = "artikel" if is_article else "tool"
 
+    model_names = " → ".join(e["model"] for e in MODELS)
     print(f"=== auto_generate.py | task: {type_label} ===")
-    print(f"    Model priority: {' → '.join(MODELS)}")
+    print(f"    Model priority: {model_names}")
 
     # 1. Ambil keyword stock
     print("1/8 Mengambil keyword stock...")
@@ -411,8 +442,6 @@ def run() -> None:
     print(f"    Total PENDING: {total_pending} keyword.")
 
     # 2. Cek staging LEBIH DULU — ambil semua slug yang sudah ada
-    #    Dilakukan sebelum pick keyword agar pick_best_keyword bisa
-    #    langsung melewati keyword yang sudah di-stage.
     print("2/8 Mengambil daftar staging (filter sebelum pick)...")
     staged_slugs = get_staged_slugs(is_article)
     print(f"    Slug di staging: {len(staged_slugs)} item.")
@@ -433,7 +462,6 @@ def run() -> None:
     print(f"    Slug: '{slug}' — belum di staging, lanjut generate.")
 
     # 4. Rakit prompt via Worker /brief
-    #    Identik dengan BriefActivity: kirim semua metadata keyword
     print("4/8 Merakit prompt via Worker /brief...")
     try:
         brief    = call_brief(kw, content_type)
@@ -449,7 +477,7 @@ def run() -> None:
         print("    Warning: Critique prompt tidak tersedia, hanya 1 pass.")
 
     # 5. Pass 1: Generate draft
-    print(f"5/8 Pass 1 — Generate draft...")
+    print("5/8 Pass 1 — Generate draft...")
     messages_pass1 = [{"role": "user", "content": prompt}]
     try:
         response_pass1 = call_openrouter(messages_pass1, label="pass1")
@@ -460,10 +488,8 @@ def run() -> None:
     html_draft = extract_html_from_response(response_pass1)
     print(f"    Draft: {len(html_draft.split()):,} kata.")
 
-    # 6. Pass 2: Critique
-    #    Kirim full conversation context: user → assistant (pass1) → user (critique)
-    #    AI critique membaca DECISIONS block + HTML dari pass1 sebagai konteks,
-    #    lalu output slug/title + HTML yang sudah diperbaiki.
+    # 6. Pass 2: Critique & refinement
+    # Kirim full conversation: user → assistant (pass1) → user (critique)
     if critique:
         print("6/8 Pass 2 — Critique & refinement...")
         messages_pass2 = [
@@ -482,8 +508,7 @@ def run() -> None:
         print("6/8 Pass 2 — Dilewati (critique tidak tersedia).")
         html_final = html_draft
 
-    # Validasi final — jika gagal, sys.exit(1) sebelum upload
-    # Konten yang tidak memenuhi standar minimum tidak pernah masuk staging
+    # Validasi final — konten jelek tidak masuk staging
     try:
         validate_html(html_final, kw["keyword"])
     except Exception as e:
@@ -495,9 +520,7 @@ def run() -> None:
     html_final = ensure_cluster_meta(html_final, kw)
 
     # 7. Fase 1: Register slug ke keyword_stock.json
-    #    Identik dengan tombol UPDATE MEMORY di BriefActivity.
-    #    Mendaftarkan slug agar sync_check dan notify_keyword_done
-    #    dapat menemukan keyword ini via slug match.
+    #    Identik dengan tombol UPDATE MEMORY di BriefActivity
     print("7/8 Mendaftarkan slug ke keyword stock (Fase 1)...")
     try:
         worker_get(
@@ -512,7 +535,7 @@ def run() -> None:
         )
 
     # 8. Fase 2: Upload ke staging
-    #    Identik dengan tombol UPLOAD STAGING di BriefActivity.
+    #    Identik dengan tombol UPLOAD STAGING di BriefActivity
     print(f"8/8 Upload ke staging/{content_type}s/ready/{slug}.html (Fase 2)...")
     content_b64 = base64.b64encode(html_final.encode("utf-8")).decode("utf-8")
     try:
