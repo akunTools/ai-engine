@@ -14,19 +14,19 @@ on:
   repository_dispatch:
     types: [run-task]
   schedule:
-    - cron: '0 2 * * *'      # Setiap hari jam 02:00 UTC — artikel
-    - cron: '0 6 1,15 * *'   # Tanggal 1 dan 15 jam 06:00 UTC — tool
+    - cron: '0 2 */2 * *'    # Artikel — setiap 2 hari jam 02:00 UTC (09:00 WIB / 10:00 WITA)
+    - cron: '0 6 1,15 * *'   # Tool — tanggal 1 & 15 jam 06:00 UTC (13:00 WIB / 14:00 WITA)
 
 jobs:
   generate-article:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 10
     permissions:
       contents: write
     if: |
       github.event_name == 'workflow_dispatch' && github.event.inputs.task_type == 'article' ||
       github.event_name == 'repository_dispatch' && github.event.client_payload.task_type == 'article' ||
-      github.event_name == 'schedule' && github.event.schedule == '0 2 * * *'
+      github.event_name == 'schedule' && github.event.schedule == '0 2 */2 * *'
 
     steps:
       - name: Checkout ai-engine
@@ -42,24 +42,6 @@ jobs:
 
       - name: Install Pillow
         run: pip install Pillow --break-system-packages
-
-      - name: Auto Generate Content
-        id: auto_generate
-        continue-on-error: true
-        env:
-          WORKER_URL:          ${{ secrets.WORKER_URL }}
-          BRIEF_TOKEN:         ${{ secrets.BRIEF_TOKEN }}
-          OPENROUTER_API_KEY:  ${{ secrets.OPENROUTER_API_KEY }}
-          TASK_TYPE:           ${{ env.TASK_TYPE }}
-          SITE_BASE_URL:       ${{ vars.SITE_BASE_URL }}
-        run: python scripts/auto_generate.py 2>&1 | tee auto_generate.log
-
-      - name: Upload auto_generate log
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: auto-generate-log-article
-          path: auto_generate.log
 
       - name: Run Pipeline
         id: pipeline
@@ -112,7 +94,7 @@ jobs:
           subject: "[AI Engine] ⚠️ Staging Empty — No Article"
           to: ${{ secrets.NOTIFY_EMAIL }}
           from: ${{ secrets.BREVO_FROM_EMAIL }}
-          body: "Staging is empty. No PENDING keywords available either. Check keyword stock."
+          body: "Staging is empty. Add new articles to staging/articles/ready/ in ai-brain."
 
       - name: Email pipeline failed
         if: failure() && !contains(github.event_name, 'schedule')
@@ -130,7 +112,7 @@ jobs:
 
   generate-tool:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 10
     permissions:
       contents: write
     if: |
@@ -152,24 +134,6 @@ jobs:
 
       - name: Install Pillow
         run: pip install Pillow --break-system-packages
-
-      - name: Auto Generate Content
-        id: auto_generate
-        continue-on-error: true
-        env:
-          WORKER_URL:          ${{ secrets.WORKER_URL }}
-          BRIEF_TOKEN:         ${{ secrets.BRIEF_TOKEN }}
-          OPENROUTER_API_KEY:  ${{ secrets.OPENROUTER_API_KEY }}
-          TASK_TYPE:           ${{ env.TASK_TYPE }}
-          SITE_BASE_URL:       ${{ vars.SITE_BASE_URL }}
-        run: python scripts/auto_generate.py 2>&1 | tee auto_generate.log
-
-      - name: Upload auto_generate log
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: auto-generate-log-tool
-          path: auto_generate.log
 
       - name: Run Pipeline
         id: pipeline
@@ -222,7 +186,7 @@ jobs:
           subject: "[AI Engine] ⚠️ Staging Empty — No Tool"
           to: ${{ secrets.NOTIFY_EMAIL }}
           from: ${{ secrets.BREVO_FROM_EMAIL }}
-          body: "Tool staging is empty. No PENDING TOOL keywords either. Check keyword stock."
+          body: "Tool staging is empty. Add new tools to staging/tools/ready/ in ai-brain."
 
       - name: Email pipeline failed
         if: failure() && !contains(github.event_name, 'schedule')
