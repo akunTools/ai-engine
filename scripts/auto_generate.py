@@ -1,7 +1,7 @@
 """
 auto_generate.py
 Pilih keyword PENDING terbaik → rakit prompt via Worker /brief
-→ generate HTML (pass 1) + critique (pass 2) via OpenRouter DeepSeek V4 Flash
+→ generate HTML (pass 1) + critique (pass 2) via OpenRouter
 → upload ke staging.
 
 ALUR (identik dengan manual BriefActivity dua fase):
@@ -9,6 +9,11 @@ ALUR (identik dengan manual BriefActivity dua fase):
   Pass 2: critique prompt → DECISIONS slug/title + refined HTML
   Fase 1: register slug ke keyword_stock.json (/update_keyword)
   Fase 2: upload HTML ke staging (/upload_staging)
+
+MODEL PRIORITY:
+  1. moonshotai/kimi-k2.6:free   — utama, gratis, 21 provider
+  2. deepseek/deepseek-v4-flash:free — fallback gratis
+  3. deepseek/deepseek-v4-pro    — fallback berbayar jika keduanya down
 
 CATATAN PENTING:
   - Staging dicek SEBELUM pick keyword, bukan sesudah.
@@ -18,6 +23,9 @@ CATATAN PENTING:
     mengambil HANYA isi code block HTML.
   - Prompt menginstruksikan quadruple backticks (````html...````).
   - Fungsi ini handle keduanya: quadruple dan triple backticks.
+  - call_openrouter() mencoba model secara berurutan.
+    404 "No endpoints found" = model tidak tersedia sementara → fallback.
+    Error lain (401, 429, 500) = langsung raise, fallback tidak membantu.
 """
 import os
 import re
@@ -34,7 +42,14 @@ OPENROUTER_KEY = os.environ.get("OPENROUTER_API_KEY", "")
 TASK_TYPE      = os.environ.get("TASK_TYPE", "article")
 SITE_BASE_URL  = os.environ.get("SITE_BASE_URL", "https://saastools.corenk.com")
 
-MODEL      = "deepseek/deepseek-v4-flash:free"
+# Model priority: gratis dulu, paid sebagai last resort
+# Estimasi biaya jika hanya V4 Pro yang jalan: ~$7.66/tahun (365 artikel + 24 tool)
+MODELS = [
+    "moonshotai/kimi-k2.6:free",        # Utama: 1T params, 21 provider, stabil
+    "deepseek/deepseek-v4-flash:free",  # Fallback 1: 284B params, fast
+    "deepseek/deepseek-v4-pro",         # Fallback 2: 1.6T params, 49B aktif, berbayar
+]
+
 OR_URL     = "https://openrouter.ai/api/v1/chat/completions"
 MAX_TOKENS = 8192
 
@@ -174,49 +189,65 @@ def call_brief(kw: dict, content_type: str) -> dict:
 
 def call_openrouter(messages: list, label: str = "") -> str:
     """
-    Kirim messages ke OpenRouter DeepSeek V4 Flash.
-    Menerima list messages (mendukung multi-turn untuk critique pass).
-    Return: raw response text (belum di-extract HTML-nya).
-    Raise Exception jika gagal — tidak ada fallback ke model lain.
+    Kirim messages ke OpenRouter.
+    Coba MODELS secara berurutan (free dulu, paid sebagai last resort).
+    - 404 "No endpoints found" → model tidak tersedia sementara → coba berikutnya.
+    - Error lain (401, 429, 500) → langsung raise, fallback tidak membantu.
+    Raise Exception hanya jika semua model gagal.
     """
-    payload = json.dumps({
-        "model":      MODEL,
-        "messages":   messages,
-        "max_tokens": MAX_TOKENS,
-    }).encode("utf-8")
+    tag        = f" ({label})" if label else ""
+    last_error = None
 
-    req = urllib.request.Request(
-        OR_URL,
-        data=payload,
-        headers={
-            "Authorization": f"Bearer {OPENROUTER_KEY}",
-            "Content-Type":  "application/json",
-            "HTTP-Referer":  SITE_BASE_URL,
-            "X-Title":       "SaaS Tools Content Engine",
-            "User-Agent":    "ai-engine",
-        },
-        method="POST"
-    )
-    tag = f" ({label})" if label else ""
-    try:
-        with urllib.request.urlopen(req, timeout=120) as r:
-            data = json.loads(r.read())
-    except urllib.error.HTTPError as e:
-        body = e.read().decode()
-        raise Exception(f"OpenRouter HTTP {e.code}{tag}: {body[:400]}")
+    for model in MODELS:
+        payload = json.dumps({
+            "model":      model,
+            "messages":   messages,
+            "max_tokens": MAX_TOKENS,
+        }).encode("utf-8")
 
-    try:
-        content = data["choices"][0]["message"]["content"].strip()
-    except (KeyError, IndexError) as e:
-        raise Exception(
-            f"OpenRouter response format tidak terduga{tag}: {e}. "
-            f"Response: {str(data)[:300]}"
+        req = urllib.request.Request(
+            OR_URL,
+            data=payload,
+            headers={
+                "Authorization": f"Bearer {OPENROUTER_KEY}",
+                "Content-Type":  "application/json",
+                "HTTP-Referer":  SITE_BASE_URL,
+                "X-Title":       "SaaS Tools Content Engine",
+                "User-Agent":    "ai-engine",
+            },
+            method="POST"
         )
+        try:
+            with urllib.request.urlopen(req, timeout=120) as r:
+                data = json.loads(r.read())
+        except urllib.error.HTTPError as e:
+            body = e.read().decode()
+            if e.code == 404 and "No endpoints found" in body:
+                # Model tidak tersedia sementara, coba fallback berikutnya
+                print(f"    Warning: {model} tidak tersedia (404), coba fallback...")
+                last_error = f"HTTP 404{tag}: {body[:200]}"
+                continue
+            # Error lain: tidak ada gunanya coba model lain
+            raise Exception(f"OpenRouter HTTP {e.code}{tag}: {body[:400]}")
 
-    if not content:
-        raise Exception(f"OpenRouter mengembalikan konten kosong{tag}.")
+        try:
+            content = data["choices"][0]["message"]["content"].strip()
+        except (KeyError, IndexError) as e:
+            raise Exception(
+                f"OpenRouter response format tidak terduga{tag}: {e}. "
+                f"Response: {str(data)[:300]}"
+            )
 
-    return content
+        if not content:
+            raise Exception(f"OpenRouter mengembalikan konten kosong{tag}.")
+
+        print(f"    Model dipakai: {model}")
+        return content
+
+    # Semua model gagal
+    raise Exception(
+        f"Semua model tidak tersedia{tag}. Error terakhir: {last_error}"
+    )
 
 
 # ─── HTML extraction ──────────────────────────────────────────────────────────
@@ -364,7 +395,8 @@ def run() -> None:
     content_type = "article" if is_article else "tool"
     type_label   = "artikel" if is_article else "tool"
 
-    print(f"=== auto_generate.py | task: {type_label} | model: {MODEL} ===")
+    print(f"=== auto_generate.py | task: {type_label} ===")
+    print(f"    Model priority: {' → '.join(MODELS)}")
 
     # 1. Ambil keyword stock
     print("1/8 Mengambil keyword stock...")
@@ -417,7 +449,7 @@ def run() -> None:
         print("    Warning: Critique prompt tidak tersedia, hanya 1 pass.")
 
     # 5. Pass 1: Generate draft
-    print(f"5/8 Pass 1 — Generate draft ({MODEL})...")
+    print(f"5/8 Pass 1 — Generate draft...")
     messages_pass1 = [{"role": "user", "content": prompt}]
     try:
         response_pass1 = call_openrouter(messages_pass1, label="pass1")
