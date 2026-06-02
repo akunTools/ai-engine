@@ -290,34 +290,56 @@ def extract_html_from_response(response: str) -> str:
       1. DECISIONS block (plain text — dibuang)
       2. HTML dalam satu code block: ````html ... ````
 
-    Mendukung: quadruple (````) dan triple (```) backticks.
-    Fallback: ekstrak dari <meta name="cluster"> jika tidak ada code block.
+    Strategi: cari PEMBUKA code block, lalu ambil konten hingga
+    PENUTUP TERAKHIR — bukan penutup pertama. Ini menangani kasus
+    rogue triple backtick di dalam konten HTML yang menyebabkan
+    regex standar berhenti terlalu awal.
+
+    Fallback: ekstrak dari <meta name="cluster"> jika tidak ada
+    code block sama sekali.
     """
-    # Quadruple backticks dengan 'html'
-    match = re.search(r'````html\s*\n(.*?)\n````', response, re.DOTALL | re.IGNORECASE)
-    if match:
-        return match.group(1).strip()
+    # Cari pembuka: quadruple atau triple backticks diikuti 'html'
+    open_match = re.search(r'(`{3,4})html\s*\n', response, re.IGNORECASE)
+    if open_match:
+        marker     = open_match.group(1)          # '```' atau '````'
+        content_start = open_match.end()
+        # Cari PENUTUP TERAKHIR yang cocok (bukan yang pertama)
+        # Ini menangani rogue backtick di dalam konten
+        close_pattern = '\n' + marker
+        last_close = response.rfind(close_pattern)
+        if last_close > content_start:
+            extracted = response[content_start:last_close].strip()
+            if extracted:
+                return extracted
+        # Pembuka ada tapi penutup tidak ditemukan:
+        # Ambil semua konten setelah pembuka
+        extracted = response[content_start:].strip()
+        if extracted:
+            print("Warning: Code block tidak memiliki penutup. Ambil semua setelah pembuka.")
+            return extracted
 
-    # Quadruple backticks tanpa 'html'
-    match = re.search(r'````\s*\n(.*?)\n````', response, re.DOTALL)
-    if match:
-        content = match.group(1).strip()
-        if "<" in content:
-            return content
+    # Quadruple tanpa 'html' (jarang, tapi mungkin)
+    open_match = re.search(r'````\s*\n', response)
+    if open_match:
+        content_start = open_match.end()
+        last_close = response.rfind('\n````')
+        if last_close > content_start:
+            extracted = response[content_start:last_close].strip()
+            if "<" in extracted:
+                return extracted
 
-    # Triple backticks dengan 'html'
-    match = re.search(r'```html\s*\n(.*?)\n```', response, re.DOTALL | re.IGNORECASE)
-    if match:
-        return match.group(1).strip()
-
-    # Triple backticks tanpa 'html'
-    match = re.search(r'```\s*\n(.*?)\n```', response, re.DOTALL)
-    if match:
-        content = match.group(1).strip()
-        if "<" in content:
-            return content
+    # Triple tanpa 'html' (jarang)
+    open_match = re.search(r'```\s*\n', response)
+    if open_match:
+        content_start = open_match.end()
+        last_close = response.rfind('\n```')
+        if last_close > content_start:
+            extracted = response[content_start:last_close].strip()
+            if "<" in extracted:
+                return extracted
 
     # Fallback: ekstrak dari <meta name="cluster"> sampai akhir
+    # Terjadi jika AI tidak menggunakan code block sama sekali
     meta_match = re.search(
         r'(<meta\s+name=["\']cluster["\'].*)',
         response, re.DOTALL | re.IGNORECASE
@@ -326,9 +348,9 @@ def extract_html_from_response(response: str) -> str:
         print("Warning: Tidak ada code block. Fallback ekstraksi dari <meta cluster>.")
         return meta_match.group(1).strip()
 
-    print("Warning: Tidak bisa ekstrak HTML. Returning raw response.")
+    # Last resort: return as-is, biar validation catch
+    print("Warning: Tidak bisa ekstrak HTML dengan metode apapun. Returning raw response.")
     return response.strip()
-
 
 # ─── Validasi & post-process ──────────────────────────────────────────────────
 
