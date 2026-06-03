@@ -12,8 +12,8 @@ on:
           - article
           - calculator_tool
   schedule:
-    - cron: '0 1 * * *'      # Artikel — setiap hari jam 01:00 UTC (08:00 WIB / 09:00 WITA)
-    - cron: '0 3 * * 1'      # Tool — setiap Senin jam 03:00 UTC (10:00 WIB / 11:00 WITA)
+  - cron: '0 18 * * *'     # Artikel — scheduled 18:00 UTC, actual ~22:00 UTC = 06:00 WITA
+  - cron: '0 14 * * 1'     # Tool — setiap Senin scheduled 14:00 UTC, actual ~18:00 UTC = 02:00 WITA+1
 
 # Limit OpenRouter free: 200 request/hari.
 # Setiap run = 2 call (pass1 + pass2) = 1% dari limit.
