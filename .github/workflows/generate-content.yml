@@ -14,7 +14,7 @@ on:
   repository_dispatch:
     types: [run-task]
   schedule:
-    - cron: '0 2 */2 * *'    # Artikel — setiap 2 hari jam 02:00 UTC (09:00 WIB / 10:00 WITA)
+    - cron: '0 22 */2 * *'
     - cron: '0 6 1,15 * *'   # Tool — tanggal 1 & 15 jam 06:00 UTC (13:00 WIB / 14:00 WITA)
 
 jobs:
@@ -26,7 +26,7 @@ jobs:
     if: |
       github.event_name == 'workflow_dispatch' && github.event.inputs.task_type == 'article' ||
       github.event_name == 'repository_dispatch' && github.event.client_payload.task_type == 'article' ||
-      github.event_name == 'schedule' && github.event.schedule == '0 2 */2 * *'
+      github.event_name == 'schedule' && github.event.schedule == '0 22 */2 * *'
 
     steps:
       - name: Checkout ai-engine
