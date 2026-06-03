@@ -14,7 +14,7 @@ on:
   repository_dispatch:
     types: [run-task]
   schedule:
-    - cron: '0 22 */2 * *'
+    - cron: '0 22 */2 * *' # artikel 22:00 UTC = 06:00 WITA, actual ~10:00 WITA:
     - cron: '0 6 1,15 * *'   # Tool — tanggal 1 & 15 jam 06:00 UTC (13:00 WIB / 14:00 WITA)
 
 jobs:
