@@ -125,6 +125,13 @@
       "cluster": "saas-churn-retention",
       "date": "2026-06-03",
       "excerpt": "Is your SaaS churn rate fixed by niche or market? New data proves it can drop 20\u201350% with targeted tactics. See real bootstrapped founder outcomes."
+    },
+    {
+      "slug": "will-saas-customer-retention-rate",
+      "title": "Will Your SaaS Customer Retention Rate Survive Scaling? A Bootstrapped Founder's Stress Test",
+      "cluster": "saas-churn-retention",
+      "date": "2026-06-05",
+      "excerpt": "Will your SaaS customer retention rate survive scaling? Stress-test retention, spot destabilizers early, and stabilize MRR before churn drains your runway."
     }
   ],
   "tools": [
