@@ -5,8 +5,8 @@ Artikel di-convert dari Markdown ke HTML lengkap sebelum dipublish.
 """
 import os
 import re
+import json as _json
 from datetime import datetime
-
 
 def _reading_time(text: str) -> int:
     """Estimasi waktu baca dalam menit (200 kata/menit)."""
@@ -16,6 +16,11 @@ def _reading_time(text: str) -> int:
 # ─────────────────────────────────────────────
 # SHARED DESIGN SYSTEM
 # ─────────────────────────────────────────────
+
+_RSS_LINK = (
+    '<link rel="alternate" type="application/rss+xml" '
+    'title="SaaS Tools Feed" href="/feed.xml">'
+)
 
 _FONT = (
     '<link rel="preconnect" href="https://fonts.googleapis.com">'
@@ -724,6 +729,46 @@ def _build_article_html(fm: dict, body_html: str,
         f'<span class="kw-badge">{keyword}</span>'
     ) if keyword else ""
 
+    article_schema = (
+        '\n  <script type="application/ld+json">\n  '
+        + _json.dumps({
+            "@context": "https://schema.org",
+            "@type": "Article",
+            "headline": title,
+            "description": meta_desc,
+            "datePublished": date_str,
+            "dateModified": date_str,
+            "url": article_url,
+            "image": {
+                "@type": "ImageObject",
+                "url": f"{site_url}/og/{slug}.png",
+                "width": 1200,
+                "height": 630
+            },
+            "author": {
+                "@type": "Organization",
+                "name": "SaaSTools",
+                "url": site_url
+            },
+            "publisher": {
+                "@type": "Organization",
+                "name": "SaaSTools",
+                "url": site_url,
+                "logo": {
+                    "@type": "ImageObject",
+                    "url": f"{site_url}/favicon/favicon-96x96.png",
+                    "width": 96,
+                    "height": 96
+                }
+            },
+            "mainEntityOfPage": {
+                "@type": "WebPage",
+                "@id": article_url
+            }
+        }, ensure_ascii=False, indent=2).replace('\n', '\n  ')
+        + '\n  </script>'
+    )
+
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -752,6 +797,7 @@ def _build_article_html(fm: dict, body_html: str,
   <link rel="manifest" href="/favicon/site.webmanifest" />
 
   {_FONT}
+  {_RSS_LINK}
   <style>
 {_BASE_CSS}
 {_NAV_CSS}
@@ -762,7 +808,7 @@ def _build_article_html(fm: dict, body_html: str,
     /* ── FOOTER: override global margin-top for article page ── */
     footer {{ margin-top: 0; }}
   </style>
-  {_ANALYTICS}
+  {_ANALYTICS}{article_schema}
 </head>
 <body>
 
