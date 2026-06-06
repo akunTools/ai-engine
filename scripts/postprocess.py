@@ -1029,14 +1029,39 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
 
     chartjs_script = _CHARTJS_CDN if _has_chart else ""
 
-    # FAQPage JSON-LD schema
+    # ── JSON-LD Schemas ───────────────────────────────────────────────────────
+    # 1. SoftwareApplication — selalu di-inject untuk semua tool
+    tool_schema = (
+        '\n  <script type="application/ld+json">\n  '
+        + _json.dumps({
+            "@context": "https://schema.org",
+            "@type": ["SoftwareApplication", "WebApplication"],
+            "name": title_clean,
+            "description": meta_desc,
+            "url": tool_url,
+            "applicationCategory": "BusinessApplication",
+            "operatingSystem": "Any",
+            "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "USD"
+            },
+            "provider": {
+                "@type": "Organization",
+                "name": "SaaSTools",
+                "url": site_url
+            }
+        }, ensure_ascii=False, indent=2).replace('\n', '\n  ')
+        + '\n  </script>'
+    )
+
+    # 2. FAQPage — hanya jika tool punya FAQ section
     faq_schema = ""
     faq_pairs = re.findall(
         r'<summary[^>]*>(.*?)</summary>.*?<div[^>]*class=["\']faq-answer["\'][^>]*>(.*?)</div>',
         body_html, re.IGNORECASE | re.DOTALL
     )
     if faq_pairs:
-        import json as _json
         qa_list = []
         for q, a in faq_pairs:
             q_clean = re.sub(r'<[^>]+>', '', q).strip()
@@ -1049,18 +1074,17 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
                     "acceptedAnswer": {"@type": "Answer", "text": a_clean}
                 })
         if qa_list:
-            schema_obj = {
-                "@context": "https://schema.org",
-                "@type": "FAQPage",
-                "mainEntity": qa_list
-            }
             faq_schema = (
                 '\n  <script type="application/ld+json">\n  '
-                + _json.dumps(schema_obj, ensure_ascii=False, indent=2)
-                .replace('\n', '\n  ')
+                + _json.dumps({
+                    "@context": "https://schema.org",
+                    "@type": "FAQPage",
+                    "mainEntity": qa_list
+                }, ensure_ascii=False, indent=2).replace('\n', '\n  ')
                 + '\n  </script>'
             )
 
+    all_schemas = tool_schema + faq_schema
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1087,6 +1111,7 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
 
   {_FONT}
   {chartjs_script}
+  {_RSS_LINK}
   <style>
 {_BASE_CSS}
 {_NAV_CSS}
@@ -1371,7 +1396,7 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
       .card, .result-card, .formula-box, .affiliate-box {{ padding: 20px; }}
     }}
   </style>
-  {_ANALYTICS}{faq_schema}
+  {_ANALYTICS}{all_schemas}
 </head>
 <body>
 
