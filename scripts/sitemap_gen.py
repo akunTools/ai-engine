@@ -669,6 +669,83 @@ def build_sitemap(files: list) -> str:
         + "\n</urlset>"
     )
 
+def build_rss_feed(files: list, content_index: dict) -> str:
+    """Build RSS 2.0 feed dari 20 konten terbaru."""
+    import email.utils
+
+    article_meta = {
+        e["slug"]: {"title": e.get("title", ""), "excerpt": e.get("excerpt", "")}
+        for e in content_index.get("articles", [])
+    }
+    tool_meta = {
+        e["slug"]: {"title": e.get("title", ""), "excerpt": e.get("excerpt", "")}
+        for e in content_index.get("tools", [])
+    }
+
+    all_items = []
+    for f in files:
+        name   = f["name"]
+        folder = f["folder"]
+        slug   = file_to_slug(name)
+
+        date_match = re.match(r'^(\d{4}-\d{2}-\d{2})', name)
+        date_str   = date_match.group(1) if date_match else ""
+        try:
+            dt = datetime.strptime(date_str, "%Y-%m-%d") if date_str else datetime.utcnow()
+        except Exception:
+            dt = datetime.utcnow()
+
+        meta    = article_meta.get(slug, {}) if folder == "articles" else tool_meta.get(slug, {})
+        title   = meta.get("title") or slug_to_title(slug)
+        excerpt = meta.get("excerpt", "")
+
+        all_items.append({
+            "slug":    slug,
+            "folder":  folder,
+            "title":   title,
+            "excerpt": excerpt,
+            "dt":      dt,
+            "url":     f"{SITE_URL}/{folder}/{slug}"
+        })
+
+    all_items.sort(key=lambda x: x["dt"], reverse=True)
+    all_items = all_items[:20]
+
+    def xml_escape(s: str) -> str:
+        return (s.replace("&", "&amp;")
+                  .replace("<", "&lt;")
+                  .replace(">", "&gt;")
+                  .replace('"', "&quot;"))
+
+    item_blocks = []
+    for item in all_items:
+        pub_date = email.utils.format_datetime(item["dt"])
+        category = "Tool" if item["folder"] == "tools" else "Article"
+        desc_val = xml_escape(item["excerpt"]) if item["excerpt"] else xml_escape(item["title"])
+        item_blocks.append(f"""  <item>
+    <title>{xml_escape(item['title'])}</title>
+    <link>{item['url']}</link>
+    <guid isPermaLink="true">{item['url']}</guid>
+    <description>{desc_val}</description>
+    <pubDate>{pub_date}</pubDate>
+    <category>{category}</category>
+  </item>""")
+
+    last_build = email.utils.format_datetime(datetime.utcnow())
+    items_xml  = "\n".join(item_blocks)
+
+    return f"""<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>SaaS Tools — Calculators &amp; Guides for Bootstrapped Founders</title>
+    <link>{SITE_URL}</link>
+    <description>Free financial calculators and practical guides for bootstrapped SaaS founders. No fluff, no VC narratives.</description>
+    <language>en-us</language>
+    <lastBuildDate>{last_build}</lastBuildDate>
+    <atom:link href="{SITE_URL}/feed.xml" rel="self" type="application/rss+xml"/>
+{items_xml}
+  </channel>
+</rss>"""
 
 # ─────────────────────────────────────────────
 # HOMEPAGE
@@ -761,6 +838,7 @@ def build_homepage(files: list, content_index: dict) -> str:
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
   <link rel="manifest" href="/favicon/site.webmanifest" />
   {_FONT}
+  <link rel="alternate" type="application/rss+xml" title="SaaS Tools Feed" href="/feed.xml">
   <style>
 {_BASE_CSS}
 {_NAV_CSS}
@@ -890,6 +968,7 @@ def build_articles_index(files: list, content_index: dict) -> str:
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
   <link rel="manifest" href="/favicon/site.webmanifest" />
   {_FONT}
+  <link rel="alternate" type="application/rss+xml" title="SaaS Tools Feed" href="/feed.xml">
   <style>
 {_BASE_CSS}
 {_NAV_CSS}
@@ -976,6 +1055,7 @@ def build_tools_index(files: list, content_index: dict) -> str:
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
   <link rel="manifest" href="/favicon/site.webmanifest" />
   {_FONT}
+  <link rel="alternate" type="application/rss+xml" title="SaaS Tools Feed" href="/feed.xml">
   <style>
 {_BASE_CSS}
 {_NAV_CSS}
@@ -1136,6 +1216,10 @@ if __name__ == "__main__":
     publish_file("index.html",          build_homepage(files, content_index),         "Homepage")
     publish_file("articles/index.html", build_articles_index(files, content_index),   "Articles index")
     publish_file("tools/index.html",    build_tools_index(files, content_index),      "Tools index")
+    try:
+        publish_file("feed.xml",        build_rss_feed(files, content_index),         "RSS feed")
+    except Exception as e:
+        print(f"Warning: RSS feed generation failed: {e}")
     prune_content_index(files)
 
     print("Done")
