@@ -16,7 +16,6 @@ jobs:
       contents: write
 
     steps:
-      # Checkout main untuk akses scripts/
       - name: Checkout scripts (main branch)
         uses: actions/checkout@v4
         with:
@@ -27,30 +26,30 @@ jobs:
         with:
           python-version: '3.11'
 
-      # Deteksi file HTML baru dari commit yang baru trigger workflow ini
       - name: Detect published content
         id: detect
         uses: actions/github-script@v7
         with:
           script: |
             const added = context.payload.head_commit?.added || [];
-            console.log('Files added in this push:', JSON.stringify(added));
+            console.log('Files added:', JSON.stringify(added));
 
             for (const f of added) {
               const m = f.match(/^(articles|tools)\/(.+)\.html$/);
               if (!m) continue;
 
-              // Strip date prefix: 2025-01-15-slug → slug
-              const slug = m[2].replace(/^\d{4}-\d{2}-\d{2}-/, '');
+              // Publisher tidak pakai date prefix di output branch
+              // (lihat publisher.py: publish_html(output_dir, f"{slug}.html", ...))
+              const slug = m[2];
               core.setOutput('folder', m[1]);
               core.setOutput('slug',   slug);
               core.setOutput('skip',   'false');
-              console.log(`New content detected: ${m[1]}/${slug}`);
+              console.log(`Detected: ${m[1]}/${slug}`);
               return;
             }
 
             core.setOutput('skip', 'true');
-            console.log('No new article/tool HTML in this push — skipping');
+            console.log('No new article/tool HTML — skip');
 
       - name: Generate and distribute social posts
         if: steps.detect.outputs.skip != 'true'
@@ -58,7 +57,8 @@ jobs:
           GITHUB_TOKEN:                 ${{ secrets.GITHUB_TOKEN }}
           ENGINE_REPO:                  ${{ github.repository }}
           SITE_BASE_URL:                ${{ vars.SITE_BASE_URL }}
-          ANTHROPIC_API_KEY:            ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENROUTER_API_KEY:           ${{ secrets.OPENROUTER_API_KEY }}
+          DEEPSEEK_API_KEY:             ${{ secrets.DEEPSEEK_API_KEY }}
           TWITTER_API_KEY:              ${{ secrets.TWITTER_API_KEY }}
           TWITTER_API_SECRET:           ${{ secrets.TWITTER_API_SECRET }}
           TWITTER_ACCESS_TOKEN:         ${{ secrets.TWITTER_ACCESS_TOKEN }}
@@ -83,5 +83,4 @@ jobs:
             Social post generation gagal untuk:
             Folder : ${{ steps.detect.outputs.folder }}
             Slug   : ${{ steps.detect.outputs.slug }}
-
             Cek GitHub Actions log untuk detail.
