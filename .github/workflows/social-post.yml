@@ -1,0 +1,87 @@
+name: Social Post Generator
+
+on:
+  push:
+    branches:
+      - output
+    paths:
+      - 'articles/**.html'
+      - 'tools/**.html'
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+
+    steps:
+      # Checkout main untuk akses scripts/
+      - name: Checkout scripts (main branch)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # Deteksi file HTML baru dari commit yang baru trigger workflow ini
+      - name: Detect published content
+        id: detect
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const added = context.payload.head_commit?.added || [];
+            console.log('Files added in this push:', JSON.stringify(added));
+
+            for (const f of added) {
+              const m = f.match(/^(articles|tools)\/(.+)\.html$/);
+              if (!m) continue;
+
+              // Strip date prefix: 2025-01-15-slug → slug
+              const slug = m[2].replace(/^\d{4}-\d{2}-\d{2}-/, '');
+              core.setOutput('folder', m[1]);
+              core.setOutput('slug',   slug);
+              core.setOutput('skip',   'false');
+              console.log(`New content detected: ${m[1]}/${slug}`);
+              return;
+            }
+
+            core.setOutput('skip', 'true');
+            console.log('No new article/tool HTML in this push — skipping');
+
+      - name: Generate and distribute social posts
+        if: steps.detect.outputs.skip != 'true'
+        env:
+          GITHUB_TOKEN:                 ${{ secrets.GITHUB_TOKEN }}
+          ENGINE_REPO:                  ${{ github.repository }}
+          SITE_BASE_URL:                ${{ vars.SITE_BASE_URL }}
+          ANTHROPIC_API_KEY:            ${{ secrets.ANTHROPIC_API_KEY }}
+          TWITTER_API_KEY:              ${{ secrets.TWITTER_API_KEY }}
+          TWITTER_API_SECRET:           ${{ secrets.TWITTER_API_SECRET }}
+          TWITTER_ACCESS_TOKEN:         ${{ secrets.TWITTER_ACCESS_TOKEN }}
+          TWITTER_ACCESS_TOKEN_SECRET:  ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
+        run: |
+          python scripts/social_gen.py \
+            "${{ steps.detect.outputs.folder }}" \
+            "${{ steps.detect.outputs.slug }}"
+
+      - name: Email alert on failure
+        if: failure()
+        uses: dawidd6/action-send-mail@v4
+        with:
+          server_address: smtp-relay.brevo.com
+          server_port:    587
+          username:       ${{ secrets.BREVO_USERNAME }}
+          password:       ${{ secrets.BREVO_PASSWORD }}
+          subject:        "[AI Engine] Social post failed: ${{ steps.detect.outputs.slug }}"
+          to:             ${{ secrets.NOTIFY_EMAIL }}
+          from:           ${{ secrets.BREVO_FROM_EMAIL }}
+          body: |
+            Social post generation gagal untuk:
+            Folder : ${{ steps.detect.outputs.folder }}
+            Slug   : ${{ steps.detect.outputs.slug }}
+
+            Cek GitHub Actions log untuk detail.
