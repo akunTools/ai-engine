@@ -132,6 +132,13 @@
       "cluster": "saas-churn-retention",
       "date": "2026-06-05",
       "excerpt": "Will your SaaS customer retention rate survive scaling? Stress-test retention, spot destabilizers early, and stabilize MRR before churn drains your runway."
+    },
+    {
+      "slug": "is-churn-prevention-saas-or-not",
+      "title": "Is Churn Prevention SaaS or Not? The Brutal Financial Decision Bootstrapped Founders Can\u2019t Afford to Get Wrong",
+      "cluster": "saas-churn-retention",
+      "date": "2026-06-07",
+      "excerpt": "Is churn prevention a SaaS category worth buying, or a discipline you build yourself? This brutal decision framework uses hard financial thresholds for bootstrapped founders."
     }
   ],
   "tools": [
