@@ -8,6 +8,11 @@ import re
 import json as _json
 from datetime import datetime
 
+_SUBSCRIBE_URL = (
+    os.environ.get("WORKER_URL", "").rstrip("/") + "/subscribe"
+    if os.environ.get("WORKER_URL") else ""
+)
+
 def _reading_time(text: str) -> int:
     """Estimasi waktu baca dalam menit (200 kata/menit)."""
     return max(1, round(len(text.split()) / 200))
@@ -262,6 +267,104 @@ _FOOTER_CSS = """
     .footer-nav { margin-left: -12px; }
   }
 """
+
+_EMAIL_CAPTURE_CSS = """
+  .email-capture {
+    background: linear-gradient(135deg,#f0f9ff 0%,#e0f2fe 100%);
+    border: 1px solid #bae6fd;
+    border-radius: 12px;
+    padding: 32px;
+    margin: 48px 0;
+    text-align: center;
+  }
+  .email-capture__headline {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0 0 8px;
+  }
+  .email-capture__sub {
+    font-size: 0.9375rem;
+    color: var(--muted);
+    margin: 0 0 24px;
+    line-height: 1.6;
+  }
+  .email-capture__row {
+    display: flex;
+    gap: 8px;
+    max-width: 420px;
+    margin: 0 auto;
+  }
+  .email-capture__row input[type=email] {
+    flex: 1;
+    padding: 10px 14px;
+    border: 1.5px solid #93c5fd;
+    border-radius: 8px;
+    font-size: 0.9375rem;
+    outline: none;
+    background: #fff;
+    color: var(--text);
+    min-height: 44px;
+  }
+  .email-capture__row input[type=email]:focus { border-color: var(--accent); }
+  .email-capture__row button {
+    padding: 10px 20px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    cursor: pointer;
+    min-height: 44px;
+    white-space: nowrap;
+    transition: opacity 0.15s;
+  }
+  .email-capture__row button:hover:not(:disabled) { opacity: 0.88; }
+  .email-capture__row button:disabled { opacity: 0.6; cursor: default; }
+  .email-capture__msg {
+    margin: 12px 0 0;
+    font-size: 0.875rem;
+    min-height: 1.2em;
+  }
+  .email-capture__msg.ec-ok    { color: #16a34a; }
+  .email-capture__msg.ec-error { color: #dc2626; }
+  @media (max-width: 480px) {
+    .email-capture { padding: 24px 16px; }
+    .email-capture__row { flex-direction: column; }
+    .email-capture__row button { width: 100%; }
+  }
+"""
+
+# Template menggunakan __SUBSCRIBE_URL__ placeholder — bukan f-string,
+# agar curly braces di dalam JavaScript tidak di-interpret Python.
+_EMAIL_CAPTURE_TMPL = """<section class="email-capture">
+  <p class="email-capture__headline">&#128202; Weekly SaaS Metrics Digest</p>
+  <p class="email-capture__sub">Key metrics, benchmarks &amp; tools for bootstrapped founders. One email per week, no spam.</p>
+  <div class="email-capture__row">
+    <input type="email" id="ec-email" placeholder="your@email.com" autocomplete="email">
+    <button id="ec-btn">Subscribe</button>
+  </div>
+  <p id="ec-msg" class="email-capture__msg"></p>
+  <script>
+(function(){
+  var btn=document.getElementById('ec-btn'),inp=document.getElementById('ec-email'),msg=document.getElementById('ec-msg');
+  if(!btn||!inp) return;
+  btn.addEventListener('click',function(){
+    var e=inp.value.trim();
+    if(!e||!e.includes('@')){msg.className='email-capture__msg ec-error';msg.textContent='Enter a valid email.';return;}
+    btn.disabled=true;btn.textContent='Subscribing\u2026';
+    fetch('__SUBSCRIBE_URL__',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:e})})
+    .then(function(r){return r.text();})
+    .then(function(t){
+      if(t==='OK'){msg.className='email-capture__msg ec-ok';msg.textContent='\u2713 Subscribed! Check your inbox.';inp.value='';btn.textContent='Subscribed';}
+      else{msg.className='email-capture__msg ec-error';msg.textContent='Something went wrong. Try again.';btn.disabled=false;btn.textContent='Subscribe';}
+    })
+    .catch(function(){msg.className='email-capture__msg ec-error';msg.textContent='Network error. Try again.';btn.disabled=false;btn.textContent='Subscribe';});
+  });
+})();
+  </script>
+</section>"""
 
 _ARTICLE_CSS = """
   .article-wrap {
@@ -729,6 +832,11 @@ def _build_article_html(fm: dict, body_html: str,
         f'<span class="kw-badge">{keyword}</span>'
     ) if keyword else ""
 
+    email_capture = (
+        _EMAIL_CAPTURE_TMPL.replace("__SUBSCRIBE_URL__", _SUBSCRIBE_URL)
+        if _SUBSCRIBE_URL else ""
+    )
+
     article_schema = (
         '\n  <script type="application/ld+json">\n  '
         + _json.dumps({
@@ -808,6 +916,9 @@ def _build_article_html(fm: dict, body_html: str,
     /* ── FOOTER: override global margin-top for article page ── */
     footer {{ margin-top: 0; }}
   </style>
+  <style>
+{_EMAIL_CAPTURE_CSS}
+  </style>
   {_ANALYTICS}{article_schema}
 </head>
 <body>
@@ -854,6 +965,8 @@ def _build_article_html(fm: dict, body_html: str,
   <article class="article-body">
     {body_html}
   </article>
+
+  {email_capture}
 
   <div id="related-content" class="related-content"></div>
 
