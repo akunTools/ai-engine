@@ -139,6 +139,13 @@
       "cluster": "saas-churn-retention",
       "date": "2026-06-07",
       "excerpt": "Is churn prevention a SaaS category worth buying, or a discipline you build yourself? This brutal decision framework uses hard financial thresholds for bootstrapped founders."
+    },
+    {
+      "slug": "does-churn-prevention-saas-payments",
+      "title": "Does Churn Prevention Ignore Your SaaS Payments? The Overlooked Leak That Bleeds MRR Monthly",
+      "cluster": "saas-churn-retention",
+      "date": "2026-06-08",
+      "excerpt": "Does churn prevention ignore SaaS payment failures? The brutal math of involuntary churn\u2014and how founders recover $374\u2013$936/mo by fixing billing leaks."
     }
   ],
   "tools": [
