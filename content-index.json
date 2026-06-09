@@ -146,6 +146,13 @@
       "cluster": "saas-churn-retention",
       "date": "2026-06-08",
       "excerpt": "Does churn prevention ignore SaaS payment failures? The brutal math of involuntary churn\u2014and how founders recover $374\u2013$936/mo by fixing billing leaks."
+    },
+    {
+      "slug": "churn-prevention-saas-with-ai-tools",
+      "title": "Churn Prevention SaaS with AI Tools: How Bootstrapped Founders Stop MRR Bleed Before It Starts",
+      "cluster": "saas-churn-retention",
+      "date": "2026-06-09",
+      "excerpt": "Bootstrapped founders can"
     }
   ],
   "tools": [
