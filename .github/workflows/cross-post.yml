@@ -5,7 +5,13 @@ on:
     branches:
       - output
     paths:
-      - 'articles/**.html'   # hanya artikel, bukan tools
+      - 'articles/**.html'
+  workflow_dispatch:
+    inputs:
+      slug:
+        description: 'Article slug (contoh: does-churn-prevention-saas-payments)'
+        required: true
+        type: string   # hanya artikel, bukan tools
 
 jobs:
   cross_post:
@@ -33,6 +39,15 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
+            // Manual trigger: gunakan input slug langsung
+            const manualSlug = context.payload.inputs?.slug;
+            if (manualSlug) {
+              core.setOutput('slug', manualSlug.trim());
+              core.setOutput('skip', 'false');
+              console.log(`Manual trigger: ${manualSlug.trim()}`);
+              return;
+            }
+
             const added = context.payload.head_commit?.added || [];
             console.log('Files added:', JSON.stringify(added));
 
@@ -40,7 +55,6 @@ jobs:
               const m = f.match(/^articles\/(.+)\.html$/);
               if (!m) continue;
 
-              // Output branch tidak pakai date prefix
               const slug = m[1];
               core.setOutput('slug', slug);
               core.setOutput('skip', 'false');
