@@ -248,15 +248,29 @@ mutation PublishPost($input: PublishPostInput!) {
     )
     try:
         with urllib.request.urlopen(req, timeout=60) as r:
-            result = json.loads(r.read())
+            status = r.status
+            raw    = r.read()
     except urllib.error.HTTPError as e:
-        err = e.read().decode(errors="replace")
-        raise RuntimeError(f"Hashnode API {e.code}: {err[:300]}")
+        status  = e.code
+        raw     = e.read()
+        snippet = raw.decode(errors="replace")[:400]
+        raise RuntimeError(f"Hashnode HTTP {status}: {snippet}")
 
-    # Cek GraphQL errors
+    if not raw or not raw.strip():
+        raise RuntimeError(
+            f"Hashnode empty response (HTTP {status}). "
+            "Cek: (1) HASHNODE_PUBLICATION_ID — harus 24-char hex dari blog Settings, "
+            "(2) API key punya permission Write di Hashnode Settings > Developer."
+        )
+
+    try:
+        result = json.loads(raw)
+    except Exception:
+        snippet = raw.decode(errors="replace")[:300]
+        raise RuntimeError(f"Hashnode response bukan JSON (HTTP {status}): {snippet}")
+
     if "errors" in result and result["errors"]:
-        errs = result["errors"]
-        raise RuntimeError(f"Hashnode GraphQL errors: {json.dumps(errs)[:300]}")
+        raise RuntimeError(f"Hashnode GraphQL errors: {json.dumps(result['errors'])[:400]}")
 
     post_data = result.get("data", {}).get("publishPost", {}).get("post", {})
     url       = post_data.get("url", "")
