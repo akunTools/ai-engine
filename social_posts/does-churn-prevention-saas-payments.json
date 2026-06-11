@@ -1,0 +1,10 @@
+{
+  "twitter": "Involuntary churn sneaks away 20‑40% of your cancellations – that’s $374‑$936 /mo for a $18.7K MRR SaaS if you ignore failed payments. Plug the billing leak before your runway disappears. https://saastools.corenk.com/articles/does-churn-prevention-saas-payments",
+  "linkedin": "Your Stripe dashboard shows $18,730 MRR and steady growth, but the \"Failed Payments\" report is bleeding $1,247 a month from 14 customers. For bootstrapped founders under $50K MRR that’s a silent loss of $374‑$936 each month – money you already earned, just not captured. Most founders treat churn as a single blended rate and never separate involuntary churn caused by payment failures. The result? You celebrate low churn while your cash runway shrinks unnoticed. Treat every declined card as a churn event, track its own logo and MRR churn, and build a recovery playbook with dunning, retries, and card‑updater services. When you close that billing leak, you instantly boost MRR without acquiring a single new customer. Ready to stop the quiet drain and see real retention gains? https://saastools.corenk.com/articles/does-churn-prevention-saas-payments",
+  "hook_type": "stat",
+  "url": "https://saastools.corenk.com/articles/does-churn-prevention-saas-payments",
+  "slug": "does-churn-prevention-saas-payments",
+  "folder": "articles",
+  "title": "Does Churn Prevention Ignore Your SaaS Payments? The Overlooked Leak That Bleeds MRR Monthly",
+  "generated_at": "2026-06-11T23:47:56.682310Z"
+}
