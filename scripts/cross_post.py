@@ -237,25 +237,40 @@ mutation PublishPost($input: PublishPostInput!) {
     payload = json.dumps({"query": mutation, "variables": variables}).encode("utf-8")
 
     req = urllib.request.Request(
-        "https://gql.hashnode.com/",
+        "https://gql.hashnode.com",           # ← hapus trailing slash
         data=payload,
         headers={
-            "Authorization": HASHNODE_KEY,
+            "Authorization": f"Bearer {HASHNODE_KEY}",  # ← tambah Bearer
             "Content-Type":  "application/json",
-            "User-Agent":    "ai-engine"
+            "Accept":        "application/json",
+            "User-Agent":    "Mozilla/5.0 (compatible; ai-engine/1.0)"
         },
         method="POST"
     )
+
+    # Jangan follow redirect — kalau ada redirect, berarti auth gagal
+    # atau endpoint berubah. Laporkan URL tujuan redirect untuk debug.
+    class _NoRedirect(urllib.request.HTTPRedirectHandler):
+        def redirect_request(self, req, fp, code, msg, headers, newurl):
+            raise RuntimeError(
+                f"Hashnode redirect HTTP {code} → {newurl}. "
+                "Kemungkinan: API key tidak valid atau endpoint berubah."
+            )
+
+    opener = urllib.request.build_opener(_NoRedirect())
+
     try:
-        with urllib.request.urlopen(req, timeout=60) as r:
+        with opener.open(req, timeout=60) as r:
             status = r.status
             raw    = r.read()
+    except RuntimeError:
+        raise
     except urllib.error.HTTPError as e:
         status  = e.code
         raw     = e.read()
         snippet = raw.decode(errors="replace")[:400]
         raise RuntimeError(f"Hashnode HTTP {status}: {snippet}")
-
+        
     if not raw or not raw.strip():
         raise RuntimeError(
             f"Hashnode empty response (HTTP {status}). "
