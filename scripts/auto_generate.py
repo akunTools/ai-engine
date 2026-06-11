@@ -11,14 +11,22 @@ ALUR (identik dengan manual BriefActivity dua fase):
   Fase 2: upload HTML ke staging (/upload_staging)
 
 MODEL PRIORITY & ROUTING:
-  1. moonshotai/kimi-k2.6:free   → OpenRouter (gratis, 21 provider)
-  2. deepseek/deepseek-v4-flash:free → OpenRouter (gratis, fallback)
-  3. deepseek-v4-pro              → DeepSeek direct API (berbayar, last resort)
-     Hanya aktif jika DEEPSEEK_API_KEY di-set.
+
+  calculator_tool → deepseek-v4-pro SAJA (wajib, script exit jika key tidak ada)
+    Secret wajib: DEEPSEEK_API_KEY (GitHub Actions secret)
+
+  article → free models dulu, paid sebagai last resort:
+    1. openai/gpt-oss-120b:free             → OpenRouter (instruction following 8.71/10)
+    2. nousresearch/hermes-3-llama-3.1-405b:free → OpenRouter (dense 405B, multi-turn)
+    3. deepseek-v4-pro                      → DeepSeek direct API (paid, last resort)
+       Hanya aktif jika DEEPSEEK_API_KEY di-set.
+    Secret wajib: OPENROUTER_API_KEY (GitHub Actions secret)
+    Secret opsional: DEEPSEEK_API_KEY (GitHub Actions secret)
 
 FALLBACK TRIGGERS (coba model berikutnya):
-  - HTTP 404 + "No endpoints found" → model tidak tersedia di OpenRouter
-  - HTTP 429 + "upstream"           → provider-side rate limit (bukan limit akun kita)
+  - HTTP 404 → model tidak tersedia di OpenRouter (endpoint hardcoded, 404 = routing failure)
+              Contoh: "No endpoints found", "unavailable for free"
+  - HTTP 429 + "upstream" → provider-side rate limit (bukan limit akun kita)
   Selain itu → raise langsung, fallback tidak membantu.
 
 CATATAN PENTING:
@@ -47,17 +55,38 @@ DS_URL = "https://api.deepseek.com/v1/chat/completions"
 
 MAX_TOKENS = 8192
 
-# Model priority: free dulu, paid sebagai last resort.
+# Model priority berbeda per TASK_TYPE.
 # Setiap entry: {"model": str, "url": str, "key": str}
-# V4 Pro hanya masuk daftar jika DEEPSEEK_API_KEY tersedia.
-MODELS = [
-    {"model": "moonshotai/kimi-k2.6:free",       "url": OR_URL, "key": OPENROUTER_KEY},
-    {"model": "deepseek/deepseek-v4-flash:free",  "url": OR_URL, "key": OPENROUTER_KEY},
-]
-if DEEPSEEK_KEY:
-    MODELS.append(
-        {"model": "deepseek-v4-pro", "url": DS_URL, "key": DEEPSEEK_KEY}
-    )
+#
+# calculator_tool: DeepSeek V4 Pro SAJA.
+#   Tools adalah interactive HTML+JS calculator. Formula salah tidak terdeteksi
+#   sampai user pakai. Free model tidak diizinkan untuk task ini.
+#   Script exit jika DEEPSEEK_API_KEY tidak di-set.
+#
+# article: Free models dulu, V4 Pro sebagai last resort.
+#   gpt-oss-120b:free     — instruction following 8.71/10, writing 7.91/10
+#   hermes-3-405b:free    — dense 405B, dilatih untuk ikuti prompt secara presisi,
+#                           multi-turn coherent (penting untuk 2-pass generation)
+#   deepseek-v4-pro       — paid, hanya aktif jika DEEPSEEK_API_KEY di-set
+if TASK_TYPE == "calculator_tool":
+    if not DEEPSEEK_KEY:
+        print("FATAL: DEEPSEEK_API_KEY wajib untuk task_type=calculator_tool.")
+        print("       Set secret DEEPSEEK_API_KEY di GitHub Actions → Settings → Secrets.")
+        print("       Free model tidak diizinkan untuk generate interactive tools.")
+        sys.exit(1)
+    MODELS = [
+        {"model": "deepseek-v4-pro", "url": DS_URL, "key": DEEPSEEK_KEY},
+    ]
+else:
+    # article (default)
+    MODELS = [
+        {"model": "openai/gpt-oss-120b:free",                  "url": OR_URL, "key": OPENROUTER_KEY},
+        {"model": "nousresearch/hermes-3-llama-3.1-405b:free", "url": OR_URL, "key": OPENROUTER_KEY},
+    ]
+    if DEEPSEEK_KEY:
+        MODELS.append(
+            {"model": "deepseek-v4-pro", "url": DS_URL, "key": DEEPSEEK_KEY}
+        )
 
 
 # ─── HTTP helpers ──────────────────────────────────────────────────────────────
@@ -193,15 +222,17 @@ def _should_fallback(code: int, body: str) -> bool:
     Tentukan apakah error ini layak untuk mencoba model berikutnya.
 
     Fallback jika:
-    - 404 + "No endpoints found" → model tidak tersedia di OpenRouter
-    - 429 + "upstream"           → rate limit di sisi provider (bukan akun kita)
+    - 404 → model tidak tersedia di OpenRouter. Endpoint OR di-hardcode, sehingga
+            404 selalu berarti model routing failure (bukan URL salah).
+            Contoh pesan: "No endpoints found", "unavailable for free"
+    - 429 + "upstream" → rate limit di sisi provider, bukan akun kita
 
     Tidak fallback jika:
     - 401 → API key salah (semua model akan sama-sama gagal)
     - 429 tanpa "upstream" → limit akun kita sendiri
     - 500, 503 → server error, retry bukan fallback yang tepat
     """
-    if code == 404 and "No endpoints found" in body:
+    if code == 404:
         return True
     if code == 429 and "upstream" in body.lower():
         return True
@@ -275,7 +306,7 @@ def call_openrouter(messages: list, label: str = "") -> str:
 
     raise Exception(
         f"Semua model tidak tersedia{tag}. "
-        f"Tersisa {len(MODELS)} model dicoba. "
+        f"{len(MODELS)} model dicoba, semua gagal. "
         f"Error terakhir: {last_error}"
     )
 
@@ -434,13 +465,16 @@ def run() -> None:
         missing.append("WORKER_URL")
     if not BRIEF_TOKEN:
         missing.append("BRIEF_TOKEN")
-    if not OPENROUTER_KEY:
+    # OPENROUTER_API_KEY hanya wajib untuk article. Untuk calculator_tool,
+    # MODELS construction sudah exit jika DEEPSEEK_KEY tidak tersedia.
+    if TASK_TYPE != "calculator_tool" and not OPENROUTER_KEY:
         missing.append("OPENROUTER_API_KEY")
     if missing:
         print(f"FATAL: Environment variable tidak di-set: {', '.join(missing)}")
+        print("       Pastikan secret sudah di-set di GitHub Actions → Settings → Secrets.")
         sys.exit(1)
 
-    if not DEEPSEEK_KEY:
+    if not DEEPSEEK_KEY and TASK_TYPE != "calculator_tool":
         print("Warning: DEEPSEEK_API_KEY tidak di-set. Fallback V4 Pro tidak aktif.")
 
     is_article   = (TASK_TYPE == "article")

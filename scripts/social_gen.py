@@ -4,7 +4,7 @@ Generate social media posts dari artikel/tool yang baru dipublish,
 lalu post ke Twitter/X via Official API v2 (OAuth 1.0a).
 
 Pola AI call identik dengan auto_generate.py:
-  Model priority: kimi-k2.6:free → deepseek-v4-flash:free → deepseek-v4-pro (jika key tersedia)
+  Model priority: gpt-oss-120b:free → llama-3.3-70b:free → hermes-3-405b:free → deepseek-v4-pro (jika key tersedia)
 
 Usage: python scripts/social_gen.py <folder> <slug>
   folder : articles | tools
@@ -39,13 +39,21 @@ TWITTER_ACCESS_TOKEN_SECRET = os.environ.get("TWITTER_ACCESS_TOKEN_SECRET", "")
 OUTPUT_BRANCH = "output"
 API_BASE      = "https://api.github.com"
 
-# ── AI endpoints & model priority — identik dengan auto_generate.py ───────────
+# ── AI endpoints & model priority ────────────────────────────────────────────
 OR_URL = "https://openrouter.ai/api/v1/chat/completions"
 DS_URL = "https://api.deepseek.com/v1/chat/completions"
 
+# Model priority untuk social post (max_tokens=700, task sederhana):
+#   1. openai/gpt-oss-120b:free     — instruction following 8.71/10, writing 7.91/10
+#   2. meta-llama/llama-3.3-70b:free — dense 70B, reliable untuk short-form
+#   3. hermes-3-llama-3.1-405b:free  — dense 405B, fallback kuat
+#   4. deepseek-v4-pro               — paid, last resort jika semua free rate-limited
+# Secret wajib: OPENROUTER_API_KEY (GitHub Actions secret)
+# Secret opsional: DEEPSEEK_API_KEY (GitHub Actions secret, aktifkan entry ke-4)
 MODELS = [
-    {"model": "moonshotai/kimi-k2.6:free",      "url": OR_URL, "key": OPENROUTER_KEY},
-    {"model": "deepseek/deepseek-v4-flash:free", "url": OR_URL, "key": OPENROUTER_KEY},
+    {"model": "openai/gpt-oss-120b:free",                  "url": OR_URL, "key": OPENROUTER_KEY},
+    {"model": "meta-llama/llama-3.3-70b-instruct:free",    "url": OR_URL, "key": OPENROUTER_KEY},
+    {"model": "nousresearch/hermes-3-llama-3.1-405b:free", "url": OR_URL, "key": OPENROUTER_KEY},
 ]
 if DEEPSEEK_KEY:
     MODELS.append(
@@ -142,8 +150,19 @@ def _should_fallback(code: int, body: str) -> bool:
     """
     Identik dengan auto_generate.py:
     Fallback hanya untuk error yang memang bisa diselesaikan dengan ganti model.
+
+    Fallback jika:
+    - 404 → model tidak tersedia di OpenRouter. Endpoint OR di-hardcode, sehingga
+            404 selalu berarti model routing failure (bukan URL salah).
+            Contoh pesan: "No endpoints found", "unavailable for free"
+    - 429 + "upstream" → rate limit di sisi provider, bukan akun kita
+
+    Tidak fallback jika:
+    - 401 → API key salah (semua model akan sama-sama gagal)
+    - 429 tanpa "upstream" → limit akun kita sendiri
+    - 500, 503 → server error, retry bukan fallback yang tepat
     """
-    if code == 404 and "No endpoints found" in body:
+    if code == 404:
         return True
     if code == 429 and "upstream" in body.lower():
         return True
@@ -355,11 +374,12 @@ def main():
 
     # Validasi env wajib
     missing = []
-    if not ENGINE_REPO:  missing.append("ENGINE_REPO")
-    if not GITHUB_TOKEN: missing.append("GITHUB_TOKEN")
+    if not ENGINE_REPO:    missing.append("ENGINE_REPO")
+    if not GITHUB_TOKEN:   missing.append("GITHUB_TOKEN")
     if not OPENROUTER_KEY: missing.append("OPENROUTER_API_KEY")
     if missing:
         print(f"FATAL: Env tidak di-set: {', '.join(missing)}")
+        print("       Pastikan secret sudah di-set di GitHub Actions → Settings → Secrets.")
         sys.exit(1)
 
     model_names = " → ".join(e["model"] for e in MODELS)
