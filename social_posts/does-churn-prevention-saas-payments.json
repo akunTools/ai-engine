@@ -1,10 +1,10 @@
 {
-  "twitter": "Involuntary churn sneaks away 20‑40% of your cancellations – that’s $374‑$936 /mo for a $18.7K MRR SaaS if you ignore failed payments. Plug the billing leak before your runway disappears. https://saastools.corenk.com/articles/does-churn-prevention-saas-payments",
-  "linkedin": "Your Stripe dashboard shows $18,730 MRR and steady growth, but the \"Failed Payments\" report is bleeding $1,247 a month from 14 customers. For bootstrapped founders under $50K MRR that’s a silent loss of $374‑$936 each month – money you already earned, just not captured. Most founders treat churn as a single blended rate and never separate involuntary churn caused by payment failures. The result? You celebrate low churn while your cash runway shrinks unnoticed. Treat every declined card as a churn event, track its own logo and MRR churn, and build a recovery playbook with dunning, retries, and card‑updater services. When you close that billing leak, you instantly boost MRR without acquiring a single new customer. Ready to stop the quiet drain and see real retention gains? https://saastools.corenk.com/articles/does-churn-prevention-saas-payments",
+  "twitter": "Involuntary churn eats $374‑$936 of MRR every month for a $18.7K SaaS—yet most founders never track it. Stop letting failed payments be silent churn. https://saastools.corenk.com/articles/does-churn-prevention-saas-payments",
+  "linkedin": "On a $18,730 MRR SaaS, 14 failed payments cost $1,247 in a single month—that's $374‑$936 lost every month to billing leaks alone. For bootstrapped founders under $50K MRR, that extra cash can mean the difference between extending runway or scrambling for new sales. Most churn dashboards blend voluntary and involuntary loss, so you’re celebrating retention wins while payment failures silently drain your revenue. Treat payment failures as a separate churn metric, track involuntary logo churn, and build a recovery playbook—dunning emails, smarter retries, card updater services. When you stop ignoring the billing layer, you turn a hidden leak into a steady cash flow boost. Want to see how fixing your payment stack can add up to $10K in ARR per quarter? https://saastools.corenk.com/articles/does-churn-prevention-saas-payments",
   "hook_type": "stat",
   "url": "https://saastools.corenk.com/articles/does-churn-prevention-saas-payments",
   "slug": "does-churn-prevention-saas-payments",
   "folder": "articles",
   "title": "Does Churn Prevention Ignore Your SaaS Payments? The Overlooked Leak That Bleeds MRR Monthly",
-  "generated_at": "2026-06-11T23:47:56.682310Z"
+  "generated_at": "2026-06-12T06:14:18.473314Z"
 }
