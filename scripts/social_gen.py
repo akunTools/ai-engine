@@ -5,8 +5,9 @@ lalu post ke Twitter/X via Official API v2 (OAuth 1.0a).
 
 Pola AI call identik dengan auto_generate.py:
   Model priority : gpt-oss-120b:free → llama-3.3-70b:free → hermes-3-405b:free → deepseek-v4-pro (jika key tersedia)
-  Platform post  : Bluesky (AT Protocol) · Mastodon (ActivityPub) · LinkedIn (Posts API)
+  Platform post  : Bluesky (AT Protocol) · Mastodon (ActivityPub)
                    Twitter/X dihapus — write API berbayar $0.20/post sejak April 2026.
+                   LinkedIn dihapus — Company Page creation diblokir (waitlist verifikasi).
 
 Usage: python scripts/social_gen.py <folder> <slug>
   folder : articles | tools
@@ -42,14 +43,8 @@ BSKY_APP_PASSWORD = os.environ.get("BSKY_APP_PASSWORD", "")
 MASTODON_INSTANCE     = os.environ.get("MASTODON_INSTANCE", "")
 MASTODON_ACCESS_TOKEN = os.environ.get("MASTODON_ACCESS_TOKEN", "")
 
-# ── LinkedIn (Posts API — gratis, OAuth access token 60 hari) ─────────────────
-# Setup: lihat panduan OAuth di bawah untuk dapat LINKEDIN_ACCESS_TOKEN
-#        LINKEDIN_PERSON_URN: setelah OAuth → GET https://api.linkedin.com/v2/userinfo
-#        ambil field "sub" → format: urn:li:person:{sub}
-# ⚠ Token berlaku 60 hari — perlu renewal manual setiap ~55 hari
-# GitHub secret: LINKEDIN_ACCESS_TOKEN, LINKEDIN_PERSON_URN
-LINKEDIN_ACCESS_TOKEN = os.environ.get("LINKEDIN_ACCESS_TOKEN", "")
-LINKEDIN_PERSON_URN   = os.environ.get("LINKEDIN_PERSON_URN", "")
+# LinkedIn dihapus dari scope:
+# Company Page creation diblokir LinkedIn (waitlist verifikasi workplace, tanpa ETA).
 
 OUTPUT_BRANCH = "output"
 API_BASE      = "https://api.github.com"
@@ -273,7 +268,6 @@ Content excerpt: {plain_text}
 Return ONLY valid JSON (no markdown, no backticks, no preamble):
 {{
   "short": "Max 280 chars including URL. ONE sharp insight or counterintuitive stat. End with the URL. A single punchline that makes a founder stop scrolling. No hashtags. Used for Bluesky and Mastodon.",
-  "linkedin": "150-180 words. Start with one concrete data point. Explain why it matters for sub-$50K MRR founders. End with rhetorical question or short CTA + URL. No emoji.",
   "hook_type": "stat | insight | question | counterintuitive"
 }}"""
 
@@ -401,49 +395,7 @@ def post_to_mastodon(text: str) -> dict:
         raise RuntimeError(f"Mastodon post {e.code}: {e.read().decode(errors='replace')}")
 
 
-def post_to_linkedin(text: str) -> dict:
-    """
-    Post ke LinkedIn via Posts API (gratis, OAuth 2.0 access token).
-    ⚠ Token berlaku 60 hari — renewal manual via OAuth flow tiap ~55 hari.
-    Response 201 kosong — post ID ada di header x-restli-id.
-    Non-fatal.
-    """
-    if not LINKEDIN_ACCESS_TOKEN or not LINKEDIN_PERSON_URN:
-        print("    SKIP LinkedIn: LINKEDIN_ACCESS_TOKEN / LINKEDIN_PERSON_URN tidak tersedia.")
-        return {"skipped": True}
-
-    li_version = datetime.utcnow().strftime("%Y%m")  # LinkedIn-Version format: YYYYMM
-    payload = {
-        "author":     LINKEDIN_PERSON_URN,
-        "commentary": text,
-        "visibility": "PUBLIC",
-        "distribution": {
-            "feedDistribution":               "MAIN_FEED",
-            "targetEntities":                 [],
-            "thirdPartyDistributionChannels": []
-        },
-        "lifecycleState":            "PUBLISHED",
-        "isReshareDisabledByAuthor": False
-    }
-
-    req = urllib.request.Request(
-        "https://api.linkedin.com/rest/posts",
-        data=json.dumps(payload).encode(),
-        headers={
-            "Authorization":             f"Bearer {LINKEDIN_ACCESS_TOKEN}",
-            "X-Restli-Protocol-Version": "2.0.0",
-            "LinkedIn-Version":          li_version,
-            "Content-Type":              "application/json",
-        },
-        method="POST"
-    )
-    try:
-        with urllib.request.urlopen(req, timeout=30) as r:
-            post_id = r.headers.get("x-restli-id", "unknown")
-        print(f"    LinkedIn: posted → id={post_id}")
-        return {"id": post_id}
-    except urllib.error.HTTPError as e:
-        raise RuntimeError(f"LinkedIn post {e.code}: {e.read().decode(errors='replace')}")
+# post_to_linkedin() dihapus — LinkedIn Company Page creation diblokir waitlist.
 
 
 # ── Main ──────────────────────────────────────────────────────────────────────
@@ -474,14 +426,12 @@ def main():
     platforms_ok = any([
         BSKY_HANDLE and BSKY_APP_PASSWORD,
         MASTODON_INSTANCE and MASTODON_ACCESS_TOKEN,
-        LINKEDIN_ACCESS_TOKEN and LINKEDIN_PERSON_URN,
     ])
     if not platforms_ok:
         print("Warning: Tidak ada platform posting yang dikonfigurasi.")
         print("         Set minimal satu pasangan secret:")
         print("           Bluesky  → BSKY_HANDLE + BSKY_APP_PASSWORD")
         print("           Mastodon → MASTODON_INSTANCE + MASTODON_ACCESS_TOKEN")
-        print("           LinkedIn → LINKEDIN_ACCESS_TOKEN + LINKEDIN_PERSON_URN")
 
     model_names = " → ".join(e["model"] for e in MODELS)
     print(f"[social_gen] {folder}/{slug}")
@@ -497,10 +447,8 @@ def main():
     posts = generate_social_posts(folder, slug, html)
     hook       = posts.get("hook_type", "unknown")
     short_post = posts.get("short", "")
-    li         = posts.get("linkedin", "")
     print(f"    hook_type: {hook}")
     print(f"    Short    ({len(short_post)} chars): {short_post[:100]}...")
-    print(f"    LinkedIn ({len(li)} chars): {li[:100]}...")
     
     # 3. Simpan ke output branch (selalu, sebelum posting ke Twitter)
     print("3/4 Save to output branch...")
@@ -533,22 +481,8 @@ def main():
     else:
         print("    SKIP: short post kosong — Bluesky dan Mastodon dilewati.")
 
-    if li:
-        # LinkedIn (pakai post panjang)
-        try:
-            result = post_to_linkedin(li)
-            if not result.get("skipped"):
-                posts["linkedin_posted"] = True
-                posts["linkedin_result"] = result
-        except Exception as e:
-            print(f"    WARNING LinkedIn: {e}")
-            posts["linkedin_posted"] = False
-            posts["linkedin_error"]  = str(e)
-    else:
-        print("    SKIP: LinkedIn post kosong.")
-
     platforms_posted = [
-        p for p in ["bluesky", "mastodon", "linkedin"]
+        p for p in ["bluesky", "mastodon"]
         if posts.get(f"{p}_posted")
     ]
     posted_str = ", ".join(platforms_posted) if platforms_posted else "none"
