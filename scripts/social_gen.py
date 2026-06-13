@@ -4,7 +4,9 @@ Generate social media posts dari artikel/tool yang baru dipublish,
 lalu post ke Twitter/X via Official API v2 (OAuth 1.0a).
 
 Pola AI call identik dengan auto_generate.py:
-  Model priority: gpt-oss-120b:free → llama-3.3-70b:free → hermes-3-405b:free → deepseek-v4-pro (jika key tersedia)
+  Model priority : gpt-oss-120b:free → llama-3.3-70b:free → hermes-3-405b:free → deepseek-v4-pro (jika key tersedia)
+  Platform post  : Bluesky (AT Protocol) · Mastodon (ActivityPub) · LinkedIn (Posts API)
+                   Twitter/X dihapus — write API berbayar $0.20/post sejak April 2026.
 
 Usage: python scripts/social_gen.py <folder> <slug>
   folder : articles | tools
@@ -14,11 +16,7 @@ import os
 import re
 import sys
 import json
-import hmac
-import uuid
-import time
 import base64
-import hashlib
 import urllib.request
 import urllib.error
 import urllib.parse
@@ -31,10 +29,27 @@ SITE_URL       = os.environ.get("SITE_BASE_URL", "https://saastools.corenk.com")
 OPENROUTER_KEY = os.environ.get("OPENROUTER_API_KEY", "")
 DEEPSEEK_KEY   = os.environ.get("DEEPSEEK_API_KEY", "")
 
-TWITTER_API_KEY             = os.environ.get("TWITTER_API_KEY", "")
-TWITTER_API_SECRET          = os.environ.get("TWITTER_API_SECRET", "")
-TWITTER_ACCESS_TOKEN        = os.environ.get("TWITTER_ACCESS_TOKEN", "")
-TWITTER_ACCESS_TOKEN_SECRET = os.environ.get("TWITTER_ACCESS_TOKEN_SECRET", "")
+# ── Bluesky (AT Protocol — gratis, App Password) ──────────────────────────────
+# Setup: bsky.social → Settings → Privacy and Security → App Passwords → Add App Password
+# GitHub secret: BSKY_HANDLE (contoh: myaccount.bsky.social), BSKY_APP_PASSWORD
+BSKY_HANDLE       = os.environ.get("BSKY_HANDLE", "")
+BSKY_APP_PASSWORD = os.environ.get("BSKY_APP_PASSWORD", "")
+
+# ── Mastodon (ActivityPub — gratis, instance token) ───────────────────────────
+# Setup: mastodon.social → Preferences → Development → New Application
+#        Scope yang perlu: write:statuses → ambil "Your access token"
+# GitHub secret: MASTODON_INSTANCE (contoh: mastodon.social), MASTODON_ACCESS_TOKEN
+MASTODON_INSTANCE     = os.environ.get("MASTODON_INSTANCE", "")
+MASTODON_ACCESS_TOKEN = os.environ.get("MASTODON_ACCESS_TOKEN", "")
+
+# ── LinkedIn (Posts API — gratis, OAuth access token 60 hari) ─────────────────
+# Setup: lihat panduan OAuth di bawah untuk dapat LINKEDIN_ACCESS_TOKEN
+#        LINKEDIN_PERSON_URN: setelah OAuth → GET https://api.linkedin.com/v2/userinfo
+#        ambil field "sub" → format: urn:li:person:{sub}
+# ⚠ Token berlaku 60 hari — perlu renewal manual setiap ~55 hari
+# GitHub secret: LINKEDIN_ACCESS_TOKEN, LINKEDIN_PERSON_URN
+LINKEDIN_ACCESS_TOKEN = os.environ.get("LINKEDIN_ACCESS_TOKEN", "")
+LINKEDIN_PERSON_URN   = os.environ.get("LINKEDIN_PERSON_URN", "")
 
 OUTPUT_BRANCH = "output"
 API_BASE      = "https://api.github.com"
@@ -257,7 +272,7 @@ Content excerpt: {plain_text}
 
 Return ONLY valid JSON (no markdown, no backticks, no preamble):
 {{
-  "twitter": "Max 260 chars. ONE sharp insight or counterintuitive stat from this content. End with the URL. Not a summary — a single punchline that makes a founder stop scrolling. No hashtags.",
+  "short": "Max 280 chars including URL. ONE sharp insight or counterintuitive stat. End with the URL. A single punchline that makes a founder stop scrolling. No hashtags. Used for Bluesky and Mastodon.",
   "linkedin": "150-180 words. Start with one concrete data point. Explain why it matters for sub-$50K MRR founders. End with rhetorical question or short CTA + URL. No emoji.",
   "hook_type": "stat | insight | question | counterintuitive"
 }}"""
@@ -280,82 +295,155 @@ Return ONLY valid JSON (no markdown, no backticks, no preamble):
     return result
 
 
-# ── Twitter / X OAuth 1.0a ────────────────────────────────────────────────────
+# ── Multi-platform posting ────────────────────────────────────────────────────
 
-def _oauth1_header(method: str, url: str) -> str:
+def _build_bluesky_facets(text: str) -> list:
     """
-    Build OAuth 1.0a Authorization header untuk Twitter API v2.
-    Pure stdlib. JSON body tidak di-include dalam signature
-    (body hanya di-include untuk application/x-www-form-urlencoded).
+    Build facets untuk URL dalam teks Bluesky.
+    AT Protocol pakai UTF-8 byte offset, bukan character offset.
+    Tanpa facets, URL tampil sebagai plain text (tidak clickable).
     """
-    oauth_params = {
-        "oauth_consumer_key":     TWITTER_API_KEY,
-        "oauth_nonce":            uuid.uuid4().hex,
-        "oauth_signature_method": "HMAC-SHA1",
-        "oauth_timestamp":        str(int(time.time())),
-        "oauth_token":            TWITTER_ACCESS_TOKEN,
-        "oauth_version":          "1.0"
+    facets = []
+    for match in re.compile(r'https?://[^\s]+').finditer(text):
+        url        = match.group()
+        byte_start = len(text[:match.start()].encode("utf-8"))
+        byte_end   = byte_start + len(url.encode("utf-8"))
+        facets.append({
+            "index": {"byteStart": byte_start, "byteEnd": byte_end},
+            "features": [{"$type": "app.bsky.richtext.facet#link", "uri": url}]
+        })
+    return facets
+
+
+def post_to_bluesky(text: str) -> dict:
+    """
+    Post ke Bluesky via AT Protocol (gratis, tanpa billing).
+    Alur: createSession → dapat accessJwt + DID → createRecord.
+    Non-fatal.
+    """
+    if not BSKY_HANDLE or not BSKY_APP_PASSWORD:
+        print("    SKIP Bluesky: BSKY_HANDLE / BSKY_APP_PASSWORD tidak tersedia.")
+        return {"skipped": True}
+
+    base = "https://bsky.social/xrpc"
+
+    # Auth: dapat accessJwt + DID dari App Password
+    req = urllib.request.Request(
+        f"{base}/com.atproto.server.createSession",
+        data=json.dumps({"identifier": BSKY_HANDLE, "password": BSKY_APP_PASSWORD}).encode(),
+        headers={"Content-Type": "application/json"},
+        method="POST"
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=30) as r:
+            session = json.loads(r.read())
+    except urllib.error.HTTPError as e:
+        raise RuntimeError(f"Bluesky auth {e.code}: {e.read().decode(errors='replace')}")
+
+    # Post: limit 295 grapheme (buffer dari limit AT Protocol 300)
+    post_text = text[:295]
+    facets    = _build_bluesky_facets(post_text)
+    record    = {
+        "$type":     "app.bsky.feed.post",
+        "text":      post_text,
+        "createdAt": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.000Z"),
     }
-
-    param_str = "&".join(
-        f"{urllib.parse.quote(k, safe='')}={urllib.parse.quote(str(v), safe='')}"
-        for k, v in sorted(oauth_params.items())
-    )
-    base_string = "&".join([
-        method.upper(),
-        urllib.parse.quote(url, safe=""),
-        urllib.parse.quote(param_str, safe="")
-    ])
-    signing_key = (
-        urllib.parse.quote(TWITTER_API_SECRET,          safe="") + "&" +
-        urllib.parse.quote(TWITTER_ACCESS_TOKEN_SECRET, safe="")
-    )
-    signature = base64.b64encode(
-        hmac.new(
-            signing_key.encode("ascii"),
-            base_string.encode("ascii"),
-            hashlib.sha1
-        ).digest()
-    ).decode()
-
-    oauth_params["oauth_signature"] = signature
-    header_value = "OAuth " + ", ".join(
-        f'{k}="{urllib.parse.quote(str(v), safe="")}"'
-        for k, v in sorted(oauth_params.items())
-    )
-    return header_value
-
-
-def post_to_twitter(text: str) -> dict:
-    """Post tweet via Twitter API v2. Non-fatal — failure dicatat, tidak raise."""
-    creds = [TWITTER_API_KEY, TWITTER_API_SECRET,
-             TWITTER_ACCESS_TOKEN, TWITTER_ACCESS_TOKEN_SECRET]
-    if not all(creds):
-        print("SKIP: Twitter credentials tidak lengkap.")
-        return {"skipped": True, "reason": "missing_credentials"}
-
-    url  = "https://api.twitter.com/2/tweets"
-    body = json.dumps({"text": text[:280]}).encode("utf-8")
+    if facets:
+        record["facets"] = facets
 
     req = urllib.request.Request(
-        url,
-        data=body,
+        f"{base}/com.atproto.repo.createRecord",
+        data=json.dumps({
+            "repo":       session["did"],
+            "collection": "app.bsky.feed.post",
+            "record":     record,
+        }).encode(),
         headers={
-            "Authorization": _oauth1_header("POST", url),
+            "Authorization": f"Bearer {session['accessJwt']}",
             "Content-Type":  "application/json",
-            "User-Agent":    "ai-engine"
         },
         method="POST"
     )
     try:
         with urllib.request.urlopen(req, timeout=30) as r:
-            result   = json.loads(r.read())
-            tweet_id = result.get("data", {}).get("id", "unknown")
-            print(f"Tweet posted: id={tweet_id}")
-            return result
+            result = json.loads(r.read())
+        print(f"    Bluesky: posted → {result.get('uri', 'unknown')}")
+        return result
     except urllib.error.HTTPError as e:
-        err_body = e.read().decode(errors="replace")
-        raise RuntimeError(f"Twitter API error {e.code}: {err_body}")
+        raise RuntimeError(f"Bluesky post {e.code}: {e.read().decode(errors='replace')}")
+
+
+def post_to_mastodon(text: str) -> dict:
+    """
+    Post ke Mastodon via ActivityPub API (gratis).
+    Token: generate sekali dari Preferences → Development → New Application (scope: write:statuses).
+    Non-fatal.
+    """
+    if not MASTODON_INSTANCE or not MASTODON_ACCESS_TOKEN:
+        print("    SKIP Mastodon: MASTODON_INSTANCE / MASTODON_ACCESS_TOKEN tidak tersedia.")
+        return {"skipped": True}
+
+    req = urllib.request.Request(
+        f"https://{MASTODON_INSTANCE}/api/v1/statuses",
+        data=json.dumps({"status": text[:500], "visibility": "public"}).encode(),
+        headers={
+            "Authorization": f"Bearer {MASTODON_ACCESS_TOKEN}",
+            "Content-Type":  "application/json",
+        },
+        method="POST"
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=30) as r:
+            result = json.loads(r.read())
+        print(f"    Mastodon: posted → {result.get('url', 'unknown')}")
+        return result
+    except urllib.error.HTTPError as e:
+        raise RuntimeError(f"Mastodon post {e.code}: {e.read().decode(errors='replace')}")
+
+
+def post_to_linkedin(text: str) -> dict:
+    """
+    Post ke LinkedIn via Posts API (gratis, OAuth 2.0 access token).
+    ⚠ Token berlaku 60 hari — renewal manual via OAuth flow tiap ~55 hari.
+    Response 201 kosong — post ID ada di header x-restli-id.
+    Non-fatal.
+    """
+    if not LINKEDIN_ACCESS_TOKEN or not LINKEDIN_PERSON_URN:
+        print("    SKIP LinkedIn: LINKEDIN_ACCESS_TOKEN / LINKEDIN_PERSON_URN tidak tersedia.")
+        return {"skipped": True}
+
+    li_version = datetime.utcnow().strftime("%Y%m")  # LinkedIn-Version format: YYYYMM
+    payload = {
+        "author":     LINKEDIN_PERSON_URN,
+        "commentary": text,
+        "visibility": "PUBLIC",
+        "distribution": {
+            "feedDistribution":               "MAIN_FEED",
+            "targetEntities":                 [],
+            "thirdPartyDistributionChannels": []
+        },
+        "lifecycleState":            "PUBLISHED",
+        "isReshareDisabledByAuthor": False
+    }
+
+    req = urllib.request.Request(
+        "https://api.linkedin.com/rest/posts",
+        data=json.dumps(payload).encode(),
+        headers={
+            "Authorization":             f"Bearer {LINKEDIN_ACCESS_TOKEN}",
+            "X-Restli-Protocol-Version": "2.0.0",
+            "LinkedIn-Version":          li_version,
+            "Content-Type":              "application/json",
+        },
+        method="POST"
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=30) as r:
+            post_id = r.headers.get("x-restli-id", "unknown")
+        print(f"    LinkedIn: posted → id={post_id}")
+        return {"id": post_id}
+    except urllib.error.HTTPError as e:
+        raise RuntimeError(f"LinkedIn post {e.code}: {e.read().decode(errors='replace')}")
 
 
 # ── Main ──────────────────────────────────────────────────────────────────────
@@ -382,6 +470,19 @@ def main():
         print("       Pastikan secret sudah di-set di GitHub Actions → Settings → Secrets.")
         sys.exit(1)
 
+    # Peringatan jika tidak ada platform posting yang dikonfigurasi
+    platforms_ok = any([
+        BSKY_HANDLE and BSKY_APP_PASSWORD,
+        MASTODON_INSTANCE and MASTODON_ACCESS_TOKEN,
+        LINKEDIN_ACCESS_TOKEN and LINKEDIN_PERSON_URN,
+    ])
+    if not platforms_ok:
+        print("Warning: Tidak ada platform posting yang dikonfigurasi.")
+        print("         Set minimal satu pasangan secret:")
+        print("           Bluesky  → BSKY_HANDLE + BSKY_APP_PASSWORD")
+        print("           Mastodon → MASTODON_INSTANCE + MASTODON_ACCESS_TOKEN")
+        print("           LinkedIn → LINKEDIN_ACCESS_TOKEN + LINKEDIN_PERSON_URN")
+
     model_names = " → ".join(e["model"] for e in MODELS)
     print(f"[social_gen] {folder}/{slug}")
     print(f"    Model priority: {model_names}")
@@ -394,32 +495,64 @@ def main():
     # 2. Generate posts
     print("2/4 Generate social posts via AI...")
     posts = generate_social_posts(folder, slug, html)
-    hook  = posts.get("hook_type", "unknown")
-    tw    = posts.get("twitter", "")
-    li    = posts.get("linkedin", "")
+    hook       = posts.get("hook_type", "unknown")
+    short_post = posts.get("short", "")
+    li         = posts.get("linkedin", "")
     print(f"    hook_type: {hook}")
-    print(f"    Twitter  ({len(tw)} chars): {tw[:100]}...")
+    print(f"    Short    ({len(short_post)} chars): {short_post[:100]}...")
     print(f"    LinkedIn ({len(li)} chars): {li[:100]}...")
-
+    
     # 3. Simpan ke output branch (selalu, sebelum posting ke Twitter)
     print("3/4 Save to output branch...")
     save_social_post(slug, posts)
 
-    # 4. Post ke Twitter (non-fatal)
-    if tw:
-        print("4/4 Post to Twitter/X...")
+    # 4. Post ke semua platform sosial (masing-masing non-fatal)
+    print("4/4 Post ke platform sosial...")
+    if short_post:
+        # Bluesky (pakai short post)
         try:
-            result = post_to_twitter(tw)
-            posts["twitter_posted"] = True
-            posts["twitter_result"] = result
+            result = post_to_bluesky(short_post)
+            if not result.get("skipped"):
+                posts["bluesky_posted"] = True
+                posts["bluesky_result"] = result
         except Exception as e:
-            print(f"WARNING: Twitter posting failed: {e}")
-            posts["twitter_posted"] = False
-            posts["twitter_error"]  = str(e)
-    else:
-        print("4/4 SKIP: Twitter post kosong.")
+            print(f"    WARNING Bluesky: {e}")
+            posts["bluesky_posted"] = False
+            posts["bluesky_error"]  = str(e)
 
-    print(f"\n✓ Done: {folder}/{slug}")
+        # Mastodon (pakai short post)
+        try:
+            result = post_to_mastodon(short_post)
+            if not result.get("skipped"):
+                posts["mastodon_posted"] = True
+                posts["mastodon_result"] = result
+        except Exception as e:
+            print(f"    WARNING Mastodon: {e}")
+            posts["mastodon_posted"] = False
+            posts["mastodon_error"]  = str(e)
+    else:
+        print("    SKIP: short post kosong — Bluesky dan Mastodon dilewati.")
+
+    if li:
+        # LinkedIn (pakai post panjang)
+        try:
+            result = post_to_linkedin(li)
+            if not result.get("skipped"):
+                posts["linkedin_posted"] = True
+                posts["linkedin_result"] = result
+        except Exception as e:
+            print(f"    WARNING LinkedIn: {e}")
+            posts["linkedin_posted"] = False
+            posts["linkedin_error"]  = str(e)
+    else:
+        print("    SKIP: LinkedIn post kosong.")
+
+    platforms_posted = [
+        p for p in ["bluesky", "mastodon", "linkedin"]
+        if posts.get(f"{p}_posted")
+    ]
+    posted_str = ", ".join(platforms_posted) if platforms_posted else "none"
+    print(f"\n✓ Done: {folder}/{slug} — posted to: {posted_str}")
 
 
 if __name__ == "__main__":
