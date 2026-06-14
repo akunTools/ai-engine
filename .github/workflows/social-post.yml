@@ -79,10 +79,10 @@ jobs:
           SITE_BASE_URL:                ${{ vars.SITE_BASE_URL }}
           OPENROUTER_API_KEY:           ${{ secrets.OPENROUTER_API_KEY }}
           DEEPSEEK_API_KEY:             ${{ secrets.DEEPSEEK_API_KEY }}
-          TWITTER_API_KEY:              ${{ secrets.TWITTER_API_KEY }}
-          TWITTER_API_SECRET:           ${{ secrets.TWITTER_API_SECRET }}
-          TWITTER_ACCESS_TOKEN:         ${{ secrets.TWITTER_ACCESS_TOKEN }}
-          TWITTER_ACCESS_TOKEN_SECRET:  ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
+          BSKY_HANDLE:                  ${{ secrets.BSKY_HANDLE }}
+          BSKY_APP_PASSWORD:            ${{ secrets.BSKY_APP_PASSWORD }}
+          MASTODON_INSTANCE:            ${{ secrets.MASTODON_INSTANCE }}
+          MASTODON_ACCESS_TOKEN:        ${{ secrets.MASTODON_ACCESS_TOKEN }}
         run: |
           python scripts/social_gen.py \
             "${{ steps.detect.outputs.folder }}" \
