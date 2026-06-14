@@ -1,0 +1,174 @@
+name: Publish & Distribute Content
+
+# Trigger: otomatis saat artikel/tool HTML masuk ke output branch,
+# atau manual via workflow_dispatch.
+on:
+  push:
+    branches: [output]
+    paths:
+      - 'articles/**.html'
+      - 'tools/**.html'
+  workflow_dispatch:
+    inputs:
+      folder:
+        description: 'articles atau tools'
+        required: true
+        default: 'articles'
+        type: string
+      slug:
+        description: 'Slug artikel atau tool (tanpa .html)'
+        required: true
+        type: string
+
+# Fix Node.js 20 deprecation — deadline 16 Juni 2026.
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+
+  # ── Job 1: Detect ─────────────────────────────────────────────────────────────
+  # Berjalan pertama. Output folder + slug dipakai oleh semua job downstream.
+  detect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    outputs:
+      folder: ${{ steps.detect.outputs.folder }}
+      slug:   ${{ steps.detect.outputs.slug }}
+      skip:   ${{ steps.detect.outputs.skip }}
+
+    steps:
+      - name: Detect published content
+        id: detect
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const manualFolder = context.payload.inputs?.folder;
+            const manualSlug   = context.payload.inputs?.slug;
+            if (manualFolder && manualSlug) {
+              core.setOutput('folder', manualFolder.trim());
+              core.setOutput('slug',   manualSlug.trim());
+              core.setOutput('skip',   'false');
+              console.log(`Manual: ${manualFolder}/${manualSlug}`);
+              return;
+            }
+
+            const added = context.payload.head_commit?.added || [];
+            console.log('Files added:', JSON.stringify(added));
+
+            for (const f of added) {
+              const m = f.match(/^(articles|tools)\/(.+)\.html$/);
+              if (!m) continue;
+              core.setOutput('folder', m[1]);
+              core.setOutput('slug',   m[2]);
+              core.setOutput('skip',   'false');
+              console.log(`Detected: ${m[1]}/${m[2]}`);
+              return;
+            }
+
+            core.setOutput('skip', 'true');
+            console.log('No new article/tool HTML — skip');
+
+  # ── Job 2: Social Post ────────────────────────────────────────────────────────
+  # Bluesky + Mastodon. Berjalan untuk articles DAN tools.
+  # Parallel dengan devto-post — tidak saling menunggu.
+  social-post:
+    needs: detect
+    if: needs.detect.outputs.skip != 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout scripts (main branch)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Post ke Bluesky dan Mastodon
+        env:
+          GITHUB_TOKEN:          ${{ secrets.GITHUB_TOKEN }}
+          ENGINE_REPO:           ${{ github.repository }}
+          SITE_BASE_URL:         ${{ vars.SITE_BASE_URL }}
+          OPENROUTER_API_KEY:    ${{ secrets.OPENROUTER_API_KEY }}
+          DEEPSEEK_API_KEY:      ${{ secrets.DEEPSEEK_API_KEY }}
+          BSKY_HANDLE:           ${{ secrets.BSKY_HANDLE }}
+          BSKY_APP_PASSWORD:     ${{ secrets.BSKY_APP_PASSWORD }}
+          MASTODON_INSTANCE:     ${{ secrets.MASTODON_INSTANCE }}
+          MASTODON_ACCESS_TOKEN: ${{ secrets.MASTODON_ACCESS_TOKEN }}
+        run: |
+          python scripts/social_gen.py \
+            "${{ needs.detect.outputs.folder }}" \
+            "${{ needs.detect.outputs.slug }}"
+
+  # ── Job 3: Dev.to Post ────────────────────────────────────────────────────────
+  # Cross-post artikel penuh ke Dev.to. Hanya untuk articles, skip untuk tools.
+  # Parallel dengan social-post — tidak saling menunggu.
+  devto-post:
+    needs: detect
+    if: needs.detect.outputs.skip != 'true' && needs.detect.outputs.folder == 'articles'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout scripts (main branch)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install html2text
+        run: pip install html2text --quiet
+
+      - name: Cross-post ke Dev.to
+        env:
+          GITHUB_TOKEN:   ${{ secrets.GITHUB_TOKEN }}
+          ENGINE_REPO:    ${{ github.repository }}
+          SITE_BASE_URL:  ${{ vars.SITE_BASE_URL }}
+          DEV_TO_API_KEY: ${{ secrets.DEV_TO_API_KEY }}
+        run: |
+          python scripts/cross_post.py \
+            articles \
+            "${{ needs.detect.outputs.slug }}"
+
+  # ── Job 4: Notify Failure ─────────────────────────────────────────────────────
+  # Kirim email hanya jika social-post ATAU devto-post gagal.
+  # devto-post yang di-skip (untuk tools) tidak dianggap gagal.
+  notify-failure:
+    needs: [detect, social-post, devto-post]
+    if: |
+      always() && (
+        needs.social-post.result == 'failure' ||
+        needs.devto-post.result  == 'failure'
+      )
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Email alert on failure
+        uses: dawidd6/action-send-mail@v4
+        with:
+          server_address: smtp-relay.brevo.com
+          server_port:    587
+          username:       ${{ secrets.BREVO_USERNAME }}
+          password:       ${{ secrets.BREVO_PASSWORD }}
+          subject:        "[AI Engine] Distribute failed: ${{ needs.detect.outputs.slug }}"
+          to:             ${{ secrets.NOTIFY_EMAIL }}
+          from:           ${{ secrets.BREVO_FROM_EMAIL }}
+          body: |
+            Content distribution gagal untuk:
+            Folder : ${{ needs.detect.outputs.folder }}
+            Slug   : ${{ needs.detect.outputs.slug }}
+            Cek GitHub Actions log untuk detail:
+            - social-post : ${{ needs.social-post.result }}
+            - devto-post  : ${{ needs.devto-post.result }}
