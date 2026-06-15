@@ -1324,6 +1324,57 @@ def wrap_tool_html(body_html: str, slug: str) -> str:
       display: none;
     }}
 
+    /* ── SELECT, CHECKBOX, RADIO, RANGE ── */
+    select {{
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      font-size: 16px;
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      cursor: pointer;
+      transition: border-color .15s, outline .15s;
+    }}
+    select:focus {{
+      outline: 2px solid var(--accent);
+      outline-offset: -1px;
+      border-color: var(--accent);
+      background-color: var(--surface);
+    }}
+    select.error-input {{ border-color: var(--danger); }}
+    .checkbox-group {{
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      min-height: 44px;
+      cursor: pointer;
+    }}
+    .checkbox-group label {{
+      font-size: .9375rem;
+      font-weight: 400;
+      color: var(--text);
+      margin-bottom: 0;
+      cursor: pointer;
+    }}
+    input[type="checkbox"],
+    input[type="radio"] {{
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }}
+    input[type="range"] {{
+      width: 100%;
+      accent-color: var(--accent);
+      height: 6px;
+      cursor: pointer;
+      padding: 0;
+    }}
+
     /* ── RESULT (HIGH CONTRAST) ── */
     .result-card {{
       background: var(--surface);
