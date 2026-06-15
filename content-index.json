@@ -167,6 +167,13 @@
       "cluster": "saas-churn-retention",
       "date": "2026-06-13",
       "excerpt": "Will your SaaS customer retention rate increase? Learn 4 tactics that boost monthly retention and extend your bootstrapped runway, backed by churn metrics."
+    },
+    {
+      "slug": "will-saas-customer-retention-rate-be-reduced",
+      "title": "Will SaaS Customer Retention Rate Be Reduced? The Diagnostic Check Bootstrapped Founders Can't Afford to Skip",
+      "cluster": "saas-churn-retention",
+      "date": "2026-06-15",
+      "excerpt": "Is your SaaS retention rate destined to drop? Discover the diagnostic framework to catch hidden compressors before they silently erode your MRR."
     }
   ],
   "tools": [
