@@ -51,7 +51,8 @@
   }
 
 
-  nav.site-nav, body > nav:not(.footer-nav) {
+  nav.site-nav,
+  body > nav:not(.footer-nav) {
     position: sticky;
     top: 0;
     z-index: 100;
@@ -491,214 +492,290 @@
     .index-content { padding: 32px 0 0; }
   }
 
+  /* ===== EKSPLORASI (TAMBAHAN BARU) ===== */
+  .explore-controls {
+    display: none;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 32px 0 24px;
+    align-items: center;
+  }
+  .explore-controls .search-wrapper {
+    flex: 1;
+    min-width: 200px;
+    position: relative;
+  }
+  .explore-controls input[type="search"] {
+    width: 100%;
+    padding: 10px 14px 10px 40px;
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    font-size: 1rem;
+    font-family: inherit;
+    background: var(--surface);
+    color: var(--text);
+    transition: border-color 0.15s, outline 0.15s;
+    min-height: 48px;
+  }
+  .explore-controls input[type="search"]:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: -1px;
+    border-color: var(--accent);
+  }
+  .explore-controls .search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    pointer-events: none;
+    font-size: 1.1rem;
+  }
+  .explore-controls select {
+    padding: 10px 32px 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    font-size: 0.9375rem;
+    font-family: inherit;
+    background: var(--surface);
+    color: var(--text);
+    min-height: 48px;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2352525b' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    cursor: pointer;
+    min-width: 140px;
+  }
+  .explore-controls select:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: -1px;
+    border-color: var(--accent);
+  }
+  .explore-controls .btn-clear {
+    padding: 10px 20px;
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    background: var(--surface);
+    color: var(--text);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    cursor: pointer;
+    min-height: 48px;
+    transition: background 0.15s, border-color 0.15s;
+    white-space: nowrap;
+    display: none;
+  }
+  .explore-controls .btn-clear:hover {
+    background: var(--bg);
+    border-color: var(--text);
+  }
+  .explore-info {
+    font-size: 0.875rem;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+  #explore-results-dynamic {
+    display: none;
+  }
+  @media (max-width: 640px) {
+    .explore-controls {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .explore-controls select {
+      min-width: 100%;
+    }
+  }
+
   </style>
   <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "5833f90d78f645e0819abedd665e5d93"}'></script>
 </head>
 <body>
-  <nav>
+
+<nav class="site-nav">
   <div class="nav-inner">
-    <a href="/" class="nav-brand">
-      SaaS<span class="brand-accent">Tools</span>
-    </a>
+    <a href="/articles/" class="nav-back">← Articles</a>
     <div class="nav-links">
-      <a href="/articles/" class="active">Articles</a>
       <a href="/tools/">Tools</a>
     </div>
   </div>
 </nav>
 
-  <div class="index-wrap">
+<div class="index-wrap">
 
-    <header class="index-header">
-      <span class="index-label">Writing</span>
-      <h1 class="index-title">Articles</h1>
-      <p class="index-desc">25 practical guides for bootstrapped SaaS founders — no fluff, no funding narratives.</p>
-    </header>
+  <header class="index-header">
+    <span class="index-label">Writing</span>
+    <h1 class="index-title">Articles</h1>
+    <p class="index-desc">22 practical guides for bootstrapped SaaS founders — no fluff, no funding narratives.</p>
+  </header>
 
-    <div class="index-content">
-      <div class="article-list">
-        
+  <!-- ===== EKSPLORASI ===== -->
+  <div class="explore-controls" id="explore-controls">
+    <div class="search-wrapper">
+      <span class="search-icon">🔍</span>
+      <input type="search" id="explore-search" placeholder="Cari artikel..." aria-label="Cari artikel">
+    </div>
+    <select id="explore-cluster" aria-label="Filter topik">
+      <option value="all">Semua Topik</option>
+    </select>
+    <select id="explore-sort" aria-label="Urutkan hasil">
+      <option value="newest">Terbaru</option>
+      <option value="oldest">Terlama</option>
+      <option value="alpha">A–Z</option>
+      <option value="alpha-desc">Z–A</option>
+    </select>
+    <button class="btn-clear" id="explore-clear">Reset Filter</button>
+  </div>
+
+  <div class="explore-info" id="explore-info"></div>
+
+  <div id="explore-results-dynamic"></div>
+
+  <div id="explore-pagination"></div>
+
+  <!-- ===== KONTEN STATIS (22 ARTIKEL) ===== -->
+  <div id="explore-results-static">
+    <div class="article-list">
       <a href="https://saastools.corenk.com/articles/would-reduce-saas-churn-rate" class="article-item">
         <div class="article-item__left">
           <span class="article-item__title">Would These Churn Tactics Actually Reduce SaaS Churn Rate, or Just Burn Your Runway?</span>
           <span class="article-item__excerpt">Would churn tactics reduce SaaS churn rate or just burn time? 4 retention strategies tested with real bootstrapped MRR outcomes. See results.</span>
         </div>
-        
       </a>
       <a href="https://saastools.corenk.com/articles/will-saas-customer-retention-rate" class="article-item">
         <div class="article-item__left">
           <span class="article-item__title">Will Your SaaS Customer Retention Rate Survive Scaling? A Bootstrapped Founder's Stress Test</span>
           <span class="article-item__excerpt">Will your SaaS customer retention rate survive scaling? Stress-test retention, spot destabilizers early, and stabilize MRR before churn drains your runway.</span>
         </div>
-        
-      </a>
-      <a href="https://saastools.corenk.com/articles/will-saas-customer-retention-rate-increase" class="article-item">
-        <div class="article-item__left">
-          <span class="article-item__title">Will Your SaaS Customer Retention Rate Increase? A Bootstrapped Founder's Blueprint for Upward Retention Motion</span>
-          <span class="article-item__excerpt">Will your SaaS customer retention rate increase? Learn 4 tactics that boost monthly retention and extend your bootstrapped runway, backed by churn metrics.</span>
-        </div>
-        
-      </a>
-      <a href="https://saastools.corenk.com/articles/will-saas-customer-retention-rate-be-reduced" class="article-item">
-        <div class="article-item__left">
-          <span class="article-item__title">Will SaaS Customer Retention Rate Be Reduced? The Diagnostic Check Bootstrapped Founders Can't Afford to Skip</span>
-          <span class="article-item__excerpt">Is your SaaS retention rate destined to drop? Discover the diagnostic framework to catch hidden compressors before they silently erode your MRR.</span>
-        </div>
-        
       </a>
       <a href="https://saastools.corenk.com/articles/will-saas-churn-rate-increase" class="article-item">
         <div class="article-item__left">
           <span class="article-item__title">Will Your SaaS Churn Rate Increase? The Compound Effect That Quietly Destroys Your Runway</span>
           <span class="article-item__excerpt">Will your SaaS churn rate increase over time? The hidden compound effect silently erodes MRR month after month—stop it before it destroys your runway.</span>
         </div>
-        
       </a>
       <a href="https://saastools.corenk.com/articles/why-saas-churn-rate-so-high" class="article-item">
         <div class="article-item__left">
           <span class="article-item__title">Why Is SaaS Churn Rate So High? The Brutal Structural Truth Bootstrapped Founders Can’t Afford to Ignore</span>
           <span class="article-item__excerpt">Why SaaS churn rates are so stubbornly high: low switching costs, subscription fatigue, and the structural trap. Bootstrapped insights and real fixes.</span>
         </div>
-        
       </a>
       <a href="https://saastools.corenk.com/articles/why-saas-churn-rate-is-low" class="article-item">
         <div class="article-item__left">
           <span class="article-item__title">Why SaaS Churn Rate Is Low: The Retention Levers That Quietly Save Your Runway</span>
           <span class="article-item__excerpt">Discover the real reasons SaaS churn stays low—product stickiness, pricing psychology, and operational habits that quietly extend your bootstrapped runway.</span>
         </div>
-        
       </a>
       <a href="https://saastools.corenk.com/articles/why-saas-churn-rate-increase" class="article-item">
         <div class="article-item__left">
           <span class="article-item__title">Why SaaS Churn Rate Increase? The Root Causes Bootstrapped Founders Ignore Until It’s Too Late</span>
           <span class="article-item__excerpt">Why your SaaS churn rate increases: root causes from pricing misalignment to onboarding decay. Diagnose and stop MRR bleed before it compounds.</span>
         </div>
-        
       </a>
       <a href="https://saastools.corenk.com/articles/which-saas-customer-retention-policy" class="article-item">
         <div class="article-item__left">
           <span class="article-item__title">Which SaaS Customer Retention Policy Actually Stops MRR Bleed for Bootstrapped Founders?</span>
           <span class="article-item__excerpt">Wondering which SaaS customer retention policy stops MRR bleed? Use this decision framework and case study to pick the right policy for your bootstrapped SaaS.</span>
         </div>
-        
       </a>
       <a href="https://saastools.corenk.com/articles/where-reduce-saas-churn-rate" class="article-item">
         <div class="article-item__left">
           <span class="article-item__title">Where to Reduce SaaS Churn Rate: The Tactical Friction Map for Bootstrapped Founders</span>
           <span class="article-item__excerpt">Pinpoint where to reduce SaaS churn rate with a friction map. Calculate churn by stage, benchmark by tier, and apply 4 fixes that stop MRR bleed fast.</span>
         </div>
-        
       </a>
       <a href="https://saastools.corenk.com/articles/should-reduce-saas-churn-rate" class="article-item">
         <div class="article-item__left">
           <span class="article-item__title">Should You Reduce Your SaaS Churn Rate? A Brutal Cost-Benefit Analysis for Bootstrapped Founders</span>
           <span class="article-item__excerpt">Should you reduce SaaS churn rate or focus on growth? Use our cost-benefit framework to see the true runway math before you invest another dollar.</span>
         </div>
-        
       </a>
       <a href="https://saastools.corenk.com/articles/saas-user-retention" class="article-item">
         <div class="article-item__left">
           <span class="article-item__title">SaaS User Retention: The Engagement Metric That Predicts Churn Before It Hits Your MRR</span>
           <span class="article-item__excerpt">Master SaaS user retention: calculate your retention rate, benchmark by tier, and deploy 4 tactics to stop silent churn before it drains MRR.</span>
         </div>
-        
       </a>
       <a href="https://saastools.corenk.com/articles/saas-rates" class="article-item">
         <div class="article-item__left">
           <span class="article-item__title">SaaS Rates: The Brutal Math Behind Pricing, Growth, and Survival</span>
           <span class="article-item__excerpt">Stop bleeding MRR. We break down the brutal math of SaaS rates, from churn benchmarks to unit economics, specifically for bootstrapped founders.</span>
         </div>
-        
       </a>
       <a href="https://saastools.corenk.com/articles/saas-customer-retention-2-days" class="article-item">
         <div class="article-item__left">
           <span class="article-item__title">The 48-Hour Churn Trap: Fixing SaaS Customer Retention 2 Days After Signup</span>
           <span class="article-item__excerpt">Stop losing new users. Learn how to fix SaaS customer retention 2 days after signup by optimizing your 48-hour onboarding window and reducing early churn.</span>
         </div>
-        
       </a>
       <a href="https://saastools.corenk.com/articles/saas-churn-rate" class="article-item">
         <div class="article-item__left">
           <span class="article-item__title">SaaS Churn Rate: The Silent Runway Killer Every Bootstrapped Founder Must Stop Before It Compounds</span>
           <span class="article-item__excerpt">SaaS churn rate kills bootstrapped MRR. Learn to calculate, benchmark by tier, see the compounding cost, and apply 4 founder-tested tactics to fix it.</span>
         </div>
-        
       </a>
       <a href="https://saastools.corenk.com/articles/is-saas-churn-rate-same" class="article-item">
         <div class="article-item__left">
           <span class="article-item__title">Is SaaS Churn Rate the Same? Why Logo, Gross MRR, and Net Revenue Churn Paint Wildly Different Pictures</span>
           <span class="article-item__excerpt">Is SaaS churn rate the same? No — logo, gross MRR, and net revenue churn each reveal different truths. Confusing them silently bleeds bootstrapped MRR.</span>
         </div>
-        
       </a>
       <a href="https://saastools.corenk.com/articles/is-churn-prevention-saas-or-not" class="article-item">
         <div class="article-item__left">
           <span class="article-item__title">Is Churn Prevention SaaS or Not? The Brutal Financial Decision Bootstrapped Founders Can’t Afford to Get Wrong</span>
           <span class="article-item__excerpt">Is churn prevention a SaaS category worth buying, or a discipline you build yourself? This brutal decision framework uses hard financial thresholds for bootstrapped founders.</span>
         </div>
-        
       </a>
       <a href="https://saastools.corenk.com/articles/how-to-reduce-saas-churn" class="article-item">
         <div class="article-item__left">
           <span class="article-item__title">How to Reduce SaaS Churn: Stop the MRR Bleed Before It Cuts Your Runway in Half</span>
           <span class="article-item__excerpt">Stop the silent MRR killer. Learn how to reduce SaaS churn with a brutal diagnosis, the 3 churn formulas, hidden lifecycle leaks, and 4 non-obvious tactics that actually work.</span>
         </div>
-        
       </a>
       <a href="https://saastools.corenk.com/articles/how-to-reduce-churn-rate" class="article-item">
         <div class="article-item__left">
           <span class="article-item__title">How to Reduce Churn Rate: A Data-Backed Battle Plan for Bootstrapped Founders Watching MRR Vanish</span>
-          <span class="article-item__excerpt">Bootstrapped founders bleed MRR from churn they can</span>
+          <span class="article-item__excerpt">Bootstrapped founders bleed MRR from churn they can't see. Learn how to reduce churn rate using formulas, benchmarks, and 4 tactics that cut churn by 40%.</span>
         </div>
-        
       </a>
       <a href="https://saastools.corenk.com/articles/does-churn-prevention-saas-payments" class="article-item">
         <div class="article-item__left">
           <span class="article-item__title">Does Churn Prevention Ignore Your SaaS Payments? The Overlooked Leak That Bleeds MRR Monthly</span>
           <span class="article-item__excerpt">Does churn prevention ignore SaaS payment failures? The brutal math of involuntary churn—and how founders recover $374–$936/mo by fixing billing leaks.</span>
         </div>
-        
-      </a>
-      <a href="https://saastools.corenk.com/articles/does-churn-prevention-saas-application" class="article-item">
-        <div class="article-item__left">
-          <span class="article-item__title">Does a Churn Prevention SaaS Application Actually Reduce Churn? The Bootstrapped Founder’s Evidence Check</span>
-          <span class="article-item__excerpt">Does churn prevention SaaS actually reduce churn? Real ROI, case results, and failure points for bootstrapped founders. Check the math before subscribing.</span>
-        </div>
-        
       </a>
       <a href="https://saastools.corenk.com/articles/churn-prevention-saas-with-ai-tools" class="article-item">
         <div class="article-item__left">
           <span class="article-item__title">Churn Prevention SaaS with AI Tools: How Bootstrapped Founders Stop MRR Bleed Before It Starts</span>
-          <span class="article-item__excerpt">Bootstrapped founders can</span>
+          <span class="article-item__excerpt">Bootstrapped founders can't afford churn. Discover the AI tools that predict, prevent, and reverse churn — without a data science team. Real tactics, real numbers.</span>
         </div>
-        
       </a>
       <a href="https://saastools.corenk.com/articles/churn-prevention-saas-1-year" class="article-item">
         <div class="article-item__left">
           <span class="article-item__title">Surviving the 12-Month Cliff: Your Churn Prevention SaaS 1 Year Battle Plan</span>
           <span class="article-item__excerpt">Stop bleeding MRR. Discover a tactical churn prevention saas 1 year roadmap for bootstrapped founders to survive the 12-month cliff and lock in renewals.</span>
         </div>
-        
       </a>
       <a href="https://saastools.corenk.com/articles/can-saas-churn-rate-be-changed" class="article-item">
         <div class="article-item__left">
           <span class="article-item__title">Can Your SaaS Churn Rate Be Changed? The Hard Evidence That Proves It Isn’t Destiny</span>
           <span class="article-item__excerpt">Is your SaaS churn rate fixed by niche or market? New data proves it can drop 20–50% with targeted tactics. See real bootstrapped founder outcomes.</span>
         </div>
-        
       </a>
       <a href="https://saastools.corenk.com/articles/are-reduce-saas-churn-rate" class="article-item">
         <div class="article-item__left">
           <span class="article-item__title">Are You Reducing SaaS Churn Rate Fast Enough to Save Your Runway?</span>
           <span class="article-item__excerpt">Stop guessing if your churn reduction is working. Learn how to measure real churn rate improvement and validate your retention tactics before MRR evaporates.</span>
         </div>
-        
       </a>
-      </div>
     </div>
-
   </div>
+  <!-- ===== AKHIR STATIS ===== -->
 
-  <footer>
+</div>
+
+<footer>
   <div class="footer-inner">
     <div class="footer-top">
       <a href="/" class="footer-brand">SaaS<span class="footer-accent">Tools</span></a>
@@ -714,7 +791,9 @@
     </div>
   </div>
 </footer>
-  <script>
+
+<script src="/explore.js" data-explore data-config='{"type":"articles"}'></script>
+<script>
 (function () {
   document.addEventListener('click', function (e) {
     var el = e.target.closest('a[href]');
