@@ -51,7 +51,8 @@
   }
 
 
-  nav.site-nav, body > nav:not(.footer-nav) {
+  nav.site-nav,
+  body > nav:not(.footer-nav) {
     position: sticky;
     top: 0;
     z-index: 100;
@@ -443,15 +444,111 @@
     }
   }
 
+  /* ===== EKSPLORASI (TAMBAHAN BARU) ===== */
+  .explore-controls {
+    display: none;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 24px;
+    align-items: center;
+    padding-top: 32px;
+  }
+  .explore-controls .search-wrapper {
+    flex: 1;
+    min-width: 200px;
+    position: relative;
+  }
+  .explore-controls input[type="search"] {
+    width: 100%;
+    padding: 10px 14px 10px 40px;
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    font-size: 1rem;
+    font-family: inherit;
+    background: var(--surface);
+    color: var(--text);
+    transition: border-color 0.15s, outline 0.15s;
+    min-height: 48px;
+  }
+  .explore-controls input[type="search"]:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: -1px;
+    border-color: var(--accent);
+  }
+  .explore-controls .search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    pointer-events: none;
+    font-size: 1.1rem;
+  }
+  .explore-controls select {
+    padding: 10px 32px 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    font-size: 0.9375rem;
+    font-family: inherit;
+    background: var(--surface);
+    color: var(--text);
+    min-height: 48px;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2352525b' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    cursor: pointer;
+    min-width: 140px;
+  }
+  .explore-controls select:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: -1px;
+    border-color: var(--accent);
+  }
+  .explore-controls .btn-clear {
+    padding: 10px 20px;
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    background: var(--surface);
+    color: var(--text);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    cursor: pointer;
+    min-height: 48px;
+    transition: background 0.15s, border-color 0.15s;
+    white-space: nowrap;
+    display: none;
+  }
+  .explore-controls .btn-clear:hover {
+    background: var(--bg);
+    border-color: var(--text);
+  }
+  .explore-info {
+    font-size: 0.875rem;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+  #explore-results-dynamic {
+    display: none;
+  }
+  @media (max-width: 640px) {
+    .explore-controls {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .explore-controls select {
+      min-width: 100%;
+    }
+  }
+
   </style>
   <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "5833f90d78f645e0819abedd665e5d93"}'></script>
 </head>
 <body>
-  <nav>
+
+<nav class="site-nav">
   <div class="nav-inner">
-    <a href="/" class="nav-brand">
-      SaaS<span class="brand-accent">Tools</span>
-    </a>
+    <a href="/" class="nav-brand">SaaS<span class="brand-accent">Tools</span></a>
     <div class="nav-links">
       <a href="/articles/">Articles</a>
       <a href="/tools/">Tools</a>
@@ -459,13 +556,45 @@
   </div>
 </nav>
 
-  <div class="home-wrap">
+<div class="home-wrap">
 
-    <section class="hero">
-      <span class="hero__eyebrow">Free Tools &amp; Guides</span>
-      <h1>Build a profitable SaaS —&thinsp;without the guesswork</h1>
-      <p>Financial calculators and practical guides for bootstrapped founders who prefer numbers over narratives.</p>
-    </section>
+  <section class="hero">
+    <span class="hero__eyebrow">Free Tools &amp; Guides</span>
+    <h1>Build a profitable SaaS —&thinsp;without the guesswork</h1>
+    <p>Financial calculators and practical guides for bootstrapped founders who prefer numbers over narratives.</p>
+  </section>
+
+  <!-- ===== EKSPLORASI ===== -->
+  <div class="explore-controls" id="explore-controls">
+    <div class="search-wrapper">
+      <span class="search-icon">🔍</span>
+      <input type="search" id="explore-search" placeholder="Cari artikel atau tools..." aria-label="Cari konten">
+    </div>
+    <select id="explore-cluster" aria-label="Filter topik">
+      <option value="all">Semua Topik</option>
+    </select>
+    <select id="explore-type" aria-label="Filter tipe konten">
+      <option value="all">Semua Konten</option>
+      <option value="articles">Artikel</option>
+      <option value="tools">Tools</option>
+    </select>
+    <select id="explore-sort" aria-label="Urutkan hasil">
+      <option value="newest">Terbaru</option>
+      <option value="oldest">Terlama</option>
+      <option value="alpha">A–Z</option>
+      <option value="alpha-desc">Z–A</option>
+    </select>
+    <button class="btn-clear" id="explore-clear">Reset Filter</button>
+  </div>
+
+  <div class="explore-info" id="explore-info"></div>
+
+  <div id="explore-results-dynamic"></div>
+
+  <div id="explore-pagination"></div>
+
+  <!-- ===== KONTEN STATIS (FALLBACK) ===== -->
+  <div id="explore-results-static">
 
     <section class="home-section">
       <div class="section-header">
@@ -476,7 +605,6 @@
         <a href="/tools/" class="section-see-all">See all →</a>
       </div>
       <div class="tools-grid">
-        
         <a href="https://saastools.corenk.com/tools/saas-churn-calculator" class="tool-card">
           <div class="tool-card__icon">⚡</div>
           <div class="tool-card__name">SaaS Churn Calculator: Logo, MRR, and Revenue at Risk</div>
@@ -509,60 +637,52 @@
         <a href="/articles/" class="section-see-all">See all →</a>
       </div>
       <div class="article-list">
-        
         <a href="https://saastools.corenk.com/articles/would-reduce-saas-churn-rate" class="article-item">
           <div class="article-item__left">
             <span class="article-item__title">Would These Churn Tactics Actually Reduce SaaS Churn Rate, or Just Burn Your Runway?</span>
             <span class="article-item__excerpt">Would churn tactics reduce SaaS churn rate or just burn time? 4 retention strategies tested with real bootstrapped MRR outcomes. See results.</span>
           </div>
-          
         </a>
         <a href="https://saastools.corenk.com/articles/will-saas-customer-retention-rate" class="article-item">
           <div class="article-item__left">
             <span class="article-item__title">Will Your SaaS Customer Retention Rate Survive Scaling? A Bootstrapped Founder's Stress Test</span>
             <span class="article-item__excerpt">Will your SaaS customer retention rate survive scaling? Stress-test retention, spot destabilizers early, and stabilize MRR before churn drains your runway.</span>
           </div>
-          
-        </a>
-        <a href="https://saastools.corenk.com/articles/will-saas-customer-retention-rate-increase" class="article-item">
-          <div class="article-item__left">
-            <span class="article-item__title">Will Your SaaS Customer Retention Rate Increase? A Bootstrapped Founder's Blueprint for Upward Retention Motion</span>
-            <span class="article-item__excerpt">Will your SaaS customer retention rate increase? Learn 4 tactics that boost monthly retention and extend your bootstrapped runway, backed by churn metrics.</span>
-          </div>
-          
-        </a>
-        <a href="https://saastools.corenk.com/articles/will-saas-customer-retention-rate-be-reduced" class="article-item">
-          <div class="article-item__left">
-            <span class="article-item__title">Will SaaS Customer Retention Rate Be Reduced? The Diagnostic Check Bootstrapped Founders Can't Afford to Skip</span>
-            <span class="article-item__excerpt">Is your SaaS retention rate destined to drop? Discover the diagnostic framework to catch hidden compressors before they silently erode your MRR.</span>
-          </div>
-          
         </a>
         <a href="https://saastools.corenk.com/articles/will-saas-churn-rate-increase" class="article-item">
           <div class="article-item__left">
             <span class="article-item__title">Will Your SaaS Churn Rate Increase? The Compound Effect That Quietly Destroys Your Runway</span>
             <span class="article-item__excerpt">Will your SaaS churn rate increase over time? The hidden compound effect silently erodes MRR month after month—stop it before it destroys your runway.</span>
           </div>
-          
+        </a>
+        <a href="https://saastools.corenk.com/articles/why-saas-churn-rate-so-high" class="article-item">
+          <div class="article-item__left">
+            <span class="article-item__title">Why Is SaaS Churn Rate So High? The Brutal Structural Truth Bootstrapped Founders Can’t Afford to Ignore</span>
+            <span class="article-item__excerpt">Why SaaS churn rates are so stubbornly high: low switching costs, subscription fatigue, and the structural trap. Bootstrapped insights and real fixes.</span>
+          </div>
+        </a>
+        <a href="https://saastools.corenk.com/articles/why-saas-churn-rate-is-low" class="article-item">
+          <div class="article-item__left">
+            <span class="article-item__title">Why SaaS Churn Rate Is Low: The Retention Levers That Quietly Save Your Runway</span>
+            <span class="article-item__excerpt">Discover the real reasons SaaS churn stays low—product stickiness, pricing psychology, and operational habits that quietly extend your bootstrapped runway.</span>
+          </div>
         </a>
       </div>
     </section>
 
-    <aside class="hosting-nudge">
-      <p class="hosting-nudge__text">
-        <strong>Still on shared hosting?</strong> Cloudways gives you managed cloud servers with one-click scaling and zero DevOps overhead — so you can stay focused on MRR, not sysadmin tickets.
-      </p>
-      <a
-        href="https://www.cloudways.com/en/?id=2085949"
-        class="hosting-nudge__link"
-        rel="sponsored noopener"
-        target="_blank"
-      >Try Cloudways →</a>
-    </aside>
-
   </div>
+  <!-- ===== AKHIR STATIS ===== -->
 
-  <footer>
+  <aside class="hosting-nudge">
+    <p class="hosting-nudge__text">
+      <strong>Still on shared hosting?</strong> Cloudways gives you managed cloud servers with one-click scaling and zero DevOps overhead — so you can stay focused on MRR, not sysadmin tickets.
+    </p>
+    <a href="https://www.cloudways.com/en/?id=2085949" class="hosting-nudge__link" rel="sponsored noopener" target="_blank">Try Cloudways →</a>
+  </aside>
+
+</div>
+
+<footer>
   <div class="footer-inner">
     <div class="footer-top">
       <a href="/" class="footer-brand">SaaS<span class="footer-accent">Tools</span></a>
@@ -578,7 +698,9 @@
     </div>
   </div>
 </footer>
-  <script>
+
+<script src="/explore.js" data-explore data-config='{"type":"all"}'></script>
+<script>
 (function () {
   document.addEventListener('click', function (e) {
     var el = e.target.closest('a[href]');
