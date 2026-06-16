@@ -1,9 +1,9 @@
-// explore.js — Sistem Eksplorasi Konten dengan Progressive Enhancement
+// explore.js — Content Exploration System with Progressive Enhancement
 (function() {
   'use strict';
 
   // ============================================================
-  // KONFIGURASI
+  // CONFIGURATION
   // ============================================================
   const DEFAULT_CONFIG = {
     type: 'all',
@@ -98,7 +98,7 @@
     } catch (_) {}
 
     const response = await fetch('/content-index.json?_=' + Date.now());
-    if (!response.ok) throw new Error('Gagal mengambil data konten.');
+    if (!response.ok) throw new Error('Failed to fetch content data.');
     const data = await response.json();
 
     try {
@@ -182,11 +182,11 @@
     if (info) {
       const start = totalItems > 0 ? (currentPage - 1) * perPage + 1 : 0;
       const end = Math.min(currentPage * perPage, totalItems);
-      info.textContent = 'Menampilkan ' + start + '–' + end + ' dari ' + totalItems + ' hasil';
+      info.textContent = 'Showing ' + start + '–' + end + ' of ' + totalItems + ' results';
     }
 
     if (items.length === 0) {
-      container.innerHTML = '<div style="text-align:center;padding:48px 0;color:var(--muted);"><p style="font-size:1.125rem;">Tidak ada konten yang ditemukan.</p><p style="font-size:0.9375rem;">Coba ubah filter atau kata kunci pencarian.</p></div>';
+      container.innerHTML = '<div style="text-align:center;padding:48px 0;color:var(--muted);"><p style="font-size:1.125rem;">No content found.</p><p style="font-size:0.9375rem;">Try changing your filters or search keywords.</p></div>';
     } else {
       let html = '';
       items.forEach(item => {
@@ -369,7 +369,7 @@
     try {
       allData = await fetchData();
     } catch (err) {
-      console.error('Gagal memuat data:', err);
+      console.error('Failed to load data:', err);
       return;
     }
 
@@ -468,7 +468,7 @@
     if (script) {
       init(script);
     } else {
-      console.warn('explore.js: Tidak ditemukan script dengan data-explore.');
+      console.warn('explore.js: No script with data-explore found.');
     }
   });
 

@@ -444,7 +444,7 @@
     }
   }
 
-  /* ===== EKSPLORASI (TAMBAHAN BARU) ===== */
+  /* ===== EXPLORATION COMPONENTS ===== */
   .explore-controls {
     display: none;
     flex-wrap: wrap;
@@ -564,27 +564,27 @@
     <p>Financial calculators and practical guides for bootstrapped founders who prefer numbers over narratives.</p>
   </section>
 
-  <!-- ===== EKSPLORASI ===== -->
+  <!-- ===== EXPLORATION ===== -->
   <div class="explore-controls" id="explore-controls">
     <div class="search-wrapper">
       <span class="search-icon">🔍</span>
-      <input type="search" id="explore-search" placeholder="Cari artikel atau tools..." aria-label="Cari konten">
+      <input type="search" id="explore-search" placeholder="Search articles or tools..." aria-label="Search content">
     </div>
-    <select id="explore-cluster" aria-label="Filter topik">
-      <option value="all">Semua Topik</option>
+    <select id="explore-cluster" aria-label="Filter by topic">
+      <option value="all">All Topics</option>
     </select>
-    <select id="explore-type" aria-label="Filter tipe konten">
-      <option value="all">Semua Konten</option>
-      <option value="articles">Artikel</option>
+    <select id="explore-type" aria-label="Filter by content type">
+      <option value="all">All Content</option>
+      <option value="articles">Articles</option>
       <option value="tools">Tools</option>
     </select>
-    <select id="explore-sort" aria-label="Urutkan hasil">
-      <option value="newest">Terbaru</option>
-      <option value="oldest">Terlama</option>
+    <select id="explore-sort" aria-label="Sort by">
+      <option value="newest">Newest</option>
+      <option value="oldest">Oldest</option>
       <option value="alpha">A–Z</option>
       <option value="alpha-desc">Z–A</option>
     </select>
-    <button class="btn-clear" id="explore-clear">Reset Filter</button>
+    <button class="btn-clear" id="explore-clear">Clear Filters</button>
   </div>
 
   <div class="explore-info" id="explore-info"></div>
@@ -593,7 +593,7 @@
 
   <div id="explore-pagination"></div>
 
-  <!-- ===== KONTEN STATIS (FALLBACK) ===== -->
+  <!-- ===== STATIC CONTENT (FALLBACK) ===== -->
   <div id="explore-results-static">
 
     <section class="home-section">
@@ -671,7 +671,7 @@
     </section>
 
   </div>
-  <!-- ===== AKHIR STATIS ===== -->
+  <!-- ===== END STATIC ===== -->
 
   <aside class="hosting-nudge">
     <p class="hosting-nudge__text">
