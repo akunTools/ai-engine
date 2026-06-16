@@ -752,7 +752,7 @@ def build_rss_feed(files: list, content_index: dict) -> str:
 # ─────────────────────────────────────────────
 
 def build_homepage(files: list, content_index: dict) -> str:
-    """Build homepage index.html."""
+    """Build homepage index.html with exploration components."""
     article_files = sorted(
         [f for f in files if f["folder"] == "articles"],
         key=lambda x: x["name"], reverse=True
@@ -844,6 +844,102 @@ def build_homepage(files: list, content_index: dict) -> str:
 {_NAV_CSS}
 {_FOOTER_CSS}
 {_HOMEPAGE_CSS}
+/* EXPLORATION COMPONENTS */
+.explore-controls {{
+  display: none;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 24px;
+  align-items: center;
+  padding-top: 32px;
+}}
+.explore-controls .search-wrapper {{
+  flex: 1;
+  min-width: 200px;
+  position: relative;
+}}
+.explore-controls input[type="search"] {{
+  width: 100%;
+  padding: 10px 14px 10px 40px;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  font-size: 1rem;
+  font-family: inherit;
+  background: var(--surface);
+  color: var(--text);
+  transition: border-color 0.15s, outline 0.15s;
+  min-height: 48px;
+}}
+.explore-controls input[type="search"]:focus {{
+  outline: 2px solid var(--accent);
+  outline-offset: -1px;
+  border-color: var(--accent);
+}}
+.explore-controls .search-icon {{
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  pointer-events: none;
+  font-size: 1.1rem;
+}}
+.explore-controls select {{
+  padding: 10px 32px 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  font-size: 0.9375rem;
+  font-family: inherit;
+  background: var(--surface);
+  color: var(--text);
+  min-height: 48px;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2352525b' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  cursor: pointer;
+  min-width: 140px;
+}}
+.explore-controls select:focus {{
+  outline: 2px solid var(--accent);
+  outline-offset: -1px;
+  border-color: var(--accent);
+}}
+.explore-controls .btn-clear {{
+  padding: 10px 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  min-height: 48px;
+  transition: background 0.15s, border-color 0.15s;
+  white-space: nowrap;
+  display: none;
+}}
+.explore-controls .btn-clear:hover {{
+  background: var(--bg);
+  border-color: var(--text);
+}}
+.explore-info {{
+  font-size: 0.875rem;
+  color: var(--muted);
+  margin-bottom: 16px;
+}}
+#explore-results-dynamic {{
+  display: none;
+}}
+@media (max-width: 640px) {{
+  .explore-controls {{
+    flex-direction: column;
+    align-items: stretch;
+  }}
+  .explore-controls select {{
+    min-width: 100%;
+  }}
+}}
   </style>
   {_ANALYTICS}
 </head>
@@ -858,31 +954,64 @@ def build_homepage(files: list, content_index: dict) -> str:
       <p>Financial calculators and practical guides for bootstrapped founders who prefer numbers over narratives.</p>
     </section>
 
-    <section class="home-section">
-      <div class="section-header">
-        <div class="section-header__meta">
-          <span class="section-label">Calculators</span>
-          <h2 class="section-title">Tools</h2>
-        </div>
-        <a href="/tools/" class="section-see-all">See all →</a>
+    <!-- EXPLORATION -->
+    <div class="explore-controls" id="explore-controls">
+      <div class="search-wrapper">
+        <span class="search-icon">🔍</span>
+        <input type="search" id="explore-search" placeholder="Search articles or tools..." aria-label="Search content">
       </div>
-      <div class="tools-grid">
-        {tools_html}
-      </div>
-    </section>
+      <select id="explore-cluster" aria-label="Filter by topic">
+        <option value="all">All Topics</option>
+      </select>
+      <select id="explore-type" aria-label="Filter by content type">
+        <option value="all">All Content</option>
+        <option value="articles">Articles</option>
+        <option value="tools">Tools</option>
+      </select>
+      <select id="explore-sort" aria-label="Sort by">
+        <option value="newest">Newest</option>
+        <option value="oldest">Oldest</option>
+        <option value="alpha">A–Z</option>
+        <option value="alpha-desc">Z–A</option>
+      </select>
+      <button class="btn-clear" id="explore-clear">Clear Filters</button>
+    </div>
 
-    <section class="home-section">
-      <div class="section-header">
-        <div class="section-header__meta">
-          <span class="section-label">Latest Writing</span>
-          <h2 class="section-title">Articles</h2>
+    <div class="explore-info" id="explore-info"></div>
+    <div id="explore-results-dynamic"></div>
+    <div id="explore-pagination"></div>
+
+    <!-- STATIC FALLBACK -->
+    <div id="explore-results-static">
+
+      <section class="home-section">
+        <div class="section-header">
+          <div class="section-header__meta">
+            <span class="section-label">Calculators</span>
+            <h2 class="section-title">Tools</h2>
+          </div>
+          <a href="/tools/" class="section-see-all">See all →</a>
         </div>
-        <a href="/articles/" class="section-see-all">See all →</a>
-      </div>
-      <div class="article-list">
-        {articles_html}
-      </div>
-    </section>
+        <div class="tools-grid">
+          {tools_html}
+        </div>
+      </section>
+
+      <section class="home-section">
+        <div class="section-header">
+          <div class="section-header__meta">
+            <span class="section-label">Latest Writing</span>
+            <h2 class="section-title">Articles</h2>
+          </div>
+          <a href="/articles/" class="section-see-all">See all →</a>
+        </div>
+        <div class="article-list">
+          {articles_html}
+        </div>
+      </section>
+
+    </div>
+    <!-- END STATIC -->
 
     <aside class="hosting-nudge">
       <p class="hosting-nudge__text">
@@ -899,6 +1028,7 @@ def build_homepage(files: list, content_index: dict) -> str:
   </div>
 
   {_FOOTER}
+  <script src="/explore.js" data-explore data-config='{{"type":"all"}}'></script>
   {_AFFILIATE_TRACKER_JS}
 </body>
 </html>"""
@@ -909,7 +1039,7 @@ def build_homepage(files: list, content_index: dict) -> str:
 # ─────────────────────────────────────────────
 
 def build_articles_index(files: list, content_index: dict) -> str:
-    """Build articles/index.html."""
+    """Build articles/index.html with exploration components."""
     article_files = sorted(
         [f for f in files if f["folder"] == "articles"],
         key=lambda x: x["name"], reverse=True
@@ -975,6 +1105,101 @@ def build_articles_index(files: list, content_index: dict) -> str:
 {_FOOTER_CSS}
 {_HOMEPAGE_CSS}
 {_INDEX_CSS}
+/* EXPLORATION COMPONENTS */
+.explore-controls {{
+  display: none;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 32px 0 24px;
+  align-items: center;
+}}
+.explore-controls .search-wrapper {{
+  flex: 1;
+  min-width: 200px;
+  position: relative;
+}}
+.explore-controls input[type="search"] {{
+  width: 100%;
+  padding: 10px 14px 10px 40px;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  font-size: 1rem;
+  font-family: inherit;
+  background: var(--surface);
+  color: var(--text);
+  transition: border-color 0.15s, outline 0.15s;
+  min-height: 48px;
+}}
+.explore-controls input[type="search"]:focus {{
+  outline: 2px solid var(--accent);
+  outline-offset: -1px;
+  border-color: var(--accent);
+}}
+.explore-controls .search-icon {{
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  pointer-events: none;
+  font-size: 1.1rem;
+}}
+.explore-controls select {{
+  padding: 10px 32px 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  font-size: 0.9375rem;
+  font-family: inherit;
+  background: var(--surface);
+  color: var(--text);
+  min-height: 48px;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2352525b' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  cursor: pointer;
+  min-width: 140px;
+}}
+.explore-controls select:focus {{
+  outline: 2px solid var(--accent);
+  outline-offset: -1px;
+  border-color: var(--accent);
+}}
+.explore-controls .btn-clear {{
+  padding: 10px 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  min-height: 48px;
+  transition: background 0.15s, border-color 0.15s;
+  white-space: nowrap;
+  display: none;
+}}
+.explore-controls .btn-clear:hover {{
+  background: var(--bg);
+  border-color: var(--text);
+}}
+.explore-info {{
+  font-size: 0.875rem;
+  color: var(--muted);
+  margin-bottom: 16px;
+}}
+#explore-results-dynamic {{
+  display: none;
+}}
+@media (max-width: 640px) {{
+  .explore-controls {{
+    flex-direction: column;
+    align-items: stretch;
+  }}
+  .explore-controls select {{
+    min-width: 100%;
+  }}
+}}
   </style>
   {_ANALYTICS}
 </head>
@@ -989,15 +1214,40 @@ def build_articles_index(files: list, content_index: dict) -> str:
       <p class="index-desc">{total} practical guides for bootstrapped SaaS founders — no fluff, no funding narratives.</p>
     </header>
 
-    <div class="index-content">
+    <!-- EXPLORATION -->
+    <div class="explore-controls" id="explore-controls">
+      <div class="search-wrapper">
+        <span class="search-icon">🔍</span>
+        <input type="search" id="explore-search" placeholder="Search articles..." aria-label="Search articles">
+      </div>
+      <select id="explore-cluster" aria-label="Filter by topic">
+        <option value="all">All Topics</option>
+      </select>
+      <select id="explore-sort" aria-label="Sort by">
+        <option value="newest">Newest</option>
+        <option value="oldest">Oldest</option>
+        <option value="alpha">A–Z</option>
+        <option value="alpha-desc">Z–A</option>
+      </select>
+      <button class="btn-clear" id="explore-clear">Clear Filters</button>
+    </div>
+
+    <div class="explore-info" id="explore-info"></div>
+    <div id="explore-results-dynamic"></div>
+    <div id="explore-pagination"></div>
+
+    <!-- STATIC FALLBACK -->
+    <div id="explore-results-static">
       <div class="article-list">
         {items_html}
       </div>
     </div>
+    <!-- END STATIC -->
 
   </div>
 
   {_FOOTER}
+  <script src="/explore.js" data-explore data-config='{{"type":"articles"}}'></script>
   {_AFFILIATE_TRACKER_JS}
 </body>
 </html>"""
@@ -1008,7 +1258,7 @@ def build_articles_index(files: list, content_index: dict) -> str:
 # ─────────────────────────────────────────────
 
 def build_tools_index(files: list, content_index: dict) -> str:
-    """Build tools/index.html."""
+    """Build tools/index.html with exploration components."""
     tool_files = sorted(
         [f for f in files if f["folder"] == "tools"],
         key=lambda x: x["name"]
@@ -1062,6 +1312,101 @@ def build_tools_index(files: list, content_index: dict) -> str:
 {_FOOTER_CSS}
 {_HOMEPAGE_CSS}
 {_INDEX_CSS}
+/* EXPLORATION COMPONENTS */
+.explore-controls {{
+  display: none;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 32px 0 24px;
+  align-items: center;
+}}
+.explore-controls .search-wrapper {{
+  flex: 1;
+  min-width: 200px;
+  position: relative;
+}}
+.explore-controls input[type="search"] {{
+  width: 100%;
+  padding: 10px 14px 10px 40px;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  font-size: 1rem;
+  font-family: inherit;
+  background: var(--surface);
+  color: var(--text);
+  transition: border-color 0.15s, outline 0.15s;
+  min-height: 48px;
+}}
+.explore-controls input[type="search"]:focus {{
+  outline: 2px solid var(--accent);
+  outline-offset: -1px;
+  border-color: var(--accent);
+}}
+.explore-controls .search-icon {{
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  pointer-events: none;
+  font-size: 1.1rem;
+}}
+.explore-controls select {{
+  padding: 10px 32px 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  font-size: 0.9375rem;
+  font-family: inherit;
+  background: var(--surface);
+  color: var(--text);
+  min-height: 48px;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2352525b' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  cursor: pointer;
+  min-width: 140px;
+}}
+.explore-controls select:focus {{
+  outline: 2px solid var(--accent);
+  outline-offset: -1px;
+  border-color: var(--accent);
+}}
+.explore-controls .btn-clear {{
+  padding: 10px 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  min-height: 48px;
+  transition: background 0.15s, border-color 0.15s;
+  white-space: nowrap;
+  display: none;
+}}
+.explore-controls .btn-clear:hover {{
+  background: var(--bg);
+  border-color: var(--text);
+}}
+.explore-info {{
+  font-size: 0.875rem;
+  color: var(--muted);
+  margin-bottom: 16px;
+}}
+#explore-results-dynamic {{
+  display: none;
+}}
+@media (max-width: 640px) {{
+  .explore-controls {{
+    flex-direction: column;
+    align-items: stretch;
+  }}
+  .explore-controls select {{
+    min-width: 100%;
+  }}
+}}
   </style>
   {_ANALYTICS}
 </head>
@@ -1076,15 +1421,40 @@ def build_tools_index(files: list, content_index: dict) -> str:
       <p class="index-desc">{total} free calculators for the SaaS metrics that actually drive decisions.</p>
     </header>
 
-    <div class="index-content">
+    <!-- EXPLORATION -->
+    <div class="explore-controls" id="explore-controls">
+      <div class="search-wrapper">
+        <span class="search-icon">🔍</span>
+        <input type="search" id="explore-search" placeholder="Search tools..." aria-label="Search tools">
+      </div>
+      <select id="explore-cluster" aria-label="Filter by topic">
+        <option value="all">All Topics</option>
+      </select>
+      <select id="explore-sort" aria-label="Sort by">
+        <option value="newest">Newest</option>
+        <option value="oldest">Oldest</option>
+        <option value="alpha">A–Z</option>
+        <option value="alpha-desc">Z–A</option>
+      </select>
+      <button class="btn-clear" id="explore-clear">Clear Filters</button>
+    </div>
+
+    <div class="explore-info" id="explore-info"></div>
+    <div id="explore-results-dynamic"></div>
+    <div id="explore-pagination"></div>
+
+    <!-- STATIC FALLBACK -->
+    <div id="explore-results-static">
       <div class="tools-grid">
         {items_html}
       </div>
     </div>
+    <!-- END STATIC -->
 
   </div>
 
   {_FOOTER}
+  <script src="/explore.js" data-explore data-config='{{"type":"tools"}}'></script>
   {_AFFILIATE_TRACKER_JS}
 </body>
 </html>"""
