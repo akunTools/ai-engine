@@ -51,8 +51,7 @@
   }
 
 
-  nav.site-nav,
-  body > nav:not(.footer-nav) {
+  nav.site-nav, body > nav:not(.footer-nav) {
     position: sticky;
     top: 0;
     z-index: 100;
@@ -196,6 +195,255 @@
   }
 
 
+  .home-wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+  .hero {
+    padding: 80px 0 64px;
+    border-bottom: 1px solid var(--border);
+  }
+  .hero__eyebrow {
+    display: block;
+    font-size: 0.75rem;
+    font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+  .hero h1 {
+    font-size: clamp(2rem, 5vw, 2.75rem);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+    color: var(--text);
+    margin: 0 0 20px;
+  }
+  .hero p {
+    font-size: 1.125rem;
+    color: var(--muted);
+    line-height: 1.6;
+    margin: 0;
+    max-width: 600px;
+  }
+  .home-section {
+    padding: 64px 0 0;
+  }
+  .section-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 24px;
+    border-bottom: 2px solid var(--text);
+    padding-bottom: 12px;
+  }
+  .section-header__meta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .section-label {
+    font-size: 0.75rem;
+    font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin: 0;
+    line-height: 1.2;
+  }
+  .section-see-all {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--accent);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    min-height: 32px;
+    padding: 0 8px;
+    margin-right: -8px;
+    border-radius: var(--r);
+    transition: color 0.15s ease, background 0.15s ease;
+  }
+  .section-see-all:hover {
+    color: var(--accent-h);
+    background: var(--accent-light);
+  }
+  
+  /* Article List Styles */
+  .article-list {
+    display: flex;
+    flex-direction: column;
+  }
+  .article-item {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--border);
+    text-decoration: none;
+    color: inherit;
+    transition: background 0.15s ease;
+  }
+  .article-item:hover .article-item__title {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .article-item__left {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+    min-width: 0;
+  }
+  .article-item__title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.4;
+    transition: color 0.15s ease;
+  }
+  .article-item__excerpt {
+    font-size: 0.875rem;
+    color: var(--muted);
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .article-item__date {
+    font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+    font-size: 0.8125rem;
+    color: var(--muted);
+    white-space: nowrap;
+    flex-shrink: 0;
+    padding-top: 4px;
+  }
+  
+  /* Tools Grid Styles */
+  .tools-grid {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .tool-card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .tool-card:hover {
+    border-color: var(--text);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+  }
+  .tool-card__icon {
+    font-size: 1.5rem;
+    line-height: 1;
+  }
+  .tool-card__name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+  }
+  .tool-card__desc {
+    font-size: 0.875rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  
+  /* Utilitarian Hosting Nudge */
+  .hosting-nudge {
+    margin-top: 64px;
+    padding: 24px 32px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--text);
+    border-radius: 0 var(--r) var(--r) 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+  }
+  .hosting-nudge__text {
+    font-size: 0.9375rem;
+    color: var(--text);
+    line-height: 1.6;
+    margin: 0;
+  }
+  .hosting-nudge__text strong {
+    color: var(--text);
+    font-weight: 700;
+  }
+  .hosting-nudge__link {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--surface);
+    background: var(--text);
+    text-decoration: none;
+    padding: 0 20px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    border-radius: var(--r);
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: background 0.15s ease;
+  }
+  .hosting-nudge__link:hover {
+    background: var(--muted);
+  }
+  
+  @media (max-width: 899px) {
+    .tools-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (max-width: 640px) {
+    .home-wrap { padding: 0 16px; }
+    .hero { padding: 48px 0 40px; }
+    .tools-grid { grid-template-columns: 1fr; }
+    .article-item {
+      flex-direction: column;
+      gap: 8px;
+    }
+    .article-item__date {
+      padding-top: 0;
+      width: 100%;
+    }
+    .hosting-nudge {
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 24px;
+    }
+    .hosting-nudge__link {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+
+
   .index-wrap {
     max-width: 760px;
     margin: 0 auto;
@@ -243,110 +491,110 @@
     .index-content { padding: 32px 0 0; }
   }
 
-  /* ===== EXPLORATION COMPONENTS ===== */
+/* EXPLORATION COMPONENTS */
+.explore-controls {
+  display: none;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 32px 0 24px;
+  align-items: center;
+}
+.explore-controls .search-wrapper {
+  flex: 1;
+  min-width: 200px;
+  position: relative;
+}
+.explore-controls input[type="search"] {
+  width: 100%;
+  padding: 10px 14px 10px 40px;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  font-size: 1rem;
+  font-family: inherit;
+  background: var(--surface);
+  color: var(--text);
+  transition: border-color 0.15s, outline 0.15s;
+  min-height: 48px;
+}
+.explore-controls input[type="search"]:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: -1px;
+  border-color: var(--accent);
+}
+.explore-controls .search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  pointer-events: none;
+  font-size: 1.1rem;
+}
+.explore-controls select {
+  padding: 10px 32px 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  font-size: 0.9375rem;
+  font-family: inherit;
+  background: var(--surface);
+  color: var(--text);
+  min-height: 48px;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2352525b' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  cursor: pointer;
+  min-width: 140px;
+}
+.explore-controls select:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: -1px;
+  border-color: var(--accent);
+}
+.explore-controls .btn-clear {
+  padding: 10px 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  min-height: 48px;
+  transition: background 0.15s, border-color 0.15s;
+  white-space: nowrap;
+  display: none;
+}
+.explore-controls .btn-clear:hover {
+  background: var(--bg);
+  border-color: var(--text);
+}
+.explore-info {
+  font-size: 0.875rem;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+#explore-results-dynamic {
+  display: none;
+}
+@media (max-width: 640px) {
   .explore-controls {
-    display: none;
-    flex-wrap: wrap;
-    gap: 12px;
-    margin: 32px 0 24px;
-    align-items: center;
-  }
-  .explore-controls .search-wrapper {
-    flex: 1;
-    min-width: 200px;
-    position: relative;
-  }
-  .explore-controls input[type="search"] {
-    width: 100%;
-    padding: 10px 14px 10px 40px;
-    border: 1px solid var(--border);
-    border-radius: var(--r);
-    font-size: 1rem;
-    font-family: inherit;
-    background: var(--surface);
-    color: var(--text);
-    transition: border-color 0.15s, outline 0.15s;
-    min-height: 48px;
-  }
-  .explore-controls input[type="search"]:focus {
-    outline: 2px solid var(--accent);
-    outline-offset: -1px;
-    border-color: var(--accent);
-  }
-  .explore-controls .search-icon {
-    position: absolute;
-    left: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--muted);
-    pointer-events: none;
-    font-size: 1.1rem;
+    flex-direction: column;
+    align-items: stretch;
   }
   .explore-controls select {
-    padding: 10px 32px 10px 14px;
-    border: 1px solid var(--border);
-    border-radius: var(--r);
-    font-size: 0.9375rem;
-    font-family: inherit;
-    background: var(--surface);
-    color: var(--text);
-    min-height: 48px;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2352525b' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    cursor: pointer;
-    min-width: 140px;
+    min-width: 100%;
   }
-  .explore-controls select:focus {
-    outline: 2px solid var(--accent);
-    outline-offset: -1px;
-    border-color: var(--accent);
-  }
-  .explore-controls .btn-clear {
-    padding: 10px 20px;
-    border: 1px solid var(--border);
-    border-radius: var(--r);
-    background: var(--surface);
-    color: var(--text);
-    font-size: 0.9375rem;
-    font-weight: 500;
-    cursor: pointer;
-    min-height: 48px;
-    transition: background 0.15s, border-color 0.15s;
-    white-space: nowrap;
-    display: none;
-  }
-  .explore-controls .btn-clear:hover {
-    background: var(--bg);
-    border-color: var(--text);
-  }
-  .explore-info {
-    font-size: 0.875rem;
-    color: var(--muted);
-    margin-bottom: 16px;
-  }
-  #explore-results-dynamic {
-    display: none;
-  }
-  @media (max-width: 640px) {
-    .explore-controls {
-      flex-direction: column;
-      align-items: stretch;
-    }
-    .explore-controls select {
-      min-width: 100%;
-    }
-  }
-
+}
   </style>
   <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "5833f90d78f645e0819abedd665e5d93"}'></script>
 </head>
 <body>
-
-<nav class="site-nav">
+  <nav>
   <div class="nav-inner">
-    <a href="/tools/" class="nav-back">← All Tools</a>
+    <a href="/" class="nav-brand">
+      SaaS<span class="brand-accent">Tools</span>
+    </a>
     <div class="nav-links">
       <a href="/articles/">Articles</a>
       <a href="/tools/" class="active">Tools</a>
@@ -354,41 +602,40 @@
   </div>
 </nav>
 
-<div class="index-wrap">
+  <div class="index-wrap">
 
-  <header class="index-header">
-    <span class="index-label">Calculators</span>
-    <h1 class="index-title">Tools</h1>
-    <p class="index-desc">4 free calculators for the SaaS metrics that actually drive decisions.</p>
-  </header>
+    <header class="index-header">
+      <span class="index-label">Calculators</span>
+      <h1 class="index-title">Tools</h1>
+      <p class="index-desc">4 free calculators for the SaaS metrics that actually drive decisions.</p>
+    </header>
 
-  <!-- ===== EXPLORATION ===== -->
-  <div class="explore-controls" id="explore-controls">
-    <div class="search-wrapper">
-      <span class="search-icon">🔍</span>
-      <input type="search" id="explore-search" placeholder="Search tools..." aria-label="Search tools">
+    <!-- EXPLORATION -->
+    <div class="explore-controls" id="explore-controls">
+      <div class="search-wrapper">
+        <span class="search-icon">🔍</span>
+        <input type="search" id="explore-search" placeholder="Search tools..." aria-label="Search tools">
+      </div>
+      <select id="explore-cluster" aria-label="Filter by topic">
+        <option value="all">All Topics</option>
+      </select>
+      <select id="explore-sort" aria-label="Sort by">
+        <option value="newest">Newest</option>
+        <option value="oldest">Oldest</option>
+        <option value="alpha">A–Z</option>
+        <option value="alpha-desc">Z–A</option>
+      </select>
+      <button class="btn-clear" id="explore-clear">Clear Filters</button>
     </div>
-    <select id="explore-cluster" aria-label="Filter by topic">
-      <option value="all">All Topics</option>
-    </select>
-    <select id="explore-sort" aria-label="Sort by">
-      <option value="newest">Newest</option>
-      <option value="oldest">Oldest</option>
-      <option value="alpha">A–Z</option>
-      <option value="alpha-desc">Z–A</option>
-    </select>
-    <button class="btn-clear" id="explore-clear">Clear Filters</button>
-  </div>
 
-  <div class="explore-info" id="explore-info"></div>
+    <div class="explore-info" id="explore-info"></div>
+    <div id="explore-results-dynamic"></div>
+    <div id="explore-pagination"></div>
 
-  <div id="explore-results-dynamic"></div>
-
-  <div id="explore-pagination"></div>
-
-  <!-- ===== STATIC CONTENT (4 TOOLS) ===== -->
-  <div id="explore-results-static">
-    <div class="tools-grid">
+    <!-- STATIC FALLBACK -->
+    <div id="explore-results-static">
+      <div class="tools-grid">
+        
       <a href="https://saastools.corenk.com/tools/saas-churn-calculator" class="tool-card">
         <div class="tool-card__icon">⚡</div>
         <div class="tool-card__name">SaaS Churn Calculator: Logo, MRR, and Revenue at Risk</div>
@@ -409,13 +656,13 @@
         <div class="tool-card__name">SaaS Runway Calculator: How Many Months of Cash Do You Have Left?</div>
         <div class="tool-card__desc">Calculate your SaaS runway months instantly. See if your burn rate puts you in danger. For bootstrapped founders who need financial clarity without fluff.</div>
       </a>
+      </div>
     </div>
+    <!-- END STATIC -->
+
   </div>
-  <!-- ===== END STATIC ===== -->
 
-</div>
-
-<footer>
+  <footer>
   <div class="footer-inner">
     <div class="footer-top">
       <a href="/" class="footer-brand">SaaS<span class="footer-accent">Tools</span></a>
@@ -431,9 +678,8 @@
     </div>
   </div>
 </footer>
-
-<script src="/explore.js" data-explore data-config='{"type":"tools"}'></script>
-<script>
+  <script src="/explore.js" data-explore data-config='{"type":"tools"}'></script>
+  <script>
 (function () {
   document.addEventListener('click', function (e) {
     var el = e.target.closest('a[href]');
