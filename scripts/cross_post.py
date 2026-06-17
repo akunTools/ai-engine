@@ -123,6 +123,24 @@ def extract_article_body(html: str) -> str:
     return m.group(1).strip() if m else html
 
 
+def fix_markdown_formatting(md: str) -> str:
+    """
+    Perbaiki formatting Markdown dari html2text.
+    1. Perbaiki penomoran ganda: '  1. 1' → '  1.'
+    2. Perbaiki spacing berlebih pada list items.
+    """
+    # Fix duplicate numbering from nested lists: "  1. 1" → "  1."
+    md = re.sub(r'^(\s*)(\d+)\. \d+\.\s*', r'\1\2. ', md, flags=re.MULTILINE)
+    
+    # Fix jika ada "1. 1. 1" (tiga level) → "1."
+    md = re.sub(r'^(\s*)(\d+)\. \d+\. \d+\.\s*', r'\1\2. ', md, flags=re.MULTILINE)
+    
+    # Hapus spasi berlebih di dalam list item
+    md = re.sub(r'^(\s*)(\d+)\.  ', r'\1\2. ', md, flags=re.MULTILINE)
+    
+    return md
+
+
 def html_to_markdown(html: str, base_url: str) -> str:
     """
     Konversi HTML ke Markdown menggunakan html2text.
@@ -149,7 +167,13 @@ def html_to_markdown(html: str, base_url: str) -> str:
     h.protect_links  = True
     h.wrap_links     = False
     h.ignore_tables  = False
-    return h.handle(html).strip()
+    
+    md = h.handle(html).strip()
+    
+    # Post-process: perbaiki formatting markdown
+    md = fix_markdown_formatting(md)
+    
+    return md
 
 
 # ── Dev.to ─────────────────────────────────────────────────────────────────────
@@ -249,7 +273,7 @@ def main():
     print("2/3 Convert HTML → Markdown...")
     meta    = extract_meta(html)
     body    = extract_article_body(html)
-    md      = html_to_markdown(body, SITE_URL)  # <-- PERBAIKAN: tambahkan SITE_URL
+    md      = html_to_markdown(body, SITE_URL)
     print(f"    Markdown: {len(md):,} chars | Title: {meta['title'][:60]}")
 
     # 4. Cross-post ke Dev.to
