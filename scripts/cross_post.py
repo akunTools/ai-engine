@@ -123,16 +123,29 @@ def extract_article_body(html: str) -> str:
     return m.group(1).strip() if m else html
 
 
-def html_to_markdown(html: str) -> str:
+def html_to_markdown(html: str, base_url: str) -> str:
     """
     Konversi HTML ke Markdown menggunakan html2text.
-    Dipanggil setelah extract_article_body.
+    Semua link relatif diubah menjadi absolut terlebih dahulu.
     """
     import html2text
+    
+    # Ubah link relatif menjadi absolut
+    def make_abs(match):
+        href = match.group(1)
+        if href.startswith('/') and not href.startswith('//'):
+            return f'href="{base_url}{href}"'
+        return match.group(0)
+    
+    # Cari semua href="..." dan ubah yang relatif
+    html = re.sub(r'href="([^"]*)"', make_abs, html)
+    # Juga handle href='...' (single quote)
+    html = re.sub(r"href='([^']*)'", make_abs, html)
+    
     h = html2text.HTML2Text()
     h.ignore_links   = False
-    h.ignore_images  = True   # gambar OG tidak akan tersedia di platform lain
-    h.body_width     = 0      # jangan wrap baris
+    h.ignore_images  = True
+    h.body_width     = 0
     h.protect_links  = True
     h.wrap_links     = False
     h.ignore_tables  = False
@@ -236,7 +249,7 @@ def main():
     print("2/3 Convert HTML → Markdown...")
     meta    = extract_meta(html)
     body    = extract_article_body(html)
-    md      = html_to_markdown(body)
+    md      = html_to_markdown(body, SITE_URL)  # <-- PERBAIKAN: tambahkan SITE_URL
     print(f"    Markdown: {len(md):,} chars | Title: {meta['title'][:60]}")
 
     # 4. Cross-post ke Dev.to
