@@ -174,6 +174,13 @@
       "cluster": "saas-churn-retention",
       "date": "2026-06-15",
       "excerpt": "Is your SaaS retention rate destined to drop? Discover the diagnostic framework to catch hidden compressors before they silently erode your MRR."
+    },
+    {
+      "slug": "can-saas-churn-rate-be-increased",
+      "title": "Can Your SaaS Churn Rate Be Increased \u2014 and Should You Ever Want To?",
+      "cluster": "saas-churn-retention",
+      "date": "2026-06-17",
+      "excerpt": "Can you intentionally increase SaaS churn to save your runway? Discover the contrarian math on strategic customer shedding and 4 non-obvious tactics."
     }
   ],
   "tools": [
