@@ -443,7 +443,7 @@
     }
   }
 
-/* EXPLORATION COMPONENTS */
+/* EXPLORATION COMPONENTS (No Emoji, Responsive) */
 .explore-controls {
   display: none;
   flex-wrap: wrap;
@@ -459,7 +459,7 @@
 }
 .explore-controls input[type="search"] {
   width: 100%;
-  padding: 10px 14px 10px 40px;
+  padding: 10px 14px 10px 44px;
   border: 1px solid var(--border);
   border-radius: var(--r);
   font-size: 1rem;
@@ -476,12 +476,13 @@
 }
 .explore-controls .search-icon {
   position: absolute;
-  left: 12px;
+  left: 14px;
   top: 50%;
   transform: translateY(-50%);
   color: var(--muted);
   pointer-events: none;
-  font-size: 1.1rem;
+  width: 18px;
+  height: 18px;
 }
 .explore-controls select {
   padding: 10px 32px 10px 14px;
@@ -530,6 +531,13 @@
 #explore-results-dynamic {
   display: none;
 }
+#explore-results-static,
+#explore-results-dynamic {
+  padding: 0 4px;
+}
+.article-item {
+  padding: 16px 0;
+}
 @media (max-width: 640px) {
   .explore-controls {
     flex-direction: column;
@@ -537,6 +545,17 @@
   }
   .explore-controls select {
     min-width: 100%;
+  }
+  .explore-controls .search-wrapper input[type="search"] {
+    font-size: 16px; /* Prevent iOS zoom */
+  }
+}
+@media (max-width: 480px) {
+  .explore-controls .search-wrapper {
+    min-width: 100%;
+  }
+  .article-item {
+    gap: 12px;
   }
 }
   </style>
@@ -566,7 +585,10 @@
     <!-- EXPLORATION -->
     <div class="explore-controls" id="explore-controls">
       <div class="search-wrapper">
-        <span class="search-icon">🔍</span>
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
         <input type="search" id="explore-search" placeholder="Search articles or tools..." aria-label="Search content">
       </div>
       <select id="explore-cluster" aria-label="Filter by topic">
@@ -604,22 +626,22 @@
         <div class="tools-grid">
           
         <a href="https://saastools.corenk.com/tools/saas-churn-calculator" class="tool-card">
-          <div class="tool-card__icon">⚡</div>
+          <div class="tool-card__icon"><!-- SVG icon will be injected by CSS --></div>
           <div class="tool-card__name">SaaS Churn Calculator: Logo, MRR, and Revenue at Risk</div>
           <div class="tool-card__desc">Calculate your SaaS churn rate instantly. See customer churn, MRR churn, net churn, and annual revenue at risk. Essential metrics for bootstrapped founders</div>
         </a>
         <a href="https://saastools.corenk.com/tools/saas-growth-calculator" class="tool-card">
-          <div class="tool-card__icon">⚡</div>
+          <div class="tool-card__icon"><!-- SVG icon will be injected by CSS --></div>
           <div class="tool-card__name">SaaS Growth Calculator: MRR Growth Rate, NRR & Rule of 40</div>
           <div class="tool-card__desc">Calculate your SaaS MRR growth rate, net new MRR, ARR, NRR, and Rule of 40 instantly. The growth metrics calculator for bootstrapped SaaS founders.</div>
         </a>
         <a href="https://saastools.corenk.com/tools/saas-metrics-calculator" class="tool-card">
-          <div class="tool-card__icon">⚡</div>
+          <div class="tool-card__icon"><!-- SVG icon will be injected by CSS --></div>
           <div class="tool-card__name">SaaS Metrics Calculator: MRR Growth, Churn, NRR & More in Seconds</div>
           <div class="tool-card__desc">Calculate MRR growth, net revenue retention, churn rates, ARR, and Rule of 40 instantly. The dashboard bootstrapped SaaS founders rely on every month.</div>
         </a>
         <a href="https://saastools.corenk.com/tools/saas-runway-calculator" class="tool-card">
-          <div class="tool-card__icon">⚡</div>
+          <div class="tool-card__icon"><!-- SVG icon will be injected by CSS --></div>
           <div class="tool-card__name">SaaS Runway Calculator: How Many Months of Cash Do You Have Left?</div>
           <div class="tool-card__desc">Calculate your SaaS runway months instantly. See if your burn rate puts you in danger. For bootstrapped founders who need financial clarity without fluff.</div>
         </a>
