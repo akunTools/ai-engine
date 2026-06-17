@@ -752,7 +752,7 @@ def build_rss_feed(files: list, content_index: dict) -> str:
 # ─────────────────────────────────────────────
 
 def build_homepage(files: list, content_index: dict) -> str:
-    """Build homepage index.html with exploration components."""
+    """Build homepage index.html with exploration components (no emoji)."""
     article_files = sorted(
         [f for f in files if f["folder"] == "articles"],
         key=lambda x: x["name"], reverse=True
@@ -817,7 +817,7 @@ def build_homepage(files: list, content_index: dict) -> str:
             desc_html = f'<div class="tool-card__desc">{desc}</div>' if desc else ""
             tools_html += f"""
         <a href="{url}" class="tool-card">
-          <div class="tool-card__icon">⚡</div>
+          <div class="tool-card__icon"><!-- SVG icon will be injected by CSS --></div>
           <div class="tool-card__name">{title}</div>
           {desc_html}
         </a>"""
@@ -844,7 +844,7 @@ def build_homepage(files: list, content_index: dict) -> str:
 {_NAV_CSS}
 {_FOOTER_CSS}
 {_HOMEPAGE_CSS}
-/* EXPLORATION COMPONENTS */
+/* EXPLORATION COMPONENTS (No Emoji, Responsive) */
 .explore-controls {{
   display: none;
   flex-wrap: wrap;
@@ -860,7 +860,7 @@ def build_homepage(files: list, content_index: dict) -> str:
 }}
 .explore-controls input[type="search"] {{
   width: 100%;
-  padding: 10px 14px 10px 40px;
+  padding: 10px 14px 10px 44px;
   border: 1px solid var(--border);
   border-radius: var(--r);
   font-size: 1rem;
@@ -877,12 +877,13 @@ def build_homepage(files: list, content_index: dict) -> str:
 }}
 .explore-controls .search-icon {{
   position: absolute;
-  left: 12px;
+  left: 14px;
   top: 50%;
   transform: translateY(-50%);
   color: var(--muted);
   pointer-events: none;
-  font-size: 1.1rem;
+  width: 18px;
+  height: 18px;
 }}
 .explore-controls select {{
   padding: 10px 32px 10px 14px;
@@ -931,6 +932,13 @@ def build_homepage(files: list, content_index: dict) -> str:
 #explore-results-dynamic {{
   display: none;
 }}
+#explore-results-static,
+#explore-results-dynamic {{
+  padding: 0 4px;
+}}
+.article-item {{
+  padding: 16px 0;
+}}
 @media (max-width: 640px) {{
   .explore-controls {{
     flex-direction: column;
@@ -938,6 +946,17 @@ def build_homepage(files: list, content_index: dict) -> str:
   }}
   .explore-controls select {{
     min-width: 100%;
+  }}
+  .explore-controls .search-wrapper input[type="search"] {{
+    font-size: 16px; /* Prevent iOS zoom */
+  }}
+}}
+@media (max-width: 480px) {{
+  .explore-controls .search-wrapper {{
+    min-width: 100%;
+  }}
+  .article-item {{
+    gap: 12px;
   }}
 }}
   </style>
@@ -957,7 +976,10 @@ def build_homepage(files: list, content_index: dict) -> str:
     <!-- EXPLORATION -->
     <div class="explore-controls" id="explore-controls">
       <div class="search-wrapper">
-        <span class="search-icon">🔍</span>
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
         <input type="search" id="explore-search" placeholder="Search articles or tools..." aria-label="Search content">
       </div>
       <select id="explore-cluster" aria-label="Filter by topic">
@@ -1039,7 +1061,7 @@ def build_homepage(files: list, content_index: dict) -> str:
 # ─────────────────────────────────────────────
 
 def build_articles_index(files: list, content_index: dict) -> str:
-    """Build articles/index.html with exploration components."""
+    """Build articles/index.html with exploration components (no emoji)."""
     article_files = sorted(
         [f for f in files if f["folder"] == "articles"],
         key=lambda x: x["name"], reverse=True
@@ -1105,7 +1127,7 @@ def build_articles_index(files: list, content_index: dict) -> str:
 {_FOOTER_CSS}
 {_HOMEPAGE_CSS}
 {_INDEX_CSS}
-/* EXPLORATION COMPONENTS */
+/* EXPLORATION COMPONENTS (No Emoji, Responsive) */
 .explore-controls {{
   display: none;
   flex-wrap: wrap;
@@ -1120,7 +1142,7 @@ def build_articles_index(files: list, content_index: dict) -> str:
 }}
 .explore-controls input[type="search"] {{
   width: 100%;
-  padding: 10px 14px 10px 40px;
+  padding: 10px 14px 10px 44px;
   border: 1px solid var(--border);
   border-radius: var(--r);
   font-size: 1rem;
@@ -1137,12 +1159,13 @@ def build_articles_index(files: list, content_index: dict) -> str:
 }}
 .explore-controls .search-icon {{
   position: absolute;
-  left: 12px;
+  left: 14px;
   top: 50%;
   transform: translateY(-50%);
   color: var(--muted);
   pointer-events: none;
-  font-size: 1.1rem;
+  width: 18px;
+  height: 18px;
 }}
 .explore-controls select {{
   padding: 10px 32px 10px 14px;
@@ -1191,6 +1214,13 @@ def build_articles_index(files: list, content_index: dict) -> str:
 #explore-results-dynamic {{
   display: none;
 }}
+#explore-results-static,
+#explore-results-dynamic {{
+  padding: 0 4px;
+}}
+.article-item {{
+  padding: 16px 0;
+}}
 @media (max-width: 640px) {{
   .explore-controls {{
     flex-direction: column;
@@ -1198,6 +1228,17 @@ def build_articles_index(files: list, content_index: dict) -> str:
   }}
   .explore-controls select {{
     min-width: 100%;
+  }}
+  .explore-controls .search-wrapper input[type="search"] {{
+    font-size: 16px; /* Prevent iOS zoom */
+  }}
+}}
+@media (max-width: 480px) {{
+  .explore-controls .search-wrapper {{
+    min-width: 100%;
+  }}
+  .article-item {{
+    gap: 12px;
   }}
 }}
   </style>
@@ -1217,7 +1258,10 @@ def build_articles_index(files: list, content_index: dict) -> str:
     <!-- EXPLORATION -->
     <div class="explore-controls" id="explore-controls">
       <div class="search-wrapper">
-        <span class="search-icon">🔍</span>
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
         <input type="search" id="explore-search" placeholder="Search articles..." aria-label="Search articles">
       </div>
       <select id="explore-cluster" aria-label="Filter by topic">
@@ -1258,7 +1302,7 @@ def build_articles_index(files: list, content_index: dict) -> str:
 # ─────────────────────────────────────────────
 
 def build_tools_index(files: list, content_index: dict) -> str:
-    """Build tools/index.html with exploration components."""
+    """Build tools/index.html with exploration components (no emoji)."""
     tool_files = sorted(
         [f for f in files if f["folder"] == "tools"],
         key=lambda x: x["name"]
@@ -1281,7 +1325,7 @@ def build_tools_index(files: list, content_index: dict) -> str:
         desc  = tool_excerpt_map.get(slug) or "Calculate and understand your SaaS metrics."
         items_html += f"""
       <a href="{url}" class="tool-card">
-        <div class="tool-card__icon">⚡</div>
+        <div class="tool-card__icon"><!-- SVG icon will be injected by CSS --></div>
         <div class="tool-card__name">{title}</div>
         <div class="tool-card__desc">{desc}</div>
       </a>"""
@@ -1312,7 +1356,7 @@ def build_tools_index(files: list, content_index: dict) -> str:
 {_FOOTER_CSS}
 {_HOMEPAGE_CSS}
 {_INDEX_CSS}
-/* EXPLORATION COMPONENTS */
+/* EXPLORATION COMPONENTS (No Emoji, Responsive) */
 .explore-controls {{
   display: none;
   flex-wrap: wrap;
@@ -1327,7 +1371,7 @@ def build_tools_index(files: list, content_index: dict) -> str:
 }}
 .explore-controls input[type="search"] {{
   width: 100%;
-  padding: 10px 14px 10px 40px;
+  padding: 10px 14px 10px 44px;
   border: 1px solid var(--border);
   border-radius: var(--r);
   font-size: 1rem;
@@ -1344,12 +1388,13 @@ def build_tools_index(files: list, content_index: dict) -> str:
 }}
 .explore-controls .search-icon {{
   position: absolute;
-  left: 12px;
+  left: 14px;
   top: 50%;
   transform: translateY(-50%);
   color: var(--muted);
   pointer-events: none;
-  font-size: 1.1rem;
+  width: 18px;
+  height: 18px;
 }}
 .explore-controls select {{
   padding: 10px 32px 10px 14px;
@@ -1398,6 +1443,13 @@ def build_tools_index(files: list, content_index: dict) -> str:
 #explore-results-dynamic {{
   display: none;
 }}
+#explore-results-static,
+#explore-results-dynamic {{
+  padding: 0 4px;
+}}
+.article-item {{
+  padding: 16px 0;
+}}
 @media (max-width: 640px) {{
   .explore-controls {{
     flex-direction: column;
@@ -1405,6 +1457,17 @@ def build_tools_index(files: list, content_index: dict) -> str:
   }}
   .explore-controls select {{
     min-width: 100%;
+  }}
+  .explore-controls .search-wrapper input[type="search"] {{
+    font-size: 16px; /* Prevent iOS zoom */
+  }}
+}}
+@media (max-width: 480px) {{
+  .explore-controls .search-wrapper {{
+    min-width: 100%;
+  }}
+  .article-item {{
+    gap: 12px;
   }}
 }}
   </style>
@@ -1424,7 +1487,10 @@ def build_tools_index(files: list, content_index: dict) -> str:
     <!-- EXPLORATION -->
     <div class="explore-controls" id="explore-controls">
       <div class="search-wrapper">
-        <span class="search-icon">🔍</span>
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
         <input type="search" id="explore-search" placeholder="Search tools..." aria-label="Search tools">
       </div>
       <select id="explore-cluster" aria-label="Filter by topic">
