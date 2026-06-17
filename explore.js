@@ -170,7 +170,7 @@
   }
 
   // ============================================================
-  // RENDER
+  // RENDER (No Emoji)
   // ============================================================
   function renderResults(items, totalItems, currentPage, perPage) {
     const container = document.getElementById('explore-results-dynamic');
@@ -191,13 +191,12 @@
       let html = '';
       items.forEach(item => {
         const url = item._type === 'article' ? '/articles/' + item.slug : '/tools/' + item.slug;
-        const icon = item._type === 'article' ? '📄' : '⚡';
         const typeLabel = item._type === 'article' ? 'Article' : 'Tool';
         const clusterLabel = item.cluster ? '<span style="font-size:0.75rem;color:var(--subtle);background:var(--border);padding:2px 8px;border-radius:4px;margin-left:8px;">' + item.cluster + '</span>' : '';
 
         html += '<a href="' + url + '" class="article-item" style="display:flex;align-items:flex-start;justify-content:space-between;gap:24px;padding:20px 0;border-bottom:1px solid var(--border);text-decoration:none;color:inherit;">';
         html += '<div style="display:flex;flex-direction:column;gap:6px;flex:1;min-width:0;">';
-        html += '<span style="font-size:0.75rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">' + icon + ' ' + typeLabel + clusterLabel + '</span>';
+        html += '<span style="font-size:0.75rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">' + typeLabel + clusterLabel + '</span>';
         html += '<span style="font-size:1rem;font-weight:600;color:var(--text);line-height:1.4;">' + highlightText(item.title || item.slug, state.q) + '</span>';
         if (item.excerpt) {
           html += '<span style="font-size:0.875rem;color:var(--muted);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">' + highlightText(item.excerpt, state.q) + '</span>';
