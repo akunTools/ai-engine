@@ -20,6 +20,9 @@ on:
 jobs:
   generate-article:
     runs-on: ubuntu-latest
+    concurrency:
+      group: content-pipeline
+      cancel-in-progress: false
     timeout-minutes: 10
     permissions:
       contents: write
@@ -112,6 +115,9 @@ jobs:
 
   generate-tool:
     runs-on: ubuntu-latest
+    concurrency:
+      group: content-pipeline
+      cancel-in-progress: false
     timeout-minutes: 10
     permissions:
       contents: write

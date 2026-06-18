@@ -23,6 +23,9 @@ on:
 jobs:
   stage-article:
     runs-on: ubuntu-latest
+    concurrency:
+      group: auto-stage
+      cancel-in-progress: false
     timeout-minutes: 20
     if: |
       github.event_name == 'workflow_dispatch' && github.event.inputs.task_type == 'article' ||
@@ -72,6 +75,9 @@ jobs:
 
   stage-tool:
     runs-on: ubuntu-latest
+    concurrency:
+      group: auto-stage
+      cancel-in-progress: false
     timeout-minutes: 20
     if: |
       github.event_name == 'workflow_dispatch' && github.event.inputs.task_type == 'calculator_tool' ||
