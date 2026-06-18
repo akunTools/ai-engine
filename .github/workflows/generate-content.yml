@@ -26,6 +26,7 @@ jobs:
     timeout-minutes: 10
     permissions:
       contents: write
+      actions: write  # 🔥 TAMBAHKAN INI agar bisa memicu workflow lain
     if: |
       github.event_name == 'workflow_dispatch' && github.event.inputs.task_type == 'article' ||
       github.event_name == 'repository_dispatch' && github.event.client_payload.task_type == 'article' ||
@@ -72,6 +73,30 @@ jobs:
           ENGINE_REPO:   ${{ github.repository }}
           SITE_BASE_URL: ${{ vars.SITE_BASE_URL }}
         run: python scripts/sitemap_gen.py
+
+      # 🔥 STEP BARU: Panggil workflow distribusi secara eksplisit
+      - name: Trigger distribution workflow
+        if: steps.pipeline.outcome == 'success' && steps.pipeline.outputs.published_slug != ''
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const folder = '${{ steps.pipeline.outputs.published_folder }}' || 'articles';
+            const slug = '${{ steps.pipeline.outputs.published_slug }}';
+            if (!slug) {
+              core.setFailed('No slug found to distribute');
+              return;
+            }
+            console.log(`Triggering publish-distribute.yml for ${folder}/${slug}`);
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'publish-distribute.yml',
+              ref: 'main',
+              inputs: {
+                folder: folder,
+                slug: slug
+              }
+            });
 
       - name: Email success
         if: success()
@@ -121,6 +146,7 @@ jobs:
     timeout-minutes: 10
     permissions:
       contents: write
+      actions: write  # 🔥 TAMBAHKAN INI
     if: |
       github.event_name == 'workflow_dispatch' && github.event.inputs.task_type == 'calculator_tool' ||
       github.event_name == 'repository_dispatch' && github.event.client_payload.task_type == 'calculator_tool' ||
@@ -167,6 +193,30 @@ jobs:
           ENGINE_REPO:   ${{ github.repository }}
           SITE_BASE_URL: ${{ vars.SITE_BASE_URL }}
         run: python scripts/sitemap_gen.py
+
+      # 🔥 STEP BARU: Panggil workflow distribusi secara eksplisit
+      - name: Trigger distribution workflow
+        if: steps.pipeline.outcome == 'success' && steps.pipeline.outputs.published_slug != ''
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const folder = '${{ steps.pipeline.outputs.published_folder }}' || 'tools';
+            const slug = '${{ steps.pipeline.outputs.published_slug }}';
+            if (!slug) {
+              core.setFailed('No slug found to distribute');
+              return;
+            }
+            console.log(`Triggering publish-distribute.yml for ${folder}/${slug}`);
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'publish-distribute.yml',
+              ref: 'main',
+              inputs: {
+                folder: folder,
+                slug: slug
+              }
+            });
 
       - name: Email success
         if: success()
