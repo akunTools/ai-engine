@@ -291,6 +291,16 @@ def run_pipeline(task_type: str) -> None:
 
     print(f"Published successfully: {output_dir}/{slug}.html")
 
+    # 🔥 KODE BARU: Export slug & folder ke GITHUB_OUTPUT agar bisa dibaca workflow selanjutnya
+    gh_output = os.environ.get("GITHUB_OUTPUT")
+    if gh_output:
+        with open(gh_output, "a") as f:
+            f.write(f"published_folder={folder_type}\n")
+            f.write(f"published_slug={slug}\n")
+        print(f"Exported to GITHUB_OUTPUT: folder={folder_type}, slug={slug}")
+    else:
+        print("Warning: GITHUB_OUTPUT not set, skipping export.")
+
     # Hapus dari staging
     delete_file(
         f"{staging_ready}/{filename}",
