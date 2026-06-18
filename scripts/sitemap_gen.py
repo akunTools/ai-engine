@@ -30,27 +30,24 @@ def _headers():
 
 
 def get_output_files() -> list:
-    """Ambil daftar semua file di branch output."""
+    """Ambil daftar semua file di branch output menggunakan Git Trees API untuk menghindari limit 1000 file."""
     files = []
-    for folder in ["articles", "tools"]:
-        url = (
-            f"{API_BASE}/repos/{ENGINE_REPO}/contents/"
-            f"{folder}?ref={OUTPUT_BRANCH}"
-        )
-        req = urllib.request.Request(url, headers=_headers())
-        try:
-            with urllib.request.urlopen(req) as r:
-                items = json.loads(r.read())
-                for item in items:
-                    name = item.get("name", "")
-                    if name not in (".gitkeep", "README.md", "index.html", ""):
+    url = f"{API_BASE}/repos/{ENGINE_REPO}/git/trees/{OUTPUT_BRANCH}?recursive=1"
+    req = urllib.request.Request(url, headers=_headers())
+    try:
+        with urllib.request.urlopen(req) as r:
+            tree = json.loads(r.read()).get("tree", [])
+            for item in tree:
+                if item["type"] == "blob" and item["path"].endswith(".html"):
+                    parts = item["path"].split("/")
+                    if len(parts) == 2 and parts[0] in ["articles", "tools"] and parts[1] != "index.html":
                         files.append({
-                            "path":   item["path"],
-                            "folder": folder,
-                            "name":   name
+                            "path": item["path"],
+                            "folder": parts[0],
+                            "name": parts[1]
                         })
-        except Exception as e:
-            print(f"Could not list {folder}: {e}")
+    except Exception as e:
+        print(f"Could not list tree: {e}")
     return files
 
 

@@ -334,8 +334,15 @@ def post_to_bluesky(text: str) -> dict:
     except urllib.error.HTTPError as e:
         raise RuntimeError(f"Bluesky auth {e.code}: {e.read().decode(errors='replace')}")
 
+    # Ambil URL dari teks (asumsinya URL ada di paling belakang)
+    urls = re.findall(r'https?://[^\s]+', text)
+    article_url = urls[-1] if urls else ""
+    clean_text = text.replace(article_url, '').strip()
+
     # Post: limit 295 grapheme (buffer dari limit AT Protocol 300)
-    post_text = text[:295]
+    max_text_len = 295 - len(article_url) - 2
+    post_text = f"{clean_text[:max_text_len]}…\n\n{article_url}" if len(clean_text) > max_text_len else f"{clean_text}\n\n{article_url}"
+    
     facets    = _build_bluesky_facets(post_text)
     record    = {
         "$type":     "app.bsky.feed.post",

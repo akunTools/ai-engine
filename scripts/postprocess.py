@@ -539,6 +539,30 @@ _ARTICLE_CSS = """
     margin: 56px 0;
   }
 
+  /* Alert Boxes */
+  .alert-danger {
+    background-color: var(--danger-bg);
+    border-left: 4px solid var(--danger);
+    padding: 1rem;
+    margin: 1.5rem 0;
+  }
+  .alert-info {
+    background-color: var(--accent-light);
+    border-left: 4px solid var(--accent);
+    padding: 1rem;
+    margin: 1.5rem 0;
+  }
+  .formula-highlight {
+    background: #f3f4f6;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    font-family: monospace;
+    text-align: center;
+    font-size: 1.1rem;
+  }
+
   /* Affiliate Box khusus untuk Artikel */
   .affiliate-box {
     background: var(--success-bg);
