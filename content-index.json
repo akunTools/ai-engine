@@ -181,6 +181,13 @@
       "cluster": "saas-churn-retention",
       "date": "2026-06-17",
       "excerpt": "Can you intentionally increase SaaS churn to save your runway? Discover the contrarian math on strategic customer shedding and 4 non-obvious tactics."
+    },
+    {
+      "slug": "are-reduce-saas-churn-rate-or-not",
+      "title": "Are You Actually Reducing SaaS Churn Rate, or Not? A Bootstrapped Founder\u2019s Diagnostic",
+      "cluster": "saas-churn-retention",
+      "date": "2026-06-18",
+      "excerpt": "Wondering if your SaaS churn reduction tactics are actually moving the needle\u2014or just bleeding slower? Use this diagnostic to separate real retention gains from false wins."
     }
   ],
   "tools": [
