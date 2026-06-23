@@ -202,6 +202,13 @@
       "cluster": "saas-churn-retention",
       "date": "2026-06-21",
       "excerpt": "B2B SaaS churn rate is different \u2013 high-contract losses erode runway faster. Learn benchmarks, hidden triggers, and 4 tactics to stop revenue bleed."
+    },
+    {
+      "slug": "saas-churn-rate-formula",
+      "title": "The SaaS Churn Rate Formula: 3 Calculations That Expose Your Real Runway Risk",
+      "cluster": "saas-churn-retention",
+      "date": "2026-06-23",
+      "excerpt": "The SaaS churn rate formula isn"
     }
   ],
   "tools": [
