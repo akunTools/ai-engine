@@ -209,6 +209,13 @@
       "cluster": "saas-churn-retention",
       "date": "2026-06-23",
       "excerpt": "The SaaS churn rate formula isn"
+    },
+    {
+      "slug": "typical-saas-churn-rate",
+      "title": "Typical SaaS Churn Rate: How Bootstrapped Founders Can Benchmark and Protect Their Runway",
+      "cluster": "saas-churn-retention",
+      "date": "2026-06-25",
+      "excerpt": "Discover typical SaaS churn rates across B2C, SMB, Mid-Market, and Enterprise. Benchmark your numbers, calculate all three churn types, and protect your bootstrapped runway."
     }
   ],
   "tools": [
