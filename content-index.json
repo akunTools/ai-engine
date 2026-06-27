@@ -216,6 +216,13 @@
       "cluster": "saas-churn-retention",
       "date": "2026-06-25",
       "excerpt": "Discover typical SaaS churn rates across B2C, SMB, Mid-Market, and Enterprise. Benchmark your numbers, calculate all three churn types, and protect your bootstrapped runway."
+    },
+    {
+      "slug": "saas-churn-rate-benchmark",
+      "title": "SaaS Churn Rate Benchmark: The Bootstrapped Founder\u2019s Diagnostic for Whether Your MRR Bleed Is Normal or Fatal",
+      "cluster": "saas-churn-retention",
+      "date": "2026-06-27",
+      "excerpt": "Is your SaaS churn rate benchmark healthy, or quietly eating months off your runway? Compare tiered benchmarks, compound MRR loss math, and 4 fixes."
     }
   ],
   "tools": [
