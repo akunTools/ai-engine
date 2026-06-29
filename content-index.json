@@ -223,6 +223,13 @@
       "cluster": "saas-churn-retention",
       "date": "2026-06-27",
       "excerpt": "Is your SaaS churn rate benchmark healthy, or quietly eating months off your runway? Compare tiered benchmarks, compound MRR loss math, and 4 fixes."
+    },
+    {
+      "slug": "saas-churn-rate-calculation",
+      "title": "SaaS Churn Rate Calculation: The Operational Guide No Bootstrapped Founder Can Afford to Get Wrong",
+      "cluster": "saas-churn-retention",
+      "date": "2026-06-29",
+      "excerpt": "Accurate SaaS churn rate calculation saves your runway. Learn logo, gross MRR, and net revenue churn formulas with worked examples, plus mistakes that inflate numbers."
     }
   ],
   "tools": [
