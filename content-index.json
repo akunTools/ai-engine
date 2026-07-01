@@ -260,6 +260,13 @@
       "cluster": "saas-growth-metrics",
       "date": "2026-05-06",
       "excerpt": "Calculate your SaaS MRR growth rate, net new MRR, ARR, NRR, and Rule of 40 instantly. The growth metrics calculator for bootstrapped SaaS founders."
+    },
+    {
+      "slug": "saas-cac-calculator-b-2",
+      "title": "B2B SaaS CAC Calculator: Find Your Customer Acquisition Cost & Payback Period",
+      "cluster": "saas-unit-economics",
+      "date": "2026-07-01",
+      "excerpt": "Calculate your B2B SaaS Customer Acquisition Cost (CAC) in seconds. Also get ARPU, LTV, LTV:CAC ratio, and payback period. For bootstrapped founders."
     }
   ]
 }
