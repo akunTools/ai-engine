@@ -230,6 +230,13 @@
       "cluster": "saas-churn-retention",
       "date": "2026-06-29",
       "excerpt": "Accurate SaaS churn rate calculation saves your runway. Learn logo, gross MRR, and net revenue churn formulas with worked examples, plus mistakes that inflate numbers."
+    },
+    {
+      "slug": "saas-customer-retention-metrics",
+      "title": "SaaS Customer Retention Metrics That Actually Predict Runway Health: A Bootstrapped Founder's Measurement Playbook",
+      "cluster": "saas-churn-retention",
+      "date": "2026-07-01",
+      "excerpt": "Most founders track the wrong retention metrics. Learn which SaaS customer retention metrics actually predict runway health, with formulas, benchmarks, and tracking rituals."
     }
   ],
   "tools": [
