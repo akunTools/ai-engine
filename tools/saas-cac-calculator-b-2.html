@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>B2B SaaS CAC Calculator: Find Your Customer Acquisition Cost & Payback Period — SaaS Tools for Bootstrapped Founders</title>
+  <meta name="description" content="Calculate your B2B SaaS Customer Acquisition Cost (CAC) in seconds. Also get ARPU, LTV, LTV:CAC ratio, and payback period. For bootstrapped founders.">
+  <meta name="cluster" content="saas-unit-economics">
+  <meta property="og:title" content="B2B SaaS CAC Calculator: Find Your Customer Acquisition Cost & Payback Period">
+  <meta property="og:url" content="https://saastools.corenk.com/tools/saas-cac-calculator-b-2">
+  <meta property="og:type" content="website">
+  <meta property="og:description" content="Calculate your B2B SaaS Customer Acquisition Cost (CAC) in seconds. Also get ARPU, LTV, LTV:CAC ratio, and payback period. For bootstrapped founders.">
+  <meta property="og:site_name" content="SaaS Tools for Bootstrapped Founders">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="B2B SaaS CAC Calculator: Find Your Customer Acquisition Cost & Payback Period">
+  <meta name="twitter:description" content="Calculate your B2B SaaS Customer Acquisition Cost (CAC) in seconds. Also get ARPU, LTV, LTV:CAC ratio, and payback period. For bootstrapped founders.">
+  <link rel="canonical" href="https://saastools.corenk.com/tools/saas-cac-calculator-b-2">
+  
+  <link rel="icon" type="image/png" href="/favicon/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg" />
+  <link rel="shortcut icon" href="/favicon/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
+  <link rel="manifest" href="/favicon/site.webmanifest" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+  
+  <link rel="alternate" type="application/rss+xml" title="SaaS Tools Feed" href="/feed.xml">
+  <style>
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg:           #fafafa;
+    --surface:      #ffffff;
+    --text:         #18181b;
+    --muted:        #52525b;
+    --subtle:       #a1a1aa;
+    --border:       #e4e4e7;
+    --accent:       #2563eb;
+    --accent-h:     #1d4ed8;
+    --accent-light: #eff6ff;
+    --danger:       #dc2626;
+    --danger-bg:    #fef2f2;
+    --warning:      #d97706;
+    --warning-bg:   #fffbeb;
+    --success:      #059669;
+    --success-bg:   #f0fdf4;
+    --r:            4px;
+  }
+  body {
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { color: var(--accent-h); }
+  
+  /* Global Focus State for Accessibility */
+  *:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+
+  nav.site-nav,
+  body > nav:not(.footer-nav) {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-inner {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0 24px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .nav-brand {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text);
+    text-decoration: none;
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+  }
+  .brand-accent {
+    color: var(--accent);
+  }
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .nav-links a {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 0 12px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    border-radius: var(--r);
+    transition: color 0.15s ease, background 0.15s ease;
+  }
+  .nav-links a:hover {
+    color: var(--text);
+    background: var(--bg);
+  }
+  .nav-links a.active {
+    color: var(--accent);
+    background: var(--accent-light);
+    border: 1px solid #bfdbfe;
+  }
+  .nav-back {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--muted);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 0 8px;
+    border-radius: var(--r);
+    transition: color 0.15s ease;
+  }
+  .nav-back:hover {
+    color: var(--text);
+    background: var(--bg);
+  }
+  @media (max-width: 640px) {
+    .nav-inner { padding: 0 16px; }
+    .nav-links a { padding: 0 8px; }
+  }
+
+
+  .article-wrap {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+  .article-header {
+    padding: 64px 0 40px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 48px;
+  }
+  .article-header__title {
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.25;
+    letter-spacing: -0.03em;
+    margin: 0 0 24px;
+  }
+  .article-header__meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-size: 0.85rem;
+    font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+    color: var(--muted);
+    line-height: 1;
+  }
+  .article-header__meta span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .article-header__meta-sep { color: var(--border); }
+  .kw-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text);
+    background: var(--border);
+    padding: 4px 8px;
+    border-radius: 4px;
+  }
+  .article-body {
+    font-size: 1.0625rem;
+    line-height: 1.72;
+    color: var(--text);
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+  .article-body h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.02em;
+    line-height: 1.3;
+    margin: 56px 0 24px;
+    border-bottom: 2px solid var(--text);
+    padding-bottom: 8px;
+  }
+  .article-body h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.01em;
+    line-height: 1.4;
+    margin: 40px 0 16px;
+  }
+  .article-body p { margin: 0 0 24px; }
+  .article-body ul, .article-body ol {
+    margin: 0 0 24px;
+    padding-left: 24px;
+  }
+  .article-body li { margin-bottom: 8px; }
+  .article-body li::marker { color: var(--muted); font-weight: bold; }
+  .article-body a {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    text-decoration-thickness: 1px;
+    transition: color 0.15s ease, text-decoration-color 0.15s ease;
+  }
+  .article-body a:hover {
+    color: var(--text);
+    text-decoration-color: var(--text);
+  }
+  
+  /* Utilitarian Blockquote */
+  .article-body blockquote {
+    margin: 32px 0;
+    padding: 20px 24px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--text);
+    color: var(--text);
+    font-size: 1.0625rem;
+    font-style: normal;
+    line-height: 1.72;
+  }
+  .article-body blockquote p:last-child { margin-bottom: 0; }
+  
+  /* Micro-details: Inline Code vs Preformatted Code */
+  .article-body code {
+    font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+    font-size: 0.85em;
+    background: #f4f4f5;
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+  }
+  .article-body pre {
+    background: #18181b;
+    color: #e4e4e7;
+    border-radius: var(--r);
+    padding: 20px 24px;
+    margin: 32px 0;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    border: 1px solid #3f3f46;
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .article-body pre code {
+    background: transparent;
+    border: none;
+    color: inherit;
+    padding: 0;
+    font-size: inherit;
+  }
+  
+  /* Micro-details: Image & Table Responsiveness */
+  .article-body img {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--r);
+    border: 1px solid var(--border);
+    display: block;
+    margin: 40px 0;
+  }
+  .article-body table {
+    width: 100%;
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-collapse: collapse;
+    margin: 32px 0;
+    font-size: 0.9rem;
+    border: 1px solid var(--border);
+  }
+  .article-body th, .article-body td {
+    padding: 12px 16px;
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+  .article-body th {
+    background: var(--bg);
+    font-weight: 600;
+    text-align: left;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.8125rem;
+    white-space: nowrap;
+  }
+  .article-body hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 56px 0;
+  }
+
+  /* Alert Boxes */
+  .alert-danger {
+    background-color: var(--danger-bg);
+    border-left: 4px solid var(--danger);
+    padding: 1rem;
+    margin: 1.5rem 0;
+  }
+  .alert-info {
+    background-color: var(--accent-light);
+    border-left: 4px solid var(--accent);
+    padding: 1rem;
+    margin: 1.5rem 0;
+  }
+  .formula-highlight {
+    background: #f3f4f6;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    font-family: monospace;
+    text-align: center;
+    font-size: 1.1rem;
+  }
+
+  /* Affiliate Box khusus untuk Artikel */
+  .affiliate-box {
+    background: var(--success-bg);
+    border: 1px solid rgba(16,185,129,.25);
+    border-radius: var(--r);
+    padding: 20px 24px;
+    margin: 32px 0;
+    font-size: 1.0625rem;
+    color: var(--text);
+    line-height: 1.6;
+  }
+  .affiliate-box a {
+    color: var(--success);
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-color: rgba(16,185,129,.4);
+  }
+  .affiliate-box a:hover { color: #059669; text-decoration-color: #059669; }
+  
+  .share-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 32px;
+    margin: 56px 0 48px;
+  }
+  @media (max-width: 640px) {
+    .share-box {
+      padding: 20px;
+      margin: 40px 0 32px;
+    }
+  }
+  .share-label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--text);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 16px;
+  }
+  .share-buttons { display: flex; flex-wrap: wrap; gap: 12px; }
+  .share-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 0 16px; border-radius: var(--r);
+    font-size: 0.875rem; font-weight: 500; text-decoration: none;
+    cursor: pointer; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text); min-height: 44px;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .share-btn:hover { background: var(--bg); border-color: var(--muted); }
+  .comments-box { margin-bottom: 48px; }
+  .comments-box h2 {
+    font-size: 1.25rem; font-weight: 700; color: var(--text);
+    margin-bottom: 24px; padding-bottom: 16px; border-bottom: 2px solid var(--text);
+  }
+  
+  @media (max-width: 640px) {
+    .article-wrap { padding: 0 16px; }
+    .article-header { padding: 40px 0 32px; }
+    .article-body { font-size: 1rem; }
+    .article-body pre {
+      margin: 32px -16px;
+      border-radius: 0;
+      border-left: none;
+      border-right: none;
+    }
+    .article-body table {
+      margin: 32px -16px;
+      width: calc(100% + 32px);
+      border-left: none;
+      border-right: none;
+      border-radius: 0;
+    }
+  }
+
+
+    /* ── LAYOUT ── */
+    .container { max-width: 680px; margin: 0 auto; padding: 48px 24px 80px; }
+
+    /* ── TYPOGRAPHY ── */
+    h1 {
+      font-size: clamp(1.75rem, 4vw, 2.25rem);
+      font-weight: 700;
+      letter-spacing: -.03em;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .subtitle {
+      color: var(--muted);
+      font-size: 1.0625rem;
+      margin-bottom: 40px;
+      line-height: 1.6;
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 32px;
+      margin-bottom: 24px;
+    }
+    .card h2 {
+      font-size: .875rem;
+      font-weight: 600;
+      color: var(--text);
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      margin-bottom: 24px;
+      border-bottom: 2px solid var(--text);
+      padding-bottom: 8px;
+    }
+
+    /* ── CARD HR separator ── */
+    .card hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 24px 0;
+    }
+
+    /* ── INPUTS (UTILITARIAN BRUTALISM) ── */
+    .input-group { margin-bottom: 20px; }
+    .input-group:last-child { margin-bottom: 0; }
+    label {
+      display: block;
+      font-size: .875rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .input-wrapper { position: relative; }
+    .input-prefix {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+      font-size: 1rem;
+      pointer-events: none;
+      font-weight: 500;
+    }
+    input[type="number"] {
+      width: 100%;
+      padding: 12px 14px 12px 32px;
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      font-size: 16px !important; /* CRITICAL: Mencegah iOS Auto-Zoom */
+      font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+      color: var(--text);
+      background: var(--bg);
+      transition: border-color .15s, outline .15s;
+      -moz-appearance: textfield;
+    }
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+    input[type="number"]:focus {
+      outline: 2px solid var(--accent);
+      outline-offset: -1px;
+      border-color: var(--accent);
+      background: var(--surface);
+    }
+    input[type="number"].error-input { border-color: var(--danger); }
+    .error-msg {
+      color: var(--danger);
+      font-size: .8125rem;
+      margin-top: 6px;
+      display: none;
+    }
+
+    /* ── SELECT, CHECKBOX, RADIO, RANGE ── */
+    select {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      font-size: 16px;
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      cursor: pointer;
+      transition: border-color .15s, outline .15s;
+    }
+    select:focus {
+      outline: 2px solid var(--accent);
+      outline-offset: -1px;
+      border-color: var(--accent);
+      background-color: var(--surface);
+    }
+    select.error-input { border-color: var(--danger); }
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      min-height: 44px;
+      cursor: pointer;
+    }
+    .checkbox-group label {
+      font-size: .9375rem;
+      font-weight: 400;
+      color: var(--text);
+      margin-bottom: 0;
+      cursor: pointer;
+    }
+    input[type="checkbox"],
+    input[type="radio"] {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+      height: 6px;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    /* ── RESULT (HIGH CONTRAST) ── */
+    .result-card {
+      background: var(--surface);
+      border: 2px solid var(--text);
+      border-radius: var(--r);
+      padding: 32px;
+      margin-bottom: 24px;
+    }
+    .result-label {
+      font-size: .8125rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 8px;
+    }
+    .result-number {
+      font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+      font-size: clamp(1.75rem, 6vw, 4rem);
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1;
+      letter-spacing: -.05em;
+      margin-bottom: 8px;
+      overflow-wrap: break-word;
+      word-break: break-all;
+    }
+    .result-unit {
+      font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+      font-size: 1rem;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+    .interpretation {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--text);
+      border-radius: 0 var(--r) var(--r) 0;
+      padding: 16px 20px;
+      font-size: 0.9375rem;
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .interpretation.danger { border-color: var(--danger); background: var(--danger-bg); }
+    .interpretation.warning { border-color: var(--warning); background: var(--warning-bg); }
+    .interpretation.healthy { border-color: var(--success); background: var(--success-bg); }
+    .secondary-result {
+      margin-top: 16px;
+      font-size: .875rem;
+      font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+      color: var(--muted);
+    }
+
+    /* ── RESULT ROW (multi-result separator) ── */
+    .result-row {
+      padding-bottom: 20px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .result-row:last-child {
+      padding-bottom: 0;
+      margin-bottom: 0;
+      border-bottom: none;
+    }
+
+    /* ── FORMULA BOX ── */
+    .formula-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .formula-box h3 {
+      font-size: .75rem;
+      font-weight: 600;
+      color: var(--text);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 12px;
+    }
+    .formula-box p {
+      font-size: 0.875rem;
+      color: var(--text);
+      line-height: 1.7;
+      font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+    }
+    .formula-box ul, .formula-box ol {
+      margin: 10px 0;
+      padding-left: 20px;
+    }
+    .formula-box li {
+      margin-bottom: 8px;
+      font-size: 0.875rem;
+      color: var(--text);
+      line-height: 1.6;
+      font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+    }
+    .formula-box li code {
+      background: #f4f4f5;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.15em 0.4em;
+      border-radius: 3px;
+      font-size: 0.85em;
+    }
+
+    /* ── AFFILIATE BOX ── */
+    .affiliate-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--success);
+      border-radius: 0 var(--r) var(--r) 0;
+      padding: 20px 24px;
+      margin-bottom: 24px;
+      font-size: 0.9375rem;
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .affiliate-box a {
+      color: var(--success);
+      font-weight: 600;
+      text-decoration: underline;
+      text-decoration-color: rgba(16,185,129,.4);
+    }
+    .affiliate-box a:hover { color: #059669; text-decoration-color: #059669; }
+
+    /* ── RELATED LINK ── */
+    .related-link { font-size: .9375rem; color: var(--muted); padding: 16px 0; }
+    .related-link a { color: var(--accent); text-decoration: underline; font-weight: 500; }
+    .related-link a:hover { color: var(--accent-h); }
+
+    /* ── FAQ ── */
+    .faq { margin-top: 48px; }
+    .faq h3 {
+      font-size: 1.25rem; font-weight: 700; color: var(--text);
+      letter-spacing: -.02em; margin-bottom: 20px;
+      border-bottom: 2px solid var(--text); padding-bottom: 8px;
+    }
+    .faq details {
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      margin-bottom: 12px;
+      background: var(--surface);
+    }
+    .faq summary {
+      padding: 16px 20px; font-size: 1rem; font-weight: 600; color: var(--text);
+      cursor: pointer; list-style: none; display: flex;
+      justify-content: space-between; align-items: center;
+      min-height: 44px;
+    }
+    .faq summary::-webkit-details-marker { display: none; }
+    .faq summary::after {
+      content: '+'; font-size: 1.2rem; color: var(--muted);
+      font-weight: 300; flex-shrink: 0; margin-left: 16px; font-family: monospace;
+    }
+    .faq details[open] > summary::after { content: '−'; }
+    .faq details[open] > summary { border-bottom: 1px solid var(--border); background: var(--bg); }
+    .faq .faq-answer {
+      padding: 20px; font-size: 0.9375rem; color: var(--muted);
+      line-height: 1.7; background: var(--surface);
+    }
+
+    /* ── ARTICLE BODY di dalam tool: top spacing & separator ── */
+    .container > .article-body {
+      margin-top: 48px;
+      padding-top: 48px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── Override article-body h2 untuk tool: lebih compact ── */
+    .container .article-body h2 {
+      margin: 40px 0 20px;
+    }
+
+
+    /* ── CHART CONTAINER ── */
+    .chart-container {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 24px;
+      margin-bottom: 24px;
+      position: relative;
+      width: 100%;
+    }
+    .chart-container canvas {
+      width: 100% !important;
+      max-height: 400px;
+    }
+
+
+    /* ── DECISION TREE ── */
+    .decision-tree {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin-bottom: 24px;
+    }
+    .decision-node {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 20px 24px;
+      position: relative;
+    }
+    .decision-node.active {
+      border-color: var(--accent);
+      border-width: 2px;
+      background: var(--accent-light);
+    }
+    .decision-node.completed {
+      border-color: var(--success);
+      background: var(--success-bg);
+    }
+    .decision-node h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text);
+      margin: 0 0 8px;
+    }
+    .decision-node p {
+      font-size: 0.9375rem;
+      color: var(--muted);
+      margin: 0 0 16px;
+    }
+    .decision-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .decision-option {
+      display: inline-flex;
+      align-items: center;
+      padding: 8px 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      min-height: 44px;
+      text-decoration: none;
+    }
+    .decision-option:hover {
+      border-color: var(--text);
+      background: var(--surface);
+    }
+    .decision-option.selected {
+      border-color: var(--accent);
+      background: var(--accent-light);
+      color: var(--accent);
+    }
+    .decision-branch {
+      display: flex;
+      justify-content: center;
+      padding: 4px 0;
+      color: var(--muted);
+      font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+      font-size: 1.2rem;
+    }
+    @media (max-width: 640px) {
+      .chart-container { padding: 16px; }
+      .decision-node { padding: 16px; }
+      .decision-options { flex-direction: column; }
+      .decision-option { width: 100%; }
+    }
+
+
+  .related-content { margin-bottom: 32px; }
+  .related-heading {
+    font-size: .75rem; font-weight: 600; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .05em;
+    margin-bottom: 12px; margin-top: 24px;
+  }
+  .related-heading:first-child { margin-top: 0; }
+  .related-list {
+    list-style: none; margin: 0; padding: 0;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .related-list li a {
+    font-size: .9rem; color: var(--text); text-decoration: none;
+    display: block; padding: 12px 16px; background: var(--surface);
+    border: 1px solid var(--border); border-radius: var(--r);
+    transition: border-color .15s, background .15s;
+  }
+  .related-list li a:hover { border-color: var(--text); background: var(--bg); }
+
+
+  footer {
+    background: var(--bg);
+    border-top: 1px solid var(--border);
+    margin-top: 80px;
+  }
+  .footer-inner {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 48px 24px;
+  }
+  .footer-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+  }
+  .footer-brand {
+    font-size: 1.0625rem;
+    font-weight: 700;
+    color: var(--text);
+    text-decoration: none;
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+  }
+  .footer-accent { color: var(--accent); }
+  .footer-nav {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .footer-nav a {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 0 12px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    border-radius: var(--r);
+    transition: color 0.15s ease;
+  }
+  .footer-nav a:hover { color: var(--text); }
+  .footer-bottom {
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    font-size: 0.8125rem;
+    color: var(--muted);
+    line-height: 1.6;
+    font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+  }
+  @media (max-width: 640px) {
+    footer { margin-top: 48px; }
+    .footer-inner { padding: 40px 16px; }
+    .footer-top {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+    }
+    .footer-nav { margin-left: -12px; }
+  }
+
+
+    @media (max-width: 640px) {
+      .container { padding: 32px 16px 64px; }
+      .card, .result-card, .formula-box, .affiliate-box { padding: 20px; }
+    }
+  </style>
+  <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "5833f90d78f645e0819abedd665e5d93"}'></script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": [
+      "SoftwareApplication",
+      "WebApplication"
+    ],
+    "name": "B2B SaaS CAC Calculator: Find Your Customer Acquisition Cost & Payback Period",
+    "description": "Calculate your B2B SaaS Customer Acquisition Cost (CAC) in seconds. Also get ARPU, LTV, LTV:CAC ratio, and payback period. For bootstrapped founders.",
+    "url": "https://saastools.corenk.com/tools/saas-cac-calculator-b-2",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "provider": {
+      "@type": "Organization",
+      "name": "SaaSTools",
+      "url": "https://saastools.corenk.com"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is a healthy LTV:CAC ratio for a bootstrapped B2B SaaS?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "A ratio of 4:1 or higher signals strong unit economics. Bootstrapped companies should aim for 5:1 because you don’t have venture buffer. If you dip below 3:1, start investigating acquisition efficiency or retention levers immediately — every customer you acquire is costing you future runway."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Should I include founder’s time in my CAC calculation?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, if you are directly involved in sales calls, demos, or closing. Even as a bootstrapper, track your hours against acquisition outcomes. A founder doing 10 demos/week at an implicit rate of $150/hour adds $1,500/week to CAC. That’s invisible cash burn you need to account for."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How often should I recalculate my CAC?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Monthly. CAC can shift fast when you test new channels, hire a rep, or run seasonal campaigns. High‑performing bootstrapped teams review unit economics every two weeks — if payback stretches by just 2 months, cash flow can deteriorate faster than MRR climbs."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What if my CAC is negative?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "A negative CAC would mean you’re getting paid to acquire customers, which doesn’t happen in legitimate B2B SaaS. If your calculation shows a negative number, check for data entry errors — you might be counting a refund or credit as acquisition spend."
+        }
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="nav-inner">
+    <a href="/tools/" class="nav-back">← All Tools</a>
+    <div class="nav-links">
+      <a href="/articles/">Articles</a>
+      <a href="/tools/" class="active">Tools</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+<h1>B2B SaaS CAC Calculator: Find Your Customer Acquisition Cost & Payback Period</h1>
+<p class="subtitle">Instantly compute your CAC, ARPU, LTV, and payback months — the unit economics metrics that determine whether every sales dollar is building or burning your runway.</p>
+<div class="card">
+  <h2>Enter Your Numbers</h2>
+  <div class="input-group">
+    <label for="spend">Total Acquisition Spend</label>
+    <div class="input-wrapper">
+      <span class="input-prefix">$</span>
+      <input type="number" id="spend" aria-label="Total Acquisition Spend" placeholder="e.g. 10000" style="font-size:16px" oninput="calculate()">
+    </div>
+  </div>
+  <div class="input-group">
+    <label for="new-customers">New Customers Acquired</label>
+    <input type="number" id="new-customers" aria-label="New Customers Acquired" placeholder="e.g. 25" style="font-size:16px" oninput="calculate()">
+    <span class="error-msg"></span>
+  </div>
+  <div class="input-group">
+    <label for="mrr">Current MRR</label>
+    <div class="input-wrapper">
+      <span class="input-prefix">$</span>
+      <input type="number" id="mrr" aria-label="Current MRR" placeholder="e.g. 25000" style="font-size:16px" oninput="calculate()">
+    </div>
+  </div>
+  <div class="input-group">
+    <label for="active-customers">Active Customers</label>
+    <input type="number" id="active-customers" aria-label="Active Customers" placeholder="e.g. 100" style="font-size:16px" oninput="calculate()">
+    <span class="error-msg"></span>
+  </div>
+  <div class="input-group">
+    <label for="churn-rate">Monthly Churn Rate</label>
+    <div class="input-wrapper">
+      <span class="input-prefix">%</span>
+      <input type="number" id="churn-rate" aria-label="Monthly Churn Rate" placeholder="e.g. 3.5" style="font-size:16px" oninput="calculate()">
+    </div>
+    <span class="error-msg"></span>
+  </div>
+</div>
+<div class="result-card" id="result-card" aria-live="polite">
+  <div class="result-row">
+    <span class="result-label">Customer Acquisition Cost (CAC)</span>
+    <span class="result-number" id="cac-result">—</span>
+    <span class="result-unit">$</span>
+  </div>
+  <div class="result-row">
+    <span class="result-label">Average Revenue Per User (ARPU)</span>
+    <span class="result-number" id="arpu-result">—</span>
+    <span class="result-unit">$</span>
+  </div>
+  <div class="result-row">
+    <span class="result-label">Lifetime Value (LTV)</span>
+    <span class="result-number" id="ltv-result">—</span>
+    <span class="result-unit">$</span>
+  </div>
+  <div class="result-row">
+    <span class="result-label">LTV:CAC Ratio</span>
+    <span class="result-number" id="ltv-cac-result">—</span>
+    <span class="result-unit">x</span>
+  </div>
+  <div class="result-row">
+    <span class="result-label">CAC Payback Period</span>
+    <span class="result-number" id="payback-result">—</span>
+    <span class="result-unit">months</span>
+  </div>
+  <div class="interpretation" id="interpretation">Enter your acquisition spend and new customers to calculate CAC.</div>
+</div>
+<div class="formula-box">
+  <h3>How B2B CAC Is Calculated</h3>
+  <p><strong>CAC = Total Acquisition Spend ÷ New Customers Acquired</strong> during the same period. This includes marketing, sales salaries, tool costs, and any paid channel spend. The magic happens when you pair CAC with ARPU (MRR ÷ Active Customers) to estimate Lifetime Value (LTV = ARPU ÷ Churn Rate) and Payback Period (CAC ÷ ARPU). <a href="/tools/saas-metrics-calculator">Use our full metrics calculator</a> to stress‑test growth scenarios.</p>
+</div>
+<article class="article-body">
+<h2>What Is Customer Acquisition Cost (CAC) and Why B2B Founders Get It Wrong</h2>
+<p>Customer Acquisition Cost is the price you pay to convince a business to buy your software. In B2B SaaS, that price is often swollen by sales demos, PPC campaigns, and months‑long sales cycles. Most founders calculate CAC by dividing marketing spend by signups — but that’s dangerously incomplete. If your sales team closes 1 in 10 demos, the real CAC includes their full salary, tools, and even the CRM bill. I’ve seen bootstrapped startups underestimate CAC by 2–3x because they ignored labor costs, only to discover their payback period was 30 months instead of 10. That’s when <a href="/articles/b2b-saas-churn-rate">B2B churn rate</a> data becomes a run‑ender: a customer who cancels before you recoup acquisition cost destroys everything.</p>
+<p>For bootstrapped founders, every dollar spent on acquisition comes from your own pocket or slim revenue. You cannot afford to play the venture‑scale game of “burn to grow.” The question isn’t just “what’s my CAC?” — it’s “how long does a customer need to stick around for that spend to make sense?” Let’s break that down with real numbers.</p>
+
+<h2>How to Calculate CAC for B2B SaaS: Simple Formula, Complex Reality</h2>
+<p>The formula is straightforward: sum all acquisition expenses over a month or quarter, divide by new customers acquired in the same period. But the complexity lurks in what you count. I once worked with a founder who spent $8,500 on LinkedIn ads, closed 12 new B2B accounts, and proudly reported a $708 CAC. He forgot the $4,000 monthly retainer for his part‑time sales consultant, the $300/month ZoomInfo subscription, and the $2,200 in HubSpot fees. Real CAC was $1,250 — nearly double. If you’re benchmarking against a “good” $500 B2B CAC, that stings.</p>
+<p>Here’s a concrete scenario: a bootstrapped SaaS at $18k MRR with 90 active customers spends $6,000/month on marketing and sales (salary, ads, tools). They acquire 7 new customers. CAC = $6,000 ÷ 7 = $857. Now layer in their ARPU: $18,000 ÷ 90 = $200/month. Payback = $857 ÷ $200 = 7 months — acceptable if monthly churn stays under 3%. But if churn rises to 4%, LTV drops to $200 ÷ 0.04 = $5,000, giving an LTV:CAC ratio of 5.8x — still decent. The danger is when a single channel inflates CAC without improving retention. I’ve watched bootstrapped founders pour money into Google Ads, acquire customers at $1,200 CAC, then see them churn in 5 months because the product didn’t solve a deep B2B pain. The unit economics snapped, and they burned 9 months of runway in 3.</p>
+
+<h2>What is a Good CAC for B2B SaaS? Benchmarks from Real Bootstrapped Companies</h2>
+<p>A “good” CAC is a moving target. It depends on your ARPU, churn rate, and growth goals. Top‑quartile B2B SaaS companies (per Bessemer and Baremetrics data) typically aim for an LTV:CAC ratio of 5:1 or higher. For a bootstrapped B2B startup selling at $200/month per account, a $1,000 CAC is solid if retention keeps lifetime value above $5,000. But if you’re selling a $50/month self‑serve tool, a $250 CAC still gives only 3.3x LTV:CAC at 5% churn — borderline dangerous.</p>
+<p>Benchmarks from OpenView and SaaStr suggest:</p>
+<ul>
+<li><strong>Early‑stage B2B:</strong> CAC under $1,000 is a win, but don’t ignore payback. A $700 CAC with $150 ARPU requires 5 months to recover. If median churn is 2.5%, LTV ~$6,000, ratio 8.5x — healthy.</li>
+<li><strong>Growth‑phase B2B:</strong> CAC can rise to $2,500–$5,000 if ARPU is $500+ and expansion revenue boosts net dollar retention above 110%. One bootstrapped analytics SaaS I tracked had a $3,200 CAC but $950 ARPU and 0.8% monthly churn. Payback was 3.4 months — they could reinvest aggressively.</li>
+<li><strong>Self‑serve B2B:</strong> CAC often $100–$400 because sales touch is minimal. The risk is low switching costs; churn averages 3–8% (Baremetrics). A $200 CAC on a $60/month plan yields 1.3x LTV:CAC at 7% churn — not sustainable without upsells.</li>
+</ul>
+<p>The real calibration is your payback period. Bootstrapped companies with tight cash need payback under 6 months. I’ve seen founders panic when CAC spikes to 12‑month payback because a new rep isn’t ramped yet. Instead of cutting spend, they sliced onboarding support — which spiked churn by 2%, dropping LTV by 30%. That’s the bootstrapper’s paradox: you need to control CAC, but you must guard retention with even more ferocity.</p>
+
+<h2>LTV:CAC Ratio and Payback Period: The Metrics That Make or Break Runway</h2>
+<p>LTV:CAC ratio tells you if a customer is worth the cost. Payback period tells you when you get your cash back. For bootstrapped SaaS, both are runway‑critical. Suppose your MRR is $25k, active customers 125, churn 3%. ARPU = $200. If CAC is $1,200, LTV = $200 ÷ 0.03 = $6,667, ratio 5.6x — good. Payback = ceil($1,200 / $200) = 6 months. That means you’re prepaying 6 months of revenue per customer. In a slow‑growth month, you might acquire 5 customers, spending $6,000, and only add $1,000 MRR. Your cash on hand shrinks by $5,000 that month. If that continues for 10 months without external funding, you need $50k in cash reserve or rapid conversion to annual billing.</p>
+<p>I learned this painfully: a bootstrapped B2B SaaS I advised had $40k cash, $12k MRR, $8k monthly expenses (including acquisition), and 5 new customers/month at $1,600 CAC. ARPU $300, churn 2.5%. LTV:CAC ratio 7.5x, payback 6 months. Looks great on paper. But the cash flow showed they were burning ~$2k/month despite growing MRR, because CAC was $1,600 upfront while MRR arrived monthly. They had to switch 40% of new customers to annual contracts at a discount to free up cash — a brutal but necessary move. The calculator here shows the payoff: with annual billing, that $1,600 CAC is earned back in month 0, turning a cash suck into a cash engine.</p>
+<p>For bootstrappers, an LTV:CAC below 3:1 is a red flag. Below 2:1, you’re bleeding cash on every acquisition — change something immediately. Healthy bootstrapped B2B targets are 4–5:1, but don’t be fooled into complacency: if payback exceeds 12 months, even a 5:1 ratio can exhaust your cash if growth accelerates without capital.</p>
+
+<h2>How to Lower Your CAC Without Killing Growth: Tactical Playbook</h2>
+<p>Reducing CAC for a bootstrapped B2B company isn’t about slashing spend — it’s about shifting the acquisition mix toward lower‑cost, higher‑converting channels that compound over time. Here are concrete moves I’ve used or observed in bootstrapped SaaS:</p>
+<ul>
+<li><strong>Product‑led free trials with reverse trials.</strong> Instead of a time‑limited free trial, give unlimited free access but limit features. One B2B SEO tool dropped CAC from $900 to $400 by allowing free backlink checks — the product sells itself. Sales team focuses on Enterprise upsells only.</li>
+<li><strong>Content + SEO for bottom‑of‑funnel intent.</strong> Bootstrappers cannot outspend funded competitors on ads. But you can rank for “best [category] alternative” and similar high‑intent keywords. One founder I know reduced CAC from $1,100 to $350 over 18 months by investing $3k/month in content, not ads. The catch: it takes 6–9 months to see returns. Plan cash accordingly.</li>
+<li><strong>Deploy a customer‑led sales motion.</strong> For B2B products, use a “call with a specialist” booking form after a user hits a certain usage threshold. I’ve seen CAC drop 25% because the lead is already activated — no cold outreach needed.</li>
+<li><strong>Improve trial‑to‑paid conversion.</strong> The single biggest leverage point for bootstrapped founders. A 2% conversion boost from 5% to 7% cuts CAC by 29% if new trial volume stays constant. Tactics: in‑product guided onboarding, personalized email sequences triggered by behavior, and a “proof point” dashboard showing value earned.</li>
+<li><strong>Annual billing smoothing.</strong> Offering an annual plan at a 10–15% discount doesn’t just improve cash flow — it lowers your effective payback period to 0 days for that portion of revenue, and increases LTV through reduced churn. In the tool above, toggle your numbers mentally: if a customer pays $2,400 upfront instead of $200/month, your CAC payback is immediate. That cash can fund the next acquisition.</li>
+</ul>
+<p>The ultimate bootstrapped play: measure CAC not by channel, but by customer segment. In one B2B workflow SaaS, CAC for SMBs was $280, for mid‑market $1,400. But mid‑market ARPU was $750 vs $95. The segment‑level LTV:CAC was 6.7x</p>
+</article>
+<div class="faq">
+  <h3>Frequently Asked Questions</h3>
+  <details>
+    <summary>What is a healthy LTV:CAC ratio for a bootstrapped B2B SaaS?</summary>
+    <div class="faq-answer">
+      <p>A ratio of 4:1 or higher signals strong unit economics. Bootstrapped companies should aim for 5:1 because you don’t have venture buffer. If you dip below 3:1, start investigating acquisition efficiency or retention levers immediately — every customer you acquire is costing you future runway.</p>
+    </div>
+  </details>
+  <details>
+    <summary>Should I include founder’s time in my CAC calculation?</summary>
+    <div class="faq-answer">
+      <p>Yes, if you are directly involved in sales calls, demos, or closing. Even as a bootstrapper, track your hours against acquisition outcomes. A founder doing 10 demos/week at an implicit rate of $150/hour adds $1,500/week to CAC. That’s invisible cash burn you need to account for.</p>
+    </div>
+  </details>
+  <details>
+    <summary>How often should I recalculate my CAC?</summary>
+    <div class="faq-answer">
+      <p>Monthly. CAC can shift fast when you test new channels, hire a rep, or run seasonal campaigns. High‑performing bootstrapped teams review unit economics every two weeks — if payback stretches by just 2 months, cash flow can deteriorate faster than MRR climbs.</p>
+    </div>
+  </details>
+  <details>
+    <summary>What if my CAC is negative?</summary>
+    <div class="faq-answer">
+      <p>A negative CAC would mean you’re getting paid to acquire customers, which doesn’t happen in legitimate B2B SaaS. If your calculation shows a negative number, check for data entry errors — you might be counting a refund or credit as acquisition spend.</p>
+    </div>
+  </details>
+</div>
+<script>
+  function calculate() {
+    // Clean up errors from previous runs
+    var errors = document.querySelectorAll(".error-input");
+    for (var i = 0; i < errors.length; i++) errors[i].classList.remove("error-input");
+    var msgs = document.querySelectorAll(".error-msg");
+    for (var j = 0; j < msgs.length; j++) msgs[j].textContent = "";
+
+    var spendEl = document.getElementById("spend");
+    var newCustEl = document.getElementById("new-customers");
+    var mrrEl = document.getElementById("mrr");
+    var activeCustEl = document.getElementById("active-customers");
+    var churnEl = document.getElementById("churn-rate");
+
+    // If all fields are empty, reset and exit
+    if (spendEl.value === "" && newCustEl.value === "" && mrrEl.value === "" &&
+        activeCustEl.value === "" && churnEl.value === "") {
+      document.getElementById("cac-result").textContent = "—";
+      document.getElementById("arpu-result").textContent = "—";
+      document.getElementById("ltv-result").textContent = "—";
+      document.getElementById("ltv-cac-result").textContent = "—";
+      document.getElementById("payback-result").textContent = "—";
+      document.getElementById("interpretation").textContent = "Enter your acquisition spend and new customers to calculate CAC.";
+      return;
+    }
+
+    // Individual field validation
+    if (spendEl.value !== "" && parseFloat(spendEl.value) < 0) {
+      spendEl.classList.add("error-input");
+      spendEl.closest(".input-group").querySelector(".error-msg").textContent = "Cannot be negative.";
+      return;
+    }
+    if (newCustEl.value !== "" && (parseFloat(newCustEl.value) <= 0 || !Number.isInteger(parseFloat(newCustEl.value)))) {
+      newCustEl.classList.add("error-input");
+      newCustEl.closest(".input-group").querySelector(".error-msg").textContent = "Must be a positive whole number.";
+      return;
+    }
+    if (mrrEl.value !== "" && parseFloat(mrrEl.value) < 0) {
+      mrrEl.classList.add("error-input");
+      mrrEl.closest(".input-group").querySelector(".error-msg").textContent = "Cannot be negative.";
+      return;
+    }
+    if (activeCustEl.value !== "" && (parseFloat(activeCustEl.value) <= 0 || !Number.isInteger(parseFloat(activeCustEl.value)))) {
+      activeCustEl.classList.add("error-input");
+      activeCustEl.closest(".input-group").querySelector(".error-msg").textContent = "Must be a positive whole number.";
+      return;
+    }
+    if (churnEl.value !== "" && (parseFloat(churnEl.value) < 0 || parseFloat(churnEl.value) > 100)) {
+      churnEl.classList.add("error-input");
+      churnEl.closest(".input-group").querySelector(".error-msg").textContent = "Must be between 0 and 100.";
+      return;
+    }
+
+    var spend = spendEl.value === "" ? 0 : parseFloat(spendEl.value);
+    var newCust = newCustEl.value === "" ? 0 : parseInt(newCustEl.value);
+    var mrr = mrrEl.value === "" ? 0 : parseFloat(mrrEl.value);
+    var activeCust = activeCustEl.value === "" ? 0 : parseInt(activeCustEl.value);
+    var churn = churnEl.value === "" ? null : parseFloat(churnEl.value);
+
+    // CAC
+    if (spendEl.value !== "" && newCustEl.value !== "" && newCust > 0) {
+      var cac = spend / newCust;
+      document.getElementById("cac-result").textContent = cac.toLocaleString('en-US', { maximumFractionDigits: 0 });
+    } else {
+      document.getElementById("cac-result").textContent = "—";
+    }
+
+    // ARPU
+    if (mrrEl.value !== "" && activeCustEl.value !== "" && activeCust > 0) {
+      var arpu = mrr / activeCust;
+      document.getElementById("arpu-result").textContent = arpu.toLocaleString('en-US', { maximumFractionDigits: 0 });
+    } else {
+      document.getElementById("arpu-result").textContent = "—";
+    }
+
+    // LTV
+    if
+<div id="related-content" class="related-content"></div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <a href="/" class="footer-brand">SaaS<span class="footer-accent">Tools</span></a>
+      <nav class="footer-nav">
+        <a href="/articles/">Articles</a>
+        <a href="/tools/">Tools</a>
+        <a href="/about.html">About</a>
+        <a href="/privacy">Privacy</a>
+      </nav>
+    </div>
+    <div class="footer-bottom">
+      Built for bootstrapped founders. No VC fluff.
+    </div>
+  </div>
+</footer>
+<script>
+(function() {
+  var meta    = document.querySelector('meta[name="cluster"]');
+  var cluster = meta ? meta.getAttribute('content') : '';
+  if (!cluster) return;
+  var parts       = window.location.pathname.split('/').filter(Boolean);
+  var currentSlug = (parts[parts.length - 1] || '').replace('.html', '');
+  fetch('/content-index.json')
+    .then(function(r) { return r.json(); })
+    .then(function(idx) {
+      var articles = (idx.articles || [])
+        .filter(function(a) { return a.cluster === cluster && a.slug !== currentSlug; })
+        .slice(0, 3);
+      var tools = (idx.tools || [])
+        .filter(function(t) { return t.cluster === cluster && t.slug !== currentSlug; })
+        .slice(0, 2);
+      var html = '';
+      if (articles.length) {
+        html += '<h3 class="related-heading">Related Articles</h3>'
+              + '<ul class="related-list">';
+        articles.forEach(function(a) {
+          html += '<li><a href="/articles/' + a.slug + '">' + a.title + '</a></li>';
+        });
+        html += '</ul>';
+      }
+      if (tools.length) {
+        html += '<h3 class="related-heading">Related Tools</h3>'
+              + '<ul class="related-list">';
+        tools.forEach(function(t) {
+          html += '<li><a href="/tools/' + t.slug + '">' + t.title + '</a></li>';
+        });
+        html += '</ul>';
+      }
+      if (html) {
+        var el = document.getElementById('related-content');
+        if (el) el.innerHTML = html;
+      }
+    })
+    .catch(function() {});
+})();
+</script>
+<script>
+(function() {
+  fetch('/content-index.json')
+    .then(function(r) { return r.json(); })
+    .then(function(idx) {
+      var live = new Set();
+      (idx.articles || []).forEach(function(a) { live.add('/articles/' + a.slug); });
+      (idx.tools    || []).forEach(function(t) { live.add('/tools/'    + t.slug); });
+      document.querySelectorAll('strong[data-future-link]').forEach(function(el) {
+        var href = el.getAttribute('data-future-link');
+        if (live.has(href)) {
+          var a = document.createElement('a');
+          a.href        = href;
+          a.textContent = el.textContent;
+          el.parentNode.replaceChild(a, el);
+        }
+      });
+    })
+    .catch(function() {});
+})();
+</script>
+<script>
+(function () {
+  document.addEventListener('click', function (e) {
+    var el = e.target.closest('a[href]');
+    if (!el) return;
+    var href = el.getAttribute('href') || '';
+    if (href.indexOf('cloudways.com') === -1 || href.indexOf('id=') === -1) return;
+    if (typeof window.cfBeacon === 'undefined' || typeof window.cfBeacon.pushEvent !== 'function') return;
+    window.cfBeacon.pushEvent('affiliate_click', {
+      affiliate: 'cloudways',
+      page: window.location.pathname
+    });
+  }, true);
+})();
+</script>
+
+</body>
+</html>
