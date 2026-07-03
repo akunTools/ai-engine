@@ -237,6 +237,13 @@
       "cluster": "saas-churn-retention",
       "date": "2026-07-01",
       "excerpt": "Most founders track the wrong retention metrics. Learn which SaaS customer retention metrics actually predict runway health, with formulas, benchmarks, and tracking rituals."
+    },
+    {
+      "slug": "saas-customer-retention-strategies",
+      "title": "SaaS Customer Retention Strategies That Actually Protect Your Runway (Not Just Your MRR)",
+      "cluster": "saas-churn-retention",
+      "date": "2026-07-03",
+      "excerpt": "Discover 4 non-obvious SaaS customer retention strategies bootstrapped founders use to stop MRR bleed, boost NRR, and extend runway by months\u2014without a big team. Real tactics, real outcomes."
     }
   ],
   "tools": [
