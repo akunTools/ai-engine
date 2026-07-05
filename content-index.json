@@ -244,6 +244,13 @@
       "cluster": "saas-churn-retention",
       "date": "2026-07-03",
       "excerpt": "Discover 4 non-obvious SaaS customer retention strategies bootstrapped founders use to stop MRR bleed, boost NRR, and extend runway by months\u2014without a big team. Real tactics, real outcomes."
+    },
+    {
+      "slug": "saas-customer-retention",
+      "title": "SaaS Customer Retention: The Bootstrapped Founder's Guide to MRR That Stays (And Runway That Survives)",
+      "cluster": "saas-churn-retention",
+      "date": "2026-07-05",
+      "excerpt": "SaaS customer retention is the silent runway killer. Discover the formula, see 12-month compounding, and benchmark your rate against real data."
     }
   ],
   "tools": [
