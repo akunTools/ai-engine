@@ -251,6 +251,13 @@
       "cluster": "saas-churn-retention",
       "date": "2026-07-05",
       "excerpt": "SaaS customer retention is the silent runway killer. Discover the formula, see 12-month compounding, and benchmark your rate against real data."
+    },
+    {
+      "slug": "saas-customer-retention-rate",
+      "title": "Will Your SaaS Customer Retention Rate Survive Scaling? A Bootstrapped Founder\u2019s Data\u2011Driven Playbook",
+      "cluster": "saas-churn-retention",
+      "date": "2026-07-07",
+      "excerpt": "Bootstrapped founders, crack the SaaS retention code: benchmark tiers, churn formulas, and four high\u2011impact tactics that can add $10\u201130K\u202f/\u202fmo to your runway."
     }
   ],
   "tools": [
