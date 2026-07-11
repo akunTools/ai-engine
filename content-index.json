@@ -265,6 +265,13 @@
       "cluster": "saas-churn-retention",
       "date": "2026-07-09",
       "excerpt": "Discover how tracking a 4\u2011year SaaS customer retention horizon reshapes runway forecasts, spot warning signs, and apply proven tactics to keep revenue flowing for bootstrapped founders."
+    },
+    {
+      "slug": "good-churn-rate-for-saas",
+      "title": "What Is a Good Churn Rate for SaaS? A Bootstrapped Founder\u2019s Guide",
+      "cluster": "saas-churn-retention",
+      "date": "2026-07-11",
+      "excerpt": "Discover what a good churn rate really looks like for bootstrapped SaaS, how to benchmark it by stage, calculate it fast, and apply four high\u2011impact tactics to stop MRR bleed."
     }
   ],
   "tools": [
