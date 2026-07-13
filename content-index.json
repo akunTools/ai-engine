@@ -272,6 +272,13 @@
       "cluster": "saas-churn-retention",
       "date": "2026-07-11",
       "excerpt": "Discover what a good churn rate really looks like for bootstrapped SaaS, how to benchmark it by stage, calculate it fast, and apply four high\u2011impact tactics to stop MRR bleed."
+    },
+    {
+      "slug": "reduce-saas-churn-6-years",
+      "title": "How Can You Reduce SaaS Churn Over Six Years and Keep Your Runway Intact?",
+      "cluster": "saas-churn-retention",
+      "date": "2026-07-13",
+      "excerpt": "Learn a six-year SaaS churn-reduction roadmap for bootstrapped founders. Cut churn, protect runway, and grow confidently."
     }
   ],
   "tools": [
