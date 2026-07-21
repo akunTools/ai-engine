@@ -300,6 +300,13 @@
       "cluster": "saas-churn-retention",
       "date": "2026-07-19",
       "excerpt": "Bootstrapped SaaS founders learn a data\u2011driven churn\u2011prevention framework, benchmark tables, and proven tactics to protect MRR and extend runway."
+    },
+    {
+      "slug": "normal-churn-rate-for-saas",
+      "title": "What\u2019s a Normal Churn Rate for SaaS Companies and How It Impacts Your Runway?",
+      "cluster": "saas-churn-retention",
+      "date": "2026-07-21",
+      "excerpt": "Discover the true range of a normal SaaS churn rate, see how it eats your runway, and get stage-specific tactics to keep churn under control."
     }
   ],
   "tools": [
