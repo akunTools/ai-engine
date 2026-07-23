@@ -316,6 +316,30 @@
     margin: 56px 0;
   }
 
+  /* Alert Boxes */
+  .alert-danger {
+    background-color: var(--danger-bg);
+    border-left: 4px solid var(--danger);
+    padding: 1rem;
+    margin: 1.5rem 0;
+  }
+  .alert-info {
+    background-color: var(--accent-light);
+    border-left: 4px solid var(--accent);
+    padding: 1rem;
+    margin: 1.5rem 0;
+  }
+  .formula-highlight {
+    background: #f3f4f6;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    font-family: monospace;
+    text-align: center;
+    font-size: 1.1rem;
+  }
+
   /* Affiliate Box khusus untuk Artikel */
   .affiliate-box {
     background: var(--success-bg);
@@ -557,8 +581,8 @@
     "@type": "Article",
     "headline": "Does a Churn Prevention SaaS Application Actually Reduce Churn? The Bootstrapped Founder’s Evidence Check",
     "description": "Does churn prevention SaaS actually reduce churn? Real ROI, case results, and failure points for bootstrapped founders. Check the math before subscribing.",
-    "datePublished": "2026-06-11",
-    "dateModified": "2026-06-11",
+    "datePublished": "2026-07-23",
+    "dateModified": "2026-07-23",
     "url": "https://saastools.corenk.com/articles/does-churn-prevention-saas-application",
     "image": {
       "@type": "ImageObject",
@@ -614,7 +638,7 @@
           <line x1="8" y1="2" x2="8" y2="6"/>
           <line x1="3" y1="10" x2="21" y2="10"/>
         </svg>
-        June 11, 2026
+        July 23, 2026
       </span>
       <span class="article-header__meta-sep">·</span>
       <span>
@@ -624,7 +648,7 @@
           <circle cx="12" cy="12" r="10"/>
           <polyline points="12 6 12 12 16 14"/>
         </svg>
-        12 min read
+        13 min read
       </span>
       
     </div>
@@ -739,6 +763,15 @@
     <span style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;background:#1e2b37;color:#fff;border-radius:50%;font-weight:bold;font-size:1rem;flex-shrink:0;margin-right:1rem;">3</span>
     <div><strong>Automate involuntary churn recovery ruthlessly.</strong>
     <p style="margin:0.5rem 0 0;">Failed payments and expired cards are the low‑hanging fruit that a churn prevention SaaS application handles better than any human. Set up dunning sequences with smart retry logic—retry at 3, 5, and 7 days, not daily. Pre‑emptively email customers whose cards expire within the next month. ProfitWell’s data shows that recovering even 25% of involuntary churn can add 1–2 percentage points to net revenue retention. For a $15K MRR business, that’s an extra $150–$300/month in cash you never had to sell.</p></div>
+    <div class="alert-info">
+  <strong>FOUNDER INSIGHT: Decline Codes Drive Recovery Strategy</strong><br>
+  Before you implement that retry schedule, check Stripe's decline code for each failed payment:
+  <ul style="margin-top:8px;">
+    <li><strong>insufficient_funds</strong> — recoverable with retry timing. Retry near payday (1st or 15th), NOT every 3 days. Empty account on the 3rd is still empty on the 6th.</li>
+    <li><strong>authentication_required</strong> — 3DS failure. Automated retries recover near zero here. The customer must actively approve the charge through a 3DS challenge. Send a personal email with a direct approval link — recovery rate can reach 60-70%.</li>
+    <li><strong>stolen_card / fraudulent</strong> — STOP retrying. Continued retries against flagged cards generate chargebacks and damage Stripe account health.</li>
+  </ul>
+</div>
   </li>
   <li style="display:flex;align-items:flex-start;margin-bottom:1.5rem;">
     <span style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;background:#1e2b37;color:#fff;border-radius:50%;font-weight:bold;font-size:1rem;flex-shrink:0;margin-right:1rem;">4</span>
