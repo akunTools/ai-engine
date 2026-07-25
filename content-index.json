@@ -307,6 +307,13 @@
       "cluster": "saas-churn-retention",
       "date": "2026-07-21",
       "excerpt": "Discover the true range of a normal SaaS churn rate, see how it eats your runway, and get stage-specific tactics to keep churn under control."
+    },
+    {
+      "slug": "saas-retention-rate-benchmark",
+      "title": "How Bootstrapped Founders Can Benchmark SaaS Retention Rates to Protect Runway",
+      "cluster": "saas-churn-retention",
+      "date": "2026-07-25",
+      "excerpt": "Learn precise SaaS retention rate benchmarks by market tier, calculate your own metric, and apply proven tactics that stop MRR bleed and extend runway."
     }
   ],
   "tools": [
