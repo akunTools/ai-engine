@@ -328,6 +328,13 @@
       "cluster": "saas-churn-retention",
       "date": "2026-07-29",
       "excerpt": "Learn to compute SaaS retention rate, see benchmark tiers, and apply four battle\u2011tested tactics that keep MRR alive and runway safe."
+    },
+    {
+      "slug": "saas-retention-rate",
+      "title": "Will Your SaaS Retention Rate Survive Scaling? A Bootstrapped Founder\u2019s Data\u2011Driven Playbook",
+      "cluster": "saas-churn-retention",
+      "date": "2026-07-31",
+      "excerpt": "Bootstrapped SaaS founders forecast retention with cohort analysis, see churn\u2019s runway impact, and unlock tactics that protect cash flow."
     }
   ],
   "tools": [
