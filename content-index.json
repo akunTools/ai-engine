@@ -356,6 +356,13 @@
       "cluster": "saas-churn-retention",
       "date": "2026-08-05",
       "excerpt": "Wondering if your SaaS churn rate is good or bad? Learn how churn erodes runway, benchmark it, and flip the script with our step-by-step guide."
+    },
+    {
+      "slug": "how-to-calculate-saas-churn-rate",
+      "title": "How to Calculate SaaS Churn Rate: A Bootstrapped Founder\u2019s Step-by-Step Runway Protection Guide",
+      "cluster": "saas-churn-retention",
+      "date": "2026-08-07",
+      "excerpt": "Learn how to calculate SaaS churn rate\u2014logo churn, MRR churn, net churn\u2014with real numbers, common mistakes, and how it affects your bootstrapped runway."
     }
   ],
   "tools": [
