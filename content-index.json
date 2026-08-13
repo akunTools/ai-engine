@@ -377,6 +377,13 @@
       "cluster": "saas-churn-retention",
       "date": "2026-08-11",
       "excerpt": "Slash SaaS churn in 48 hours with this rapid-action playbook for bootstrapped founders. Recover lost MRR, fix payment failures, and extend your runway now."
+    },
+    {
+      "slug": "reduce-saas-churn-3-months",
+      "title": "Reduce SaaS Churn 3 Months: The Bootstrapped Founder\u2019s Runway\u2011Rescue Playbook",
+      "cluster": "saas-churn-retention",
+      "date": "2026-08-13",
+      "excerpt": "Reduce SaaS churn in 3 months: diagnostic formulas, involuntary payment fixes, and retention rituals that saved a bootstrapped founder $994/month."
     }
   ],
   "tools": [
